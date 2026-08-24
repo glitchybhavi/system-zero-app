@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ☀️ LIGHT MODE: Stripe/Engineering Vibe */
+    --bg-base: #F6F9FC;
+    --bg-card: #FFFFFF;
+    --text-main: #0A2540;
+    --text-muted: #4F566B;
+    --accent-primary: #FF8A00; 
+    --accent-secondary: #89CFF0;
+    --border-color: rgba(10, 37, 64, 0.08);
+  }
+
+  .dark {
+    /* 🌙 DARK MODE: Deep Tech / Cyber Vibe */
+    --bg-base: #0B0F19;
+    --bg-card: #131B2B;
+    --text-main: #E2E8F0;
+    --text-muted: #8B949E;
+    --accent-primary: #5D5FEF; 
+    --accent-secondary: #00E5FF;
+    --border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  html, body {
+    @apply bg-background text-textMain antialiased;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    overflow-x: clip;
+  }
+}

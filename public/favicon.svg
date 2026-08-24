@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none">
+  <!-- Orange Squircle Background matching the reference image -->
+  <rect width="64" height="64" rx="16" fill="#FF8000"/>
+
+  <!-- Inner Terminal Window Rounded Square -->
+  <rect x="17" y="17" width="30" height="30" rx="6" stroke="#FFFFFF" stroke-width="3.5" fill="none"/>
+
+  <!-- Prompt Chevron '>' -->
+  <path d="M23 27 L28 32 L23 37" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Prompt Cursor '_' -->
+  <line x1="31" y1="37" x2="38" y2="37" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+</svg>
