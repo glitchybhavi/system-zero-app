@@ -6,6 +6,7 @@ import OsVisualizer from './OsVisualizer';
 import IdeView from './IdeView';
 import CurriculumCards from './CurriculumCards';
 import Footer from './Footer';
+import Content from './Content';
 
 export default function LandingPage() {
   return (
@@ -13,6 +14,7 @@ export default function LandingPage() {
       <Navbar />
       <main>
         <Hero3D />
+        <Content />
         <HardwareScroll />
         <OsVisualizer />
         <CurriculumCards />
