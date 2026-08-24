@@ -1,13 +1,12 @@
-import './Footer.css';
+import './styles/Footer.css';
 
 export default function Footer() {
   return (
-    <footer className="modern-footer">
-      {/* Top Section */}
-      <div className="footer-top-tier">
-        <div className="footer-brand-container">
-          <h2 className="footer-brand-statement">Execute the theory.</h2>
-          <p className="footer-brand-desc">
+    <footer className="footer">
+      <div className="footer-top-section">
+        <div className="footer-project-container">
+          <h2 className="footer-project-statement">Execute the theory.</h2>
+          <p className="footer-project-desc">
             Bridging the intuition gap in computer science education. Watch the machine think.
           </p>
         </div>
@@ -28,12 +27,12 @@ export default function Footer() {
       </div>
 
       {/* Middle Section (Overlapping Watermark Typography) */}
-      <div className="footer-middle-tier">
+      <div className="footer-middle-section">
         <h1>System Zero</h1>
       </div>
 
       {/* Bottom Section */}
-      <div className="footer-bottom-tier">
+      <div className="footer-bottom-section">
         <div className="footer-logo">
           © 2026 System Zero
         </div>

@@ -272,7 +272,7 @@ export default function HardwareScroll() {
   ];
 
   return (
-    <section ref={containerRef} className="relative h-[105vh] bg-background border-t border-borderLine">
+    <section ref={containerRef} className="relative h-[105vh] bg-background">
       <div className="sticky top-0 h-screen w-full flex items-center overflow-hidden">
         <div className="w-full md:w-1/2 px-10 md:px-20 z-10">
           <div className="max-w-md">

@@ -1,13 +1,10 @@
-/* ==========================================================================
-   CONTENT — scroll morph reveal (Ultra-Luxury & Modern Edition)
-   ========================================================================== */
-
 .scroll-morph-container {
   position: relative;
-  height: 450vh;
+  height: 650vh;
   width: 100%;
   z-index: 2;
-  background: radial-gradient(120% 100% at 50% 50%, #FAFBFC 0%, #F1F5F9 55%, #E2E8F0 100%);
+  background-color: var(--bg-base);
+  background-image: radial-gradient(120% 100% at 50% 50%, #FAFBFC 0%, var(--bg-base) 100%);
   transition: background 0.4s ease;
 }
 
@@ -21,16 +18,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(120% 100% at 50% 50%, #FAFBFC 0%, #F1F5F9 55%, #E2E8F0 100%);
+  background-color: var(--bg-base);
+  background-image: radial-gradient(120% 100% at 50% 50%, #FAFBFC 0%, var(--bg-base) 100%);
   transition: background 0.4s ease;
 }
 
 .dark .scroll-morph-container,
 .dark .sticky-content {
-  background: radial-gradient(120% 100% at 50% 45%, #0B1120 0%, #070B14 55%, #030509 100%);
+  background-color: var(--bg-base);
+  background-image: 
+    radial-gradient(ellipse 70% 45% at 50% 50%, rgba(30, 41, 89, 0.35) 0%, transparent 80%),
+    radial-gradient(circle at 50% 100%, rgba(14, 165, 233, 0.08) 0%, transparent 60%);
 }
 
-/* Subtle, refined atmospheric luminous aura */
 .ambient-bg {
   --bg-opacity: 0;
   --bg-y: 0px;
@@ -54,14 +54,13 @@
 
 .dark .ambient-bg {
   background: 
-    radial-gradient(circle at 50% 45%, rgba(93, 95, 239, 0.28), transparent 45%),
-    radial-gradient(circle at 68% 55%, rgba(0, 229, 255, 0.22), transparent 50%),
-    radial-gradient(circle at 42% 65%, rgba(236, 72, 153, 0.16), transparent 55%);
+    radial-gradient(ellipse 60% 45% at 50% 45%, rgba(99, 102, 241, 0.18), transparent 60%),
+    radial-gradient(circle at 75% 60%, rgba(6, 182, 212, 0.12), transparent 50%),
+    radial-gradient(circle at 25% 60%, rgba(217, 70, 239, 0.08), transparent 50%);
   filter: blur(140px);
   mix-blend-mode: screen;
 }
 
-/* Luxury Telemetry Badge */
 .morph-badge {
   display: inline-flex;
   align-items: center;
@@ -102,7 +101,6 @@
   box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
 }
 
-/* Text elements driven by CSS custom properties */
 .morph-text {
   --opacity: 0;
   --translateY: 0px;
