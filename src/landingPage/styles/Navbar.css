@@ -219,7 +219,9 @@
   top: 4rem;
   left: 0;
   width: 100%;
-  background-color: #F6F9FC;
+  background-color: rgba(246, 249, 252, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   overflow: hidden;
   max-height: 0;
   opacity: 0;
@@ -232,7 +234,7 @@
 }
 
 .dark .navbar-dropdown {
-  background-color: #0d0e12;
+  background-color: rgba(13, 14, 18, 0.85);
 }
 
 .navbar-dropdown.is-open {

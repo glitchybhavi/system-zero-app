@@ -164,7 +164,7 @@ export default function Content() {
           <h2>
             You are in the right place.
             <br />
-            Welcome to
+       
           </h2>
         </div>
 
