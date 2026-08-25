@@ -132,7 +132,7 @@ export default function IdeView() {
         container.removeChild(renderer.domElement);
       }
       renderer.dispose();
-      
+
       scene.traverse((object) => {
         if (object.isMesh || object.isLine) {
           object.geometry.dispose();
@@ -149,7 +149,7 @@ export default function IdeView() {
 
   return (
     <section className="min-h-screen pt-4 pb-24 bg-background relative z-10">
-      
+
       {/* UPDATED HEADER: Matches CurriculumCards styling perfectly */}
       <div className="max-w-7xl mx-auto px-6 mb-16 text-center">
         <span className="font-mono text-primary font-bold tracking-widest text-sm mb-4 block uppercase">

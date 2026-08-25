@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { ThemeProvider } from './context/ThemeContext';
 import LandingPage from './landingPage/LandingPage';
 import SimulationPage from './bootSystem/SimulationPage';
+import NotFound from './notFound/NotFound';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -26,6 +27,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/simulation" element={<SimulationPage />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
       </div>
