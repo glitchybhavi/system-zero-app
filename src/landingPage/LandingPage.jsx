@@ -11,35 +11,35 @@ import CurriculumCards from './CurriculumCards';
 import Footer from './Footer';
 
 export default function LandingPage() {
-  useEffect(() => {
-    const lenis = new Lenis({
-      lerp: 0.1,
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      wheelMultiplier: 1.0,
-      syncTouch: false,
-    });
+  // useEffect(() => {
+  //   const lenis = new Lenis({
+  //     lerp: 0.1,
+  //     orientation: 'vertical',
+  //     gestureOrientation: 'vertical',
+  //     smoothWheel: true,
+  //     wheelMultiplier: 1.0,
+  //     syncTouch: false,
+  //   });
 
-    let rafId;
-    function raf(time) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-    rafId = requestAnimationFrame(raf);
+  //   let rafId;
+  //   function raf(time) {
+  //     lenis.raf(time);
+  //     rafId = requestAnimationFrame(raf);
+  //   }
+  //   rafId = requestAnimationFrame(raf);
 
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-    };
-  }, []);
+  //   return () => {
+  //     cancelAnimationFrame(rafId);
+  //     lenis.destroy();
+  //   };
+  // }, []);
 
   return (
     <>
       <Navbar />
       <main>
         <Hero3D />
-        <Content />
+        {/* <Content /> */}
         <HardwareScroll />
         <OsVisualizer />
         <CurriculumCards />

@@ -44,15 +44,9 @@ export default function CurriculumCards() {
                   </span>
                 </div>
 
-                <div className="card-phase-badge-wrapper">
-                  <span className="card-phase-badge">
-                    Phase {card.type === 'arch' ? '01' : '02'}
-                  </span>
-                </div>
-                
                 <div className="card-collapsed-text-wrapper">
                   <span className="card-collapsed-text">
-                    PHASE {card.type === 'arch' ? '1' : '2'}
+                    {card.type === 'arch' ? 'Hardware' : 'Software'}
                   </span>
                 </div>
               </div>
