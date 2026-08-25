@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { motion } from 'framer-motion';
-import { Calculator, Code, Cpu, Play, RotateCcw, Info, Zap } from 'lucide-react';
+import { Calculator, Code, Cpu, Play, RotateCcw, Info, Zap, Layers } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export default function CpuAlu() {
@@ -528,20 +528,87 @@ export default function CpuAlu() {
       {/* 2. SCROLLING CONTENT LAYER: Stacks normal screens on top of the sticky background */}
       <div className="relative z-10 w-full flex flex-col pointer-events-none -mt-[100vh]">
         
-        {/* Screen 1: ALU Intro */}
-        <div className="h-screen w-full flex items-center justify-start px-6 md:px-20 max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ margin: "-20% 0px -20% 0px" }} className={`${glassPanelClass} w-full max-w-md`}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-primary/20 rounded-lg">
-                <Info size={20} className="text-primary" />
-              </div>
-              <h3 className="font-mono font-bold text-xl text-textMain drop-shadow-md dark:drop-shadow-none">4-Bit ALU Core</h3>
+        {/* Screen 1: ALU Comprehensive Architectural Intro */}
+        <div className="h-screen w-full flex items-center justify-start px-6 md:px-16 max-w-7xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }} 
+            whileInView={{ opacity: 1, x: 0 }} 
+            viewport={{ margin: "-20% 0px -20% 0px" }} 
+            className={`${glassPanelClass} w-full max-w-xl space-y-4`}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-borderLine pb-3">
+              <span className="font-mono text-primary font-bold text-xs uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+                [ PHASE 01 : EXECUTION & LOGIC ENGINE ]
+              </span>
+              <span className="text-[11px] font-mono text-textMuted">
+                SUBSYSTEM: 4-BIT ALU
+              </span>
             </div>
-            <p className="text-sm text-textMuted leading-relaxed mb-4">
-              The Arithmetic Logic Unit is the mathematical engine of the processor. Watch signals travel across PCB traces into the V-shaped core and illuminate internal logic gates during computation.
-            </p>
-            <div className="flex items-center gap-2 text-xs font-mono text-primary bg-primary/10 p-2.5 rounded-lg border border-primary/20">
-              <Zap size={14} /> Scroll down to test Arithmetic and Bitwise operations.
+
+            <div className="space-y-1.5">
+              <h3 className="text-2xl md:text-3xl font-bold text-textMain tracking-tight">
+                The Arithmetic Logic Unit: <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-pink-500">Silicon Computation.</span>
+              </h3>
+              <p className="text-xs md:text-sm text-textMuted leading-relaxed">
+                With the register file established to buffer data, the CPU activates its central execution engine. The ALU performs all fundamental mathematical additions, subtractions, and boolean transformations.
+              </p>
+            </div>
+
+            {/* Educational Insight Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div className="p-3.5 rounded-xl bg-background/60 border border-borderLine space-y-1.5">
+                <div className="text-[11px] font-mono font-bold text-primary flex items-center gap-1.5">
+                  <Layers size={13} /> COMBINATIONAL GATES & PROPAGATION
+                </div>
+                <p className="text-[11px] text-textMuted leading-relaxed">
+                  Logic circuits (AND, OR, Full Adders) settle electrical voltages in nanoseconds, propagating carry bits across high-speed bus lines.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-background/60 border border-borderLine space-y-1.5">
+                <div className="text-[11px] font-mono font-bold text-secondary flex items-center gap-1.5">
+                  <Zap size={13} /> ARITHMETIC VS BITWISE LOGIC
+                </div>
+                <p className="text-[11px] text-textMuted leading-relaxed">
+                  Distinguishes math operations with carry/borrow flags (<span className="text-[#00f2fe] font-mono">ADD</span>, <span className="text-[#ff007f] font-mono">SUB</span>) from bitwise bit-manipulation masks (<span className="text-[#8b5cf6] font-mono">AND</span>, <span className="text-[#ffd700] font-mono">XOR</span>).
+                </p>
+              </div>
+            </div>
+
+            {/* Interactive Operations Roadmap */}
+            <div className="pt-1">
+              <div className="text-[11px] font-mono text-textMuted mb-1.5">SUPPORTED ALU OPERATION SUITE:</div>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-center font-mono text-xs">
+                <div className="p-1.5 rounded-lg bg-[#00f2fe]/10 border border-[#00f2fe]/30 text-[#00f2fe]">
+                  <div className="font-bold text-[11px]">ADD</div>
+                  <div className="text-[9px] opacity-80">Sum</div>
+                </div>
+                <div className="p-1.5 rounded-lg bg-[#ff007f]/10 border border-[#ff007f]/30 text-[#ff007f]">
+                  <div className="font-bold text-[11px]">SUB</div>
+                  <div className="text-[9px] opacity-80">Diff</div>
+                </div>
+                <div className="p-1.5 rounded-lg bg-[#1fd655]/10 border border-[#1fd655]/30 text-[#1fd655]">
+                  <div className="font-bold text-[11px]">INC</div>
+                  <div className="text-[9px] opacity-80">A + 1</div>
+                </div>
+                <div className="p-1.5 rounded-lg bg-[#8b5cf6]/10 border border-[#8b5cf6]/30 text-[#8b5cf6]">
+                  <div className="font-bold text-[11px]">AND</div>
+                  <div className="text-[9px] opacity-80">Mask</div>
+                </div>
+                <div className="p-1.5 rounded-lg bg-[#ffd700]/10 border border-[#ffd700]/30 text-[#ffd700]">
+                  <div className="font-bold text-[11px]">XOR</div>
+                  <div className="text-[9px] opacity-80">Parity</div>
+                </div>
+                <div className="p-1.5 rounded-lg bg-[#00f2fe]/10 border border-[#00f2fe]/30 text-[#00f2fe]">
+                  <div className="font-bold text-[11px]">CIR</div>
+                  <div className="text-[9px] opacity-80">Rotate</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-1 text-center text-xs font-mono text-textMuted flex items-center justify-center gap-1.5">
+              <span>Scroll down to test Arithmetic & Logic execution tables</span>
+              <span className="text-primary">&darr;</span>
             </div>
           </motion.div>
         </div>

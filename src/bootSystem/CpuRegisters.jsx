@@ -664,6 +664,92 @@ export default function CpuRegisters() {
         </motion.div>
       </div>
 
+      {/* INTRODUCTORY CARD: The Register Architecture & Forging Sequence */}
+      <div className="min-h-screen flex items-center justify-center py-20 px-6 relative z-10 border-b border-borderLine">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="w-full max-w-4xl bg-card/80 backdrop-blur-2xl border border-borderLine p-8 md:p-12 rounded-3xl shadow-2xl space-y-6"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-borderLine pb-4">
+            <span className="font-mono text-primary font-bold text-xs uppercase tracking-widest px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+              [ PHASE 01 : INTERNAL MICROARCHITECTURE ]
+            </span>
+            <span className="text-xs font-mono text-textMuted">
+              SYSTEM STATUS: FORGING DATAPATH
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-textMain">
+              The Register File: <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-pink-500">Fast Storage at the Core.</span>
+            </h2>
+            <p className="text-base md:text-lg text-textMuted leading-relaxed">
+              To forge a functioning processor, we must first establish its <strong>internal register file</strong>.
+            </p>
+          </div>
+
+          {/* Educational Insight Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <div className="p-5 rounded-2xl bg-background/60 border border-borderLine space-y-2">
+              <div className="text-xs font-mono font-bold text-primary flex items-center gap-2">
+                <Layers size={14} /> THE SPEED GAP & VON NEUMANN BOTTLENECK
+              </div>
+              <p className="text-xs md:text-sm text-textMuted leading-relaxed">
+                Accessing main memory (RAM) takes dozens of clock cycles. To operate at high frequencies, the processor relies on local flip-flop registers embedded directly beside the arithmetic unit with zero-wait-state access.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-background/60 border border-borderLine space-y-2">
+              <div className="text-xs font-mono font-bold text-secondary flex items-center gap-2">
+                <Zap size={14} /> THE 6-STAGE DATAPATH SEQUENCE
+              </div>
+              <p className="text-xs md:text-sm text-textMuted leading-relaxed">
+                Data flows through a coordinated pipeline: <span className="text-[#00f2fe] font-mono">PC</span> (Fetch) &rarr; <span className="text-[#1fd655] font-mono">AR</span> (Latch) &rarr; <span className="text-[#ffcc00] font-mono">DR</span> (Buffer) &rarr; <span className="text-[#ff007f] font-mono">AC</span> (Calculate) &rarr; <span className="text-[#8b5cf6] font-mono">IR</span> (Decode) &rarr; <span className="text-[#06b6d4] font-mono">TR</span> (Hold).
+              </p>
+            </div>
+          </div>
+
+          {/* Interactive Pipeline Roadmap */}
+          <div className="pt-2">
+            <div className="text-xs font-mono text-textMuted mb-2">DATAPATH PIPELINE REGISTERS:</div>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center font-mono text-xs">
+              <div className="p-2.5 rounded-xl bg-[#00f2fe]/10 border border-[#00f2fe]/30 text-[#00f2fe]">
+                <div className="font-bold">PC</div>
+                <div className="text-[10px] opacity-80">Pointer</div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#1fd655]/10 border border-[#1fd655]/30 text-[#1fd655]">
+                <div className="font-bold">AR</div>
+                <div className="text-[10px] opacity-80">Address</div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#ffcc00]/10 border border-[#ffcc00]/30 text-[#ffcc00]">
+                <div className="font-bold">DR</div>
+                <div className="text-[10px] opacity-80">Operand</div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#ff007f]/10 border border-[#ff007f]/30 text-[#ff007f]">
+                <div className="font-bold">AC</div>
+                <div className="text-[10px] opacity-80">Math Core</div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#8b5cf6]/10 border border-[#8b5cf6]/30 text-[#8b5cf6]">
+                <div className="font-bold">IR</div>
+                <div className="text-[10px] opacity-80">Decoder</div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#06b6d4]/10 border border-[#06b6d4]/30 text-[#06b6d4]">
+                <div className="font-bold">TR</div>
+                <div className="text-[10px] opacity-80">Scratchpad</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 text-center text-xs font-mono text-textMuted flex items-center justify-center gap-1.5">
+            <span>Scroll down to interact with and simulate each register</span>
+            <span className="text-primary">&darr;</span>
+          </div>
+        </motion.div>
+      </div>
+
       {/* 1. PROGRAM COUNTER (PC) */}
       <div className="min-h-screen flex items-center justify-center py-20 px-6">
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
