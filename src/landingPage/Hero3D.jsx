@@ -3,10 +3,14 @@ import * as THREE from 'three';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Hero3D() {
+  // USE TO STORE <DIV> 
   const mountRef = useRef(null);
   const { theme } = useTheme();
   
+
+  // CREATES AN EMPTY OBJECT TO STORE MATERIALS ( MONITOR , KEYBOARD)
   const materialsRef = useRef({});
+  // USE TO HOLD OBJECTS OF THREE.scene()
   const sceneRef = useRef(null);
 
   useEffect(() => {
@@ -16,10 +20,12 @@ export default function Hero3D() {
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
+    // USER PERSPECTIVE
     const camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
     camera.position.set(0, 1.5, 10);
     camera.lookAt(0, 0, 0);
 
+    // WebGLRenderer -> tool that takes all the mathematical data and draws pixel
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -43,21 +49,24 @@ export default function Hero3D() {
     scene.add(deskGroup);
 
     // ========== MONITOR (CRT-style standalone box) ==========
+    // GROUP ALL THE MONITER RELATED OBJECTS 
     const monitorGroup = new THREE.Group();
     monitorGroup.position.set(0.3, 1.1, 0);
     deskGroup.add(monitorGroup);
 
     // Main CRT body — boxy with slight depth
+    // Creats main moniter body
     const monBody = new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.2, 1.8), materialsRef.current.body);
     monBody.castShadow = true;
     monitorGroup.add(monBody);
 
-    // Front bezel (dark inset)
+    // Front bezel (dark rectangle infront of moniter) 
     const bezel = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.7, 0.08), materialsRef.current.bodyDark);
     bezel.position.set(0, 0.05, 0.87);
     monitorGroup.add(bezel);
 
     // Screen (canvas texture for boot animation)
+    // CREATES 2D BROWSER CANVAS IN MEMORY
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 384;
@@ -70,6 +79,7 @@ export default function Hero3D() {
     monitorGroup.add(screen);
 
     // Front panel buttons (small colored dots like the reference)
+    // MONITOR BUTTONS 
     const btnColors = [0x27C93F, 0xFFBD2E, 0xFF5F56];
     for (let i = 0; i < 3; i++) {
       const btn = new THREE.Mesh(
@@ -87,6 +97,7 @@ export default function Hero3D() {
     monitorGroup.add(monStand);
 
     // ========== BOOT SCREEN ANIMATION ==========
+    // STRORES THE LINE DISPLAY ON MONITOR SCREEN 
     const bootLines = [
       "SYSTEM_ZERO KERNEL v1.0.0",
       "CPU: DETECTED",
@@ -101,6 +112,7 @@ export default function Hero3D() {
     let currentCharIndex = 0;
     let lastTypeTime = 0;
 
+    // IT REDRAWS THE SCREEN
     function drawScreen(time) {
       if (time - lastTypeTime > 0.05) {
         lastTypeTime = time;
@@ -116,6 +128,7 @@ export default function Hero3D() {
         }
         
         if (currentLineIndex < bootLines.length) {
+          // CHECKS PENDING LINES
           const currentText = bootLines[currentLineIndex].substring(0, currentCharIndex);
           const cursor = (Math.floor(time * 2) % 2 === 0) ? "_" : "";
           ctx.fillText(currentText + cursor, 20, 40 + (currentLineIndex * 35));
@@ -132,16 +145,18 @@ export default function Hero3D() {
     }
 
     // ========== KEYBOARD (separate, in front of monitor) ==========
+    // CREATES A GROUP OF KEYBOARD
     const kbGroup = new THREE.Group();
     kbGroup.position.set(0, -0.25, 2.2);
     kbGroup.rotation.x = 0.15; // slight tilt
+    // ADD IT TO THE COMPELETE DESK GROUP
     deskGroup.add(kbGroup);
 
     // Keyboard body
     const kbBody = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.12, 1.0), materialsRef.current.body);
     kbGroup.add(kbBody);
 
-    // Key well (darker inset)
+    // Key well (CREATES DARKER AREA)
     const kbWell = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.04, 0.85), materialsRef.current.bodyDark);
     kbWell.position.set(0, 0.06, 0);
     kbGroup.add(kbWell);
@@ -156,6 +171,7 @@ export default function Hero3D() {
     }
 
     // ========== CABLE: Monitor → Keyboard ==========
+    // CREATES SMOOTH 3D CURVE 
     const kbCableCurve = new THREE.CatmullRomCurve3([
       new THREE.Vector3(0, -1.1, 0.9),    // back of monitor base
       new THREE.Vector3(0, -0.8, 1.3),     
@@ -167,6 +183,7 @@ export default function Hero3D() {
     deskGroup.add(kbCable);
 
     // ========== SPEAKERS (two boxes on either side) ==========
+    // PREVENT WRITING SPEAKER CODE TWICE 
     function createSpeaker(x) {
       const spkGroup = new THREE.Group();
       spkGroup.position.set(x, 0.2, 0.1);
@@ -231,6 +248,7 @@ export default function Hero3D() {
     deskGroup.add(new THREE.Mesh(rightCableGeo, materialsRef.current.cable));
 
     // ========== LIGHTING ==========
+    // Adds light that illuminates everything evenly.
     scene.add(new THREE.AmbientLight(0xffffff, 0.8));
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
     dirLight.position.set(5, 10, 7);
@@ -238,8 +256,10 @@ export default function Hero3D() {
 
     // ========== ANIMATION ==========
     const clock = new THREE.Clock();
+    // Creates a timer used to calculate elapsed time.
     let reqId;
 
+    // ANIMATION LOOP
     function animate() {
       reqId = requestAnimationFrame(animate);
       const time = clock.getElapsedTime();
@@ -254,6 +274,7 @@ export default function Hero3D() {
     }
     animate();
 
+    // DEFINES A BROWSER RESIZE HANDLER 
     const handleResize = () => {
       if (!container) return;
       camera.aspect = container.clientWidth / container.clientHeight;
@@ -285,6 +306,7 @@ export default function Hero3D() {
 
   }, []);
 
+  // THEME UPDATE 
   useEffect(() => {
     if (!materialsRef.current.body) return;
 

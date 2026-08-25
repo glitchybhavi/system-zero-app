@@ -9,15 +9,18 @@ export default function OsVisualizer() {
 
   useEffect(() => {
     const container = mountRef.current;
+    // PREVENTS DUPLICATES 
     if (!container || container.childNodes.length > 0) return;
 
     // ========== SCENE ==========
     const scene = new THREE.Scene();
+    // READS CONTAINER DIMENSIONS 
     const W = container.clientWidth;
     const H = container.clientHeight;
     const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 200);
     camera.position.set(0, 0, 28);
 
+    // WebGLRenderer -> tool that takes all the mathematical data and draws pixel
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(W, H);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -46,8 +49,10 @@ export default function OsVisualizer() {
       cloudBaseAngles[i] = theta;
       cloudBasePhi[i] = phi;
       cloudBaseRadius[i] = r;
+      // Gives each particle a tiny positive or negative rotation speed.
       cloudSpeeds[i] = (Math.random() - 0.5) * 0.003;
 
+      // Converts spherical coordinates into Cartesian coordinates.
       const x = r * Math.sin(phi) * Math.cos(theta);
       const y = r * Math.sin(phi) * Math.sin(theta);
       const z = r * Math.cos(phi);
@@ -69,11 +74,15 @@ export default function OsVisualizer() {
       }
     }
 
+    // Creates geometry optimized for large amounts of data.
+
+    // Tells Three.js that every three values represent one position.
     const cloudGeo = new THREE.BufferGeometry();
     cloudGeo.setAttribute('position', new THREE.BufferAttribute(cloudPositions, 3));
+    // Add per particle color 
     cloudGeo.setAttribute('color', new THREE.BufferAttribute(cloudColors, 3));
 
-    // Soft circular sprite for particles
+    // Creates a small 2D canvas used to draw one soft particle.
     const spriteCanvas = document.createElement('canvas');
     spriteCanvas.width = 64;
     spriteCanvas.height = 64;
@@ -84,6 +93,7 @@ export default function OsVisualizer() {
     grad.addColorStop(1, 'rgba(255,255,255,0)');
     sCtx.fillStyle = grad;
     sCtx.fillRect(0, 0, 64, 64);
+    // Converts the glow canvas into a Three.js texture.
     const spriteTex = new THREE.CanvasTexture(spriteCanvas);
 
     const cloudMat = new THREE.PointsMaterial({
@@ -100,6 +110,10 @@ export default function OsVisualizer() {
     scene.add(cloudPoints);
 
     // ========== INNER RIBBONS / TENDRILS (bright flowing trails inside the sphere) ==========
+
+    // Creates 12 ribbon systems.
+
+    // Each ribbon contains 120 points
     const RIBBON_COUNT = 12;
     const RIBBON_LENGTH = 120;
     const ribbons = [];
@@ -114,11 +128,16 @@ export default function OsVisualizer() {
       const startPhi = Math.acos(2 * Math.random() - 1);
       const startR = Math.random() * SPHERE_RADIUS * 0.7;
 
+
+      // Builds the ribbon point by point.
+
+
       for (let j = 0; j < RIBBON_LENGTH; j++) {
         const t = j / RIBBON_LENGTH;
         ribbonPositions[j * 3] = startR * Math.sin(startPhi + t * 3) * Math.cos(startTheta + t * 5);
         ribbonPositions[j * 3 + 1] = startR * Math.sin(startPhi + t * 3) * Math.sin(startTheta + t * 5);
         ribbonPositions[j * 3 + 2] = startR * Math.cos(startPhi + t * 3);
+        // Together, these formulas create curling paths
 
         const fade = Math.sin(t * Math.PI);
         if (isDark) {
@@ -133,10 +152,12 @@ export default function OsVisualizer() {
         ribbonSizes[j] = 0.06 + fade * 0.18;
       }
 
+      // Controls Position 
       const ribbonGeo = new THREE.BufferGeometry();
       ribbonGeo.setAttribute('position', new THREE.BufferAttribute(ribbonPositions, 3));
       ribbonGeo.setAttribute('color', new THREE.BufferAttribute(ribbonColors, 3));
 
+      // Controls The appearence 
       const ribbonMat = new THREE.PointsMaterial({
         size: 0.2,
         map: spriteTex,
@@ -167,12 +188,15 @@ export default function OsVisualizer() {
     }
 
     // ========== MOUSE INTERACTION ==========
+
+    // Stores mouse coordinates in Normalized Device Coordinates.
     const mouseNDC = new THREE.Vector2(-9999, -9999);
     const targetNDC = new THREE.Vector2(-9999, -9999);
     const raycaster = new THREE.Raycaster();
     const mousePlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
     let mouseWorld = new THREE.Vector3();
 
+    // On hover mouse , cloud animation 
     const onMouseMove = (e) => {
       const rect = container.getBoundingClientRect();
       targetNDC.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -183,10 +207,15 @@ export default function OsVisualizer() {
     // ========== ANIMATION ==========
     let reqId;
     const clock = new THREE.Clock();
+    // you have to do math for 5,000 particles 60 times a second.
+    // If you wrote new THREE.Vector3() inside that loop, 
+    // you would create 300,000 new objects per second, 
+    // crashing the browser via "garbage collection."
     const tmpVec = new THREE.Vector3();
 
     const animate = () => {
       reqId = requestAnimationFrame(animate);
+      // Allows particles and ribbons to flow in same speed 
       const t = clock.getElapsedTime();
 
       // Mouse interpolation

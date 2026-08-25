@@ -7,6 +7,8 @@ export default function HardwareScroll() {
   const canvasRef = useRef(null);
   const { theme } = useTheme();
 
+  // A React state variable that tracks which of the three
+  // text descriptions to show.
   const [activeStep, setActiveStep] = useState(0);
   const materialsRef = useRef({});
 
@@ -47,6 +49,7 @@ export default function HardwareScroll() {
     const chipGroup = new THREE.Group();
     scene.add(chipGroup);
 
+    // Top Cover 
     const layer1 = new THREE.Group();
     const glassMesh = new THREE.Mesh(new THREE.BoxGeometry(3, 0.05, 3), materialsRef.current.glass);
     const frameMesh = new THREE.Mesh(new THREE.BoxGeometry(3.1, 0.1, 3.1), materialsRef.current.siliconBase);
@@ -54,6 +57,7 @@ export default function HardwareScroll() {
     frameMesh.castShadow = true;
     layer1.add(glassMesh); layer1.add(frameMesh);
 
+    // The Core Engine 
     const layer2 = new THREE.Group();
     const coreBase = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.08, 2.6), materialsRef.current.siliconDark);
     coreBase.receiveShadow = true;
@@ -129,6 +133,7 @@ export default function HardwareScroll() {
     glowSprite.position.set(-0.5, 0.5, -0.2);
     layer2.add(glowSprite);
 
+    // Bottom Layer 
     const layer3 = new THREE.Group();
     const pcbMesh = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.08, 3.2), materialsRef.current.pcb);
     pcbMesh.receiveShadow = true;
@@ -162,18 +167,22 @@ export default function HardwareScroll() {
     scene.add(rimLight);
 
     let reqId;
+    // Scroll Animation
     const animate = () => {
       reqId = requestAnimationFrame(animate);
 
-      // Snap to target faster; if nearly closed, snap fully shut
+      // Measures how far the current animation is from the target.
       const diff = scrollTarget.current - scrollCurrent.current;
       scrollCurrent.current += diff * 0.25;
       if (Math.abs(scrollCurrent.current) < 0.001) scrollCurrent.current = 0;
+      // Strores the progress b/w 0-1
       const progress = scrollCurrent.current;
 
       layer1.position.y = progress * 2.0;
       layer2.position.y = 0;
       layer3.position.y = -progress * 2.0;
+
+      // Rotates the chip as it o
 
       chipGroup.rotation.y = progress * Math.PI * 0.25 + 0.5;
 
@@ -181,8 +190,10 @@ export default function HardwareScroll() {
     };
     animate();
 
+    // Controls the Animation
     const handleScroll = () => {
       if (!containerRef.current) return;
+      // Calculated how far down user moved 
       const rect = containerRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
 
