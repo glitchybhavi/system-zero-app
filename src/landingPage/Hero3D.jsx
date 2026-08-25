@@ -5,13 +5,13 @@ import { useTheme } from '../context/ThemeContext';
 export default function Hero3D() {
   const mountRef = useRef(null);
   const { theme } = useTheme();
-  
+
   const materialsRef = useRef({});
   const sceneRef = useRef(null);
 
   useEffect(() => {
     const container = mountRef.current;
-    if (container.childNodes.length > 0) return; 
+    if (container.childNodes.length > 0) return;
 
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -96,7 +96,7 @@ export default function Hero3D() {
       "DECODE SUCCESS",
       "> WAITING FOR USER INPUT_"
     ];
-    
+
     let currentLineIndex = 0;
     let currentCharIndex = 0;
     let lastTypeTime = 0;
@@ -104,27 +104,27 @@ export default function Hero3D() {
     function drawScreen(time) {
       if (time - lastTypeTime > 0.05) {
         lastTypeTime = time;
-        
-        ctx.fillStyle = '#0a0a0a'; 
+
+        ctx.fillStyle = '#0a0a0a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
+
         ctx.font = '24px "Courier New", monospace';
-        ctx.fillStyle = '#00ffcc'; 
-        
+        ctx.fillStyle = '#00ffcc';
+
         for (let i = 0; i < currentLineIndex; i++) {
           ctx.fillText(bootLines[i], 20, 40 + (i * 35));
         }
-        
+
         if (currentLineIndex < bootLines.length) {
           const currentText = bootLines[currentLineIndex].substring(0, currentCharIndex);
           const cursor = (Math.floor(time * 2) % 2 === 0) ? "_" : "";
           ctx.fillText(currentText + cursor, 20, 40 + (currentLineIndex * 35));
-          
+
           currentCharIndex++;
           if (currentCharIndex > bootLines[currentLineIndex].length) {
             currentCharIndex = 0;
             currentLineIndex++;
-            lastTypeTime = time + 0.5; 
+            lastTypeTime = time + 0.5;
           }
         }
         screenTex.needsUpdate = true;
@@ -158,8 +158,8 @@ export default function Hero3D() {
     // ========== CABLE: Monitor → Keyboard ==========
     const kbCableCurve = new THREE.CatmullRomCurve3([
       new THREE.Vector3(0, -1.1, 0.9),    // back of monitor base
-      new THREE.Vector3(0, -0.8, 1.3),     
-      new THREE.Vector3(0, -0.4, 1.8),    
+      new THREE.Vector3(0, -0.8, 1.3),
+      new THREE.Vector3(0, -0.4, 1.8),
       new THREE.Vector3(0, -0.25, 2.2),    // keyboard position
     ]);
     const kbCableGeo = new THREE.TubeGeometry(kbCableCurve, 20, 0.03, 8, false);
@@ -215,7 +215,7 @@ export default function Hero3D() {
     // Left cable
     const leftCableCurve = new THREE.CatmullRomCurve3([
       new THREE.Vector3(-1.4, 0.0, -0.9),    // back of monitor
-      new THREE.Vector3(-1.8, -0.3, -0.6),    
+      new THREE.Vector3(-1.8, -0.3, -0.6),
       new THREE.Vector3(-2.1, -0.1, 0.0),     // back of left speaker
     ]);
     const leftCableGeo = new THREE.TubeGeometry(leftCableCurve, 16, 0.025, 8, false);
@@ -243,7 +243,7 @@ export default function Hero3D() {
     function animate() {
       reqId = requestAnimationFrame(animate);
       const time = clock.getElapsedTime();
-      
+
       drawScreen(time);
 
       // Gentle floating
@@ -260,7 +260,7 @@ export default function Hero3D() {
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
     };
-    
+
     window.addEventListener('resize', handleResize);
 
     return () => {
@@ -270,7 +270,7 @@ export default function Hero3D() {
         container.removeChild(renderer.domElement);
       }
       renderer.dispose();
-      
+
       scene.traverse((object) => {
         if (object.isMesh) {
           object.geometry.dispose();
@@ -294,8 +294,8 @@ export default function Hero3D() {
       materialsRef.current.accent.color.setHex(0x8054e8);
       materialsRef.current.speaker.color.setHex(0x3d2380);
     } else {
-      materialsRef.current.body.color.setHex(0xff6b00); 
-      materialsRef.current.bodyDark.color.setHex(0xcc5500); 
+      materialsRef.current.body.color.setHex(0xff6b00);
+      materialsRef.current.bodyDark.color.setHex(0xcc5500);
       materialsRef.current.accent.color.setHex(0xffaa00);
       materialsRef.current.speaker.color.setHex(0xe06000);
     }
@@ -305,18 +305,18 @@ export default function Hero3D() {
     <div className="relative w-full h-[100vh] flex items-center justify-between px-0 max-w-[90rem] mx-auto">
       <div className="z-10 max-w-xl pointer-events-none">
         <h1 className="text-4xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
-          BEYOND <br/>
+          BEYOND <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-pink-500">
             ABSTRACTION.
           </span>
         </h1>
         <p className="text-xl text-textMuted max-w-md">
-           An interactive 3D simulation engine that transforms invisible machine processes into clear, tangible visuals.
+          An interactive 3D simulation engine that transforms invisible machine processes into clear, tangible visuals.
         </p>
       </div>
 
-      <div 
-        ref={mountRef} 
+      <div
+        ref={mountRef}
         className="absolute top-0 right-0 w-full md:w-[75%] h-full z-0 pointer-events-none"
       />
     </div>

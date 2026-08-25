@@ -3,22 +3,22 @@ import { useEffect } from 'react';
 import Lenis from 'lenis';
 import Navbar from './Navbar';
 import Hero3D from './Hero3D';
+import Content from './Content';
 import HardwareScroll from './HardwareScroll';
 import OsVisualizer from './OsVisualizer';
 import IdeView from './IdeView';
 import CurriculumCards from './CurriculumCards';
 import Footer from './Footer';
-import Content from './Content';
 
 export default function LandingPage() {
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.5,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      lerp: 0.1,
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      wheelMultiplier: 0.75,
+      wheelMultiplier: 1.0,
+      syncTouch: false,
     });
 
     let rafId;
