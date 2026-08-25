@@ -1,7 +1,7 @@
 .footer {
   background-color: var(--bg-base);
   color: var(--text-main);
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'SF Pro Display', Roboto, sans-serif;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'SF Pro Display', Roboto, sans-serif; /*Segeo UI for windows, SF Pro for Apple devices*/
   padding: 6rem 5% 2rem;
   display: flex;
   flex-direction: column;
