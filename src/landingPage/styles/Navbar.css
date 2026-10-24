@@ -177,8 +177,9 @@
 }
 
 .theme-toggle-btn:hover {
-  color: #6366f1;
+  color: #3d3d3d;
   transform: scale(1.05);
+  cursor: default;
 }
 
 .boot-system-btn {
@@ -424,4 +425,39 @@
 
 .dark .sandbox-status {
   color: #9ca3af;
+}
+
+
+.theme-toast {
+  position: fixed;
+  top: 4.8rem;
+  right: 20rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(18, 20, 28, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  z-index: 100;
+  animation: toastSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+
+@keyframes toastSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
