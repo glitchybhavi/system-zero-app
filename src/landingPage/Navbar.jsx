@@ -13,7 +13,6 @@ import { CURRICULUM_MODULES } from "./curriculumData";
 import "./styles/Navbar.css";
 import { Link } from "react-router-dom";
 
-// All Navigation links in navbar
 const nav_icon_size = 18;
 
 const MODULE_ICONS = {
@@ -30,6 +29,7 @@ const NAV_LINKS = [
       icon: MODULE_ICONS[mod.iconType] || <Cpu size={nav_icon_size} className="text-primary-accent" />,
     })),
   },
+
   { name: "Sandbox", sandboxMenu: true },
 ];
 
@@ -38,7 +38,7 @@ export default function Navbar() {
   const [hoveredNav, setHoveredNav] = useState(null);
 
   const activeLink = NAV_LINKS.find((link) => link.name === hoveredNav);
-  const isOpen = Boolean(activeLink?.fullMenu || activeLink?.sandboxMenu)
+  const isOpen = Boolean(activeLink?.fullMenu || activeLink?.sandboxMenu);
 
   return (
     <nav className="navbar" onMouseLeave={() => setHoveredNav(null)}>
@@ -59,12 +59,18 @@ export default function Navbar() {
         <div className="navbar-links">
           {NAV_LINKS.map((link) => (
             <div key={link.name} className="navbar-item" onMouseEnter={() => setHoveredNav(link.name)}>
-              <a href={link.href || "#"} className={`navbar-link-btn ${hoveredNav === link.name ? 'active' : ''}`}>
-                {link.name}
-                {(link.fullMenu || link.sandboxMenu) && (
-                  <ChevronDown size={15} className={`navbar-chevron ${hoveredNav === link.name ? 'rotate-180' : ''}`}></ChevronDown>
-                )}
-              </a>
+              {link.href?.startsWith("/") ? (
+                <Link to={link.href} className={`navbar-link-btn ${hoveredNav === link.name ? 'active' : ''}`}>
+                  {link.name}
+                </Link>
+              ) : (
+                <a href={link.href || "#"} className={`navbar-link-btn ${hoveredNav === link.name ? 'active' : ''}`}>
+                  {link.name}
+                  {(link.fullMenu || link.sandboxMenu) && (
+                    <ChevronDown size={15} className={`navbar-chevron ${hoveredNav === link.name ? 'rotate-180' : ''}`}></ChevronDown>
+                  )}
+                </a>
+              )}
             </div>
           ))}
         </div>
@@ -80,10 +86,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/*Navbar DROPDOWN PANEL*/}
       <div className={`navbar-dropdown ${isOpen ? 'is-open' : ''}`}>
         <div className="navbar-dropdown-inner">
-          {/*Curriculum DropDown*/}
           {activeLink?.name === 'Curriculum' && (
             <div className="curriculum-grid">
               {activeLink.modules.map((mod) => (
@@ -111,8 +115,6 @@ export default function Navbar() {
             </div>
           )}
 
-
-          {/* SandBox Dropdown */}
           {activeLink?.name === 'Sandbox' && (
             <div className="sandbox-content">
               <div className="sandbox-glow" />
@@ -123,7 +125,6 @@ export default function Navbar() {
               </p>
             </div>
           )}
-
         </div>
       </div>
     </nav>

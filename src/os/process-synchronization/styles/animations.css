@@ -1,0 +1,72 @@
+@keyframes currencyLoadFlow {
+  0% {
+    left: 100%;
+    transform: translateY(-50%) translateX(-100%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(-85%);
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(-15%);
+  }
+  100% {
+    left: 0%;
+    transform: translateY(-50%) translateX(0%);
+    opacity: 0;
+  }
+}
+
+@keyframes currencyStoreFlow {
+  0% {
+    left: 0%;
+    transform: translateY(-50%) translateX(0%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(15%);
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(85%);
+  }
+  100% {
+    left: 100%;
+    transform: translateY(-50%) translateX(-100%);
+    opacity: 0;
+  }
+}
+
+.currency-token.flow-load {
+  animation: currencyLoadFlow 1.8s  cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
+}
+
+.currency-token.flow-store {
+  animation: currencyStoreFlow 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes cardExitToTerminated {
+  0% {
+    transform: translateY(-50%) translateX(0px);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(-50%) translateX(160px);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(-50%) translateX(460px);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(-50%) translateX(580px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-50%) translateX(660px);
+    opacity: 0;
+  }
+}

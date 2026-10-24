@@ -20,7 +20,7 @@ export const CURRICULUM_MODULES = [
     topics: [
       { id: 6, title: "Overview" }, //Under Developement
       { id: 7, title: "Process Management" }, //Under Developement
-      { id: 8, title: "Process Coordination" }, //Under Developement
+      { id: 8, title: "Process Synchronization", link: "/os/sync" },
       { id: 9, title: "Memory Management" }, //Under Developement
       { id: 10, title: "Storage Management" }, //Under Developement
       { id: 11, title: "Case Studies" }, //Under Developement

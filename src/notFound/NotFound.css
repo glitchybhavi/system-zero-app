@@ -3,17 +3,17 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f6f5fb;
-  color: #0a2540;
+  background: linear-gradient(180deg, #ffffff 0%, #f4f4f5 50%, #e4e4e7 100%);
+  color: #09090b;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition: background 0.4s ease, color 0.4s ease;
 }
 
 /* Base Page Dark Mode */
 .dark .notfound-page {
-  background: #090714;
-  color: #f8fafc;
+  background: linear-gradient(180deg, #050507 0%, #0c0d12 50%, #050507 100%);
+  color: #fafafa;
 }
 
 .notfound-content {
@@ -38,16 +38,18 @@
   line-height: 0.9;
   letter-spacing: -0.05em;
   margin: 0 0 1.25rem 0;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #f472b6 100%);
+  background: linear-gradient(180deg, #09090b 0%, #3f3f46 55%, #a1a1aa 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   user-select: none;
 }
 
 /* 404 Text - Dark Mode */
 .dark .notfound-code {
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #f472b6 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 50%, #27272a 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -55,26 +57,26 @@
   font-size: clamp(1.75rem, 4.5vw, 2.35rem);
   font-weight: 700;
   letter-spacing: -0.025em;
-  color: #0a2540;
+  color: #09090b;
   margin: 0 0 1rem 0;
   transition: color 0.4s ease;
 }
 
 .dark .notfound-title {
-  color: #f8fafc;
+  color: #fafafa;
 }
 
 .notfound-desc {
   font-size: 1.05rem;
   line-height: 1.65;
-  color: #4f566b;
+  color: #52525b;
   max-width: 480px;
   margin: 0 auto 2.5rem auto;
   transition: color 0.4s ease;
 }
 
 .dark .notfound-desc {
-  color: #94a3b8;
+  color: #a1a1aa;
 }
 
 .notfound-actions {
@@ -92,19 +94,28 @@
   padding: 0.85rem 1.75rem;
   font-size: 0.95rem;
   font-weight: 600;
-  background-color: #6366f1;
+  background-color: #09090b;
   color: #ffffff;
   border-radius: 0.625rem;
   text-decoration: none;
   border: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
   cursor: pointer;
 }
 
 .btn-primary:hover {
-  background-color: #4f46e5;
+  background-color: #27272a;
   transform: translateY(-1px);
+}
+
+.dark .btn-primary {
+  background-color: #ffffff;
+  color: #09090b;
+}
+
+.dark .btn-primary:hover {
+  background-color: #e4e4e7;
 }
 
 .btn-secondary {
@@ -114,9 +125,9 @@
   padding: 0.85rem 1.75rem;
   font-size: 0.95rem;
   font-weight: 600;
-  background: rgba(10, 37, 64, 0.04);
-  color: #0a2540;
-  border: 1px solid rgba(10, 37, 64, 0.14);
+  background: rgba(9, 9, 11, 0.04);
+  color: #09090b;
+  border: 1px solid rgba(9, 9, 11, 0.14);
   border-radius: 0.625rem;
   text-decoration: none;
   transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
@@ -124,20 +135,20 @@
 }
 
 .btn-secondary:hover {
-  background: rgba(10, 37, 64, 0.08);
-  border-color: rgba(10, 37, 64, 0.25);
+  background: rgba(9, 9, 11, 0.08);
+  border-color: rgba(9, 9, 11, 0.25);
   transform: translateY(-1px);
 }
 
 .dark .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: #f8fafc;
-  border-color: rgba(255, 255, 255, 0.14);
+  background: #121318;
+  color: #fafafa;
+  border-color: #27272a;
 }
 
 .dark .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.28);
+  background: #18181b;
+  border-color: #3f3f46;
 }
 
 @media (max-width: 640px) {
