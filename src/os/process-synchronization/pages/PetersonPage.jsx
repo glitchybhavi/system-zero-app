@@ -13,7 +13,6 @@ import {
   INCREMENT_VALUE,
   THREAD_COLORS,
   HUD_COLORS,
-  generateProcessColor,
   updateProcessOnTrack,
   replaceAt,
 } from '../base/utils';
@@ -32,8 +31,7 @@ const WAIT_LOOP_LINE = 3;
 const CRITICAL_SECTION_LINE = 4;
 const CLEAR_FLAG_LINE = 5;
 
-const BAY_TOP = '50%';
-const LANE_TOPS = ['24%', '76%'];
+const LANE_TOPS = ['32%', '68%'];
 
 const TRACKS = [
   { id: 0, top: LANE_TOPS[0] },
@@ -70,7 +68,13 @@ export default function PetersonPage() {
   const [nextId, setNextId] = useState(2);
   const [autoTurn, setAutoTurn] = useState(0);
   const [packet0, setPacket0] = useState(NO_PACKET);
+  const [packet1, setPacket1] = useState(NO_PACKET);
   const [isPulsing, setIsPulsing] = useState(false);
+
+  function isBlocked(trackIndex) {
+    const other = 1 - trackIndex;
+    return processes[trackIndex].line === WAIT_LOOP_LINE && flag[other] && turn === other;
+  }
 
   function nextStep(trackIndex) {
     const other = 1 - trackIndex;
@@ -81,15 +85,9 @@ export default function PetersonPage() {
       setProcesses(updateProcessOnTrack(processes, trackIndex, { line: YIELD_TURN_LINE }));
     } else if (p.line === YIELD_TURN_LINE) {
       setTurn(other);
-      let newList = updateProcessOnTrack(processes, trackIndex, { line: WAIT_LOOP_LINE });
-      if (processes[other].status === 'waiting') {
-        newList = updateProcessOnTrack(newList, other, { status: 'ready' });
-      }
-      setProcesses(newList);
+      setProcesses(updateProcessOnTrack(processes, trackIndex, { line: WAIT_LOOP_LINE }));
     } else if (p.line === WAIT_LOOP_LINE) {
-      if (flag[other] && turn === other) {
-        setProcesses(updateProcessOnTrack(processes, trackIndex, { status: 'waiting' }));
-      } else {
+      if (!isBlocked(trackIndex)) {
         setProcesses(updateProcessOnTrack(processes, trackIndex, { line: CRITICAL_SECTION_LINE, status: 'in-bay' }));
       }
     } else if (p.line === CRITICAL_SECTION_LINE) {
@@ -101,8 +99,13 @@ export default function PetersonPage() {
       setTimeout(() => setIsPulsing(false), 600);
 
       const packet = { type: 'store', id: Date.now(), color: p.color, value: newBalance };
-      setPacket0(packet);
-      setTimeout(() => setPacket0(NO_PACKET), 1850);
+      if (trackIndex === 0) {
+        setPacket0(packet);
+        setTimeout(() => setPacket0(NO_PACKET), 1850);
+      } else {
+        setPacket1(packet);
+        setTimeout(() => setPacket1(NO_PACKET), 1850);
+      }
     } else if (p.line === CLEAR_FLAG_LINE) {
       setFlag(replaceAt(flag, trackIndex, false));
 
@@ -118,11 +121,7 @@ export default function PetersonPage() {
       newProcess.status = 'spawning';
       newProcess.color = THREAD_COLORS[newId % THREAD_COLORS.length];
 
-      let newList = updateProcessOnTrack(processes, trackIndex, newProcess);
-      if (processes[other].status === 'waiting') {
-        newList = updateProcessOnTrack(newList, other, { status: 'ready' });
-      }
-      setProcesses(newList);
+      setProcesses(updateProcessOnTrack(processes, trackIndex, newProcess));
       setTimeout(() => {
         setProcesses((old) => updateProcessOnTrack(old, trackIndex, { status: 'ready' }));
       }, 1200);
@@ -139,19 +138,26 @@ export default function PetersonPage() {
     setNextId(2);
     setAutoTurn(0);
     setPacket0(NO_PACKET);
+    setPacket1(NO_PACKET);
     setIsPulsing(false);
   }
 
-  function autoStep() {
-    const p1CanStep = processes[0].status !== 'spawning';
-    const p2CanStep = processes[1].status !== 'spawning';
-    const isP1Turn = autoTurn % 2 === 0;
+  function canStep(trackIndex) {
+    return processes[trackIndex].status !== 'spawning' && !isBlocked(trackIndex);
+  }
 
-    if (p1CanStep && (isP1Turn || !p2CanStep)) {
-      nextStep(0);
+  function autoStep() {
+    let first = 0;
+    if (autoTurn % 2 === 1) {
+      first = 1;
+    }
+    const second = 1 - first;
+
+    if (canStep(first)) {
+      nextStep(first);
       setAutoTurn(autoTurn + 1);
-    } else if (p2CanStep) {
-      nextStep(1);
+    } else if (canStep(second)) {
+      nextStep(second);
       setAutoTurn(autoTurn + 1);
     }
   }
@@ -161,42 +167,25 @@ export default function PetersonPage() {
       const timer = setInterval(autoStep, 1100 / speed);
       return () => clearInterval(timer);
     }
-  }, [mode, speed, processes]);
+  }, [mode, speed, processes, flag, turn, autoTurn, balance, count, exiting, nextId]);
 
-  let inCS = null;
+  const shownProcesses = [];
   for (let i = 0; i < processes.length; i++) {
-    if (processes[i].status === 'in-bay') {
-      inCS = processes[i];
-      break;
+    let shown = processes[i];
+    if (shown.status === 'ready' || shown.status === 'waiting') {
+      if (isBlocked(i)) {
+        shown = { ...shown, status: 'waiting' };
+      } else {
+        shown = { ...shown, status: 'ready' };
+      }
     }
+    shownProcesses.push(shown);
   }
 
   const expectedBalance = INITIAL_BALANCE + count * INCREMENT_VALUE;
 
-  let p0GateLocked = false;
-  if (processes[0].line === WAIT_LOOP_LINE && flag[1] && turn === 1) {
-    p0GateLocked = true;
-  } else if (inCS !== null && inCS.track === 1) {
-    p0GateLocked = true;
-  }
-  let p1GateLocked = false;
-  if (processes[1].line === WAIT_LOOP_LINE && flag[0] && turn === 0) {
-    p1GateLocked = true;
-  } else if (inCS !== null && inCS.track === 0) {
-    p1GateLocked = true;
-  }
-
-  if (processes[0].status === 'in-bay') {
-    p0GateLocked = false;
-  }
-  if (processes[1].status === 'in-bay') {
-    p1GateLocked = false;
-  }
-
-  let bayLabel = 'Central Bay';
-  if (inCS !== null) {
-    bayLabel = `Central Bay: P${inCS.id}`;
-  }
+  const p0GateLocked = processes[0].status !== 'in-bay';
+  const p1GateLocked = processes[1].status !== 'in-bay';
 
   let flag0Color = HUD_COLORS.label;
   if (flag[0]) {
@@ -211,20 +200,16 @@ export default function PetersonPage() {
   for (let i = 0; i < exiting.length; i++) {
     if (exiting[i] !== null) {
       exitingCards.push(
-        <ProcessCard key={`proc-exit-${exiting[i].id}`} process={exiting[i]} top={BAY_TOP} isExiting={true} centerInBay={true} />
+        <ProcessCard key={`proc-exit-${exiting[i].id}`} process={exiting[i]} top={TRACKS[i].top} isExiting={true} />
       );
     }
   }
 
   const processCards = [];
-  for (let i = 0; i < processes.length; i++) {
-    const p = processes[i];
-    let top = p.laneTop;
-    if (p.status === 'in-bay') {
-      top = BAY_TOP;
-    }
+  for (let i = 0; i < shownProcesses.length; i++) {
+    const p = shownProcesses[i];
     processCards.push(
-      <ProcessCard key={`proc-${p.id}`} process={p} top={top} isExiting={false} centerInBay={true} />
+      <ProcessCard key={`proc-${p.id}`} process={p} top={p.laneTop} isExiting={false} />
     );
   }
 
@@ -237,22 +222,20 @@ export default function PetersonPage() {
           <HudRow label="turn" labelColor={HUD_COLORS.label} value={turn} valueColor={HUD_COLORS.info} />
         </StateHudPanel>
 
-        <ArenaTrackLayer tracks={TRACKS} singleBay={true} gate0Locked={p0GateLocked} gate1Locked={p1GateLocked} />
+        <ArenaTrackLayer tracks={TRACKS} gate0Locked={p0GateLocked} gate1Locked={p1GateLocked} />
 
         {exitingCards}
 
         {processCards}
 
         <CriticalSectionZone
-          singleBay={true}
-          activeProc={inCS}
           busPacket0={packet0}
+          busPacket1={packet1}
           sharedBalance={balance}
           expectedBalance={expectedBalance}
           drift={0}
           vaultPulse={isPulsing}
           alarmActive={false}
-          bay0Label={bayLabel}
         />
       </div>
 
@@ -262,12 +245,12 @@ export default function PetersonPage() {
           setMode={setMode}
           speed={speed}
           setSpeed={setSpeed}
-          processes={processes}
+          processes={shownProcesses}
           onStep={nextStep}
           onReset={resetSim}
         />
 
-        <CodeViewer title="peterson.c" code={CODE} processes={processes} maxLine={CLEAR_FLAG_LINE} />
+        <CodeViewer title="peterson.c" code={CODE} processes={shownProcesses} maxLine={CLEAR_FLAG_LINE} />
       </footer>
 
       <Link to="/os/sync#mutex-locks" className="continue-reading-btn" title="Continue to Mutex Locks section">

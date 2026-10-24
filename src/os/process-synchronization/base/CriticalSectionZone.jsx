@@ -22,30 +22,18 @@ export default function CriticalSectionZone(props) {
     incVal = reduxInc;
   }
 
-  const bayList = [];
-
-  if (props.singleBay) {
-    let label = 'Bay 0';
-    if (props.bay0Label) {
-      label = props.bay0Label;
-    }
-    bayList.push({ label: label, packet: props.busPacket0 });
-  } else {
-    bayList.push({ label: 'Bay 0', packet: props.busPacket0 });
-    bayList.push({ label: 'Bay 1', packet: props.busPacket1 });
-  }
+  const bayList = [
+    { label: 'Bay 0', packet: props.busPacket0 },
+    { label: 'Bay 1', packet: props.busPacket1 },
+  ];
 
   const sockets = [];
   const conduits = [];
   for (let i = 0; i < bayList.length; i++) {
     const bay = bayList[i];
 
-    let socketClass = `docking-socket socket-bay-${i}`;
-    let conduitClass = `bus-conduit-wrapper conduit-bay-${i}`;
-    if (props.singleBay) {
-      socketClass = 'docking-socket socket-bay-single';
-      conduitClass = 'bus-conduit-wrapper conduit-bay-single';
-    }
+    const socketClass = `docking-socket socket-bay-${i}`;
+    const conduitClass = `bus-conduit-wrapper conduit-bay-${i}`;
 
     sockets.push(
       <div key={`bay-${i}`} className={socketClass}>

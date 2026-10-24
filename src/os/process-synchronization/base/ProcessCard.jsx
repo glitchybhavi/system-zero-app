@@ -10,9 +10,6 @@ export default function ProcessCard(props) {
   if (isTerminated) {
     cardClass = cardClass + ' card-exiting';
   }
-  if (props.centerInBay) {
-    cardClass = cardClass + ' card-center-bay';
-  }
 
   let statusText = getProcessStatusText(props.process.status);
   if (isTerminated) {

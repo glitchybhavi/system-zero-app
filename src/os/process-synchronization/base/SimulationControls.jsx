@@ -40,7 +40,7 @@ export default function SimulationControls(props) {
       const p = props.processes[i];
 
       let cannotStep = false;
-      if (p.status === 'spawning' || p.status === 'terminated') {
+      if (p.status === 'spawning' || p.status === 'terminated' || p.status === 'waiting') {
         cannotStep = true;
       }
 

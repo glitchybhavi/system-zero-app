@@ -158,7 +158,7 @@ export default function RaceConditionSimulator({ children }) {
   return (
     <section className="sim-container">
       <div className="sim-arena">
-        <ArenaTrackLayer tracks={TRACKS} singleBay={false} gate0Locked={false} gate1Locked={false} />
+        <ArenaTrackLayer tracks={TRACKS} gate0Locked={false} gate1Locked={false} />
 
         {exitingCards}
 
@@ -166,7 +166,6 @@ export default function RaceConditionSimulator({ children }) {
         <ProcessCard key={`proc-${processes[1].id}`} process={processes[1]} top={TRACKS[1].top} isExiting={false} />
 
         <CriticalSectionZone
-          singleBay={false}
           proc0={processes[0]}
           proc1={processes[1]}
           busPacket0={packet0}

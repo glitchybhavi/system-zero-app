@@ -2,21 +2,21 @@ export const INITIAL_BALANCE = 100;
 export const INCREMENT_VALUE = 10;
 
 export const THREAD_COLORS = [
-  'green',
-  'red',
-  'orange',
-  'blue',
-  'cyan',
-  'purple',
-  'pink',
-  'yellow',
-  'teal',
-  'lime',
-  'indigo',
-  'violet',
-  'magenta',
-  'brown',
-  'gray'
+  '#ee2a2aff',
+  '#22d3ee',
+  '#f472b6',
+  '#a78bfa',
+  '#fb923c',
+  '#2dd4bf',
+  '#e879f9',
+  '#60a5fa',
+  '#fda4af',
+  '#38bdf8',
+  '#d8b4fe',
+  '#818cf8',
+  '#fdba74',
+  '#5eead4',
+  '#f9a8d4'
 ];
 
 export const HUD_COLORS = {
@@ -27,10 +27,6 @@ export const HUD_COLORS = {
   info: '#38bdf8',
 };
 
-export function generateProcessColor() {
-  const hue = Math.floor(Math.random() * 360);
-  return `hsl(${hue}, 45%, 70%)`;
-}
 
 export function getProcessCardClass(status) {
   if (status === 'spawning') {

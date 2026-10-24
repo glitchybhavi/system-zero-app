@@ -182,13 +182,6 @@
   right: 0;
 }
 
-/* Peterson lanes: straight right, then a vertical turn into the Central Bay */
-.rail-vertical {
-  position: absolute;
-  width: 2px;
-  background: rgba(255, 255, 255, 0.22);
-  transform: translateX(-50%);
-}
 
 .track-gate-node {
   position: absolute;
@@ -233,10 +226,6 @@
   color: #ef4444 !important;
 }
 
-.gate-label.below {
-  top: auto;
-  bottom: -28px;
-}
 
 .track-terminated-label {
   position: absolute;
@@ -305,51 +294,6 @@
   opacity: 1;
 }
 
-/* Peterson smooth orthogonal track travel */
-.process-card.card-center-bay.card-pos-waiting {
-  transform: translateY(-50%) translateX(-180px);
-  opacity: 1;
-  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
-              top 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
-              opacity 0.35s ease;
-}
-
-.process-card.card-center-bay.card-pos-bay {
-  transform: translateY(-50%) translateX(-24px);
-  opacity: 1;
-  transition: transform 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
-              top 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) 0.32s,
-              opacity 0.35s ease,
-              border-color 0.2s ease,
-              box-shadow 0.2s ease;
-}
-
-.process-card.card-center-bay.card-exiting {
-  animation: cardExitFromCentralBay 1.3s cubic-bezier(0.2, 0.7, 0.3, 1) forwards !important;
-}
-
-@keyframes cardExitFromCentralBay {
-  0% {
-    transform: translateY(-50%) translateX(-24px);
-    opacity: 1;
-  }
-  25% {
-    transform: translateY(-50%) translateX(160px);
-    opacity: 1;
-  }
-  60% {
-    transform: translateY(-50%) translateX(460px);
-    opacity: 1;
-  }
-  85% {
-    transform: translateY(-50%) translateX(580px);
-    opacity: 0.9;
-  }
-  100% {
-    transform: translateY(-50%) translateX(660px);
-    opacity: 0;
-  }
-}
 
 .process-card.card-pos-terminated,
 .process-card.card-exiting {
@@ -448,11 +392,11 @@
 
 .cs-underneath-title {
   position: absolute;
-  bottom: 10px;
+  bottom: 1px;
   left: 50%;
   transform: translateX(-50%);
   font-family: "Playfair Display", "Caveat", "Brush Script MT", "Apple Chancery", cursive;
-  font-size: 1.7rem;
+  font-size: 1.9rem;
   font-weight: 500;
   color: #ffffff;
   letter-spacing: 0.5px;
@@ -507,10 +451,6 @@
   top: 68%;
 }
 
-.socket-bay-single,
-.conduit-bay-single {
-  top: 50%;
-}
 
 .docking-socket:hover {
   border-color: rgba(255, 255, 255, 0.3) !important;
