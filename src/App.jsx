@@ -5,6 +5,7 @@ import LandingPage from './landingPage/LandingPage';
 import SimulationPage from './bootSystem/SimulationPage';
 import NotFound from './notFound/NotFound';
 import ProcessSync from './os/process-synchronization/ProcessSync';
+import ProcessManagement from './os/process-management/ProcessManagement';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -29,6 +30,10 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/simulation" element={<SimulationPage />} />
             <Route path="/os/sync/*" element={<ProcessSync />} />
+            
+            {/* Process Management Module & Simulator Sandbox Routes */}
+            <Route path="/learn/process-management/*" element={<ProcessManagement />} />
+            <Route path="/os/process-management/*" element={<ProcessManagement />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>

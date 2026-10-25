@@ -31,7 +31,7 @@ const NAV_LINKS = [
     })),
   },
 
-  { name: "Sandbox", sandboxMenu: true },
+  { name: "Sandbox", href: "/learn/process-management/sandbox", sandboxMenu: true },
 ];
 
 export default function Navbar() {
@@ -76,12 +76,15 @@ export default function Navbar() {
               {link.href?.startsWith("/") ? (
                 <Link to={link.href} className={`navbar-link-btn ${hoveredNav === link.name ? 'active' : ''}`}>
                   {link.name}
+                  {(link.fullMenu || link.sandboxMenu) && (
+                    <ChevronDown size={15} className={`navbar-chevron ${hoveredNav === link.name ? 'rotate-180' : ''}`} />
+                  )}
                 </Link>
               ) : (
                 <a href={link.href || "#"} className={`navbar-link-btn ${hoveredNav === link.name ? 'active' : ''}`}>
                   {link.name}
                   {(link.fullMenu || link.sandboxMenu) && (
-                    <ChevronDown size={15} className={`navbar-chevron ${hoveredNav === link.name ? 'rotate-180' : ''}`}></ChevronDown>
+                    <ChevronDown size={15} className={`navbar-chevron ${hoveredNav === link.name ? 'rotate-180' : ''}`} />
                   )}
                 </a>
               )}
@@ -114,7 +117,7 @@ export default function Navbar() {
                     {mod.topics.map((topic, i) => (
                       <li key={topic.id || i}>
                         {topic.link ? (
-                          <Link to={topic.link} className="topic-link">
+                          <Link to={topic.link} className="topic-link" onClick={() => setHoveredNav(null)}>
                             <span>{topic.title}</span>
                             <ArrowRight size={16} className="topic-arrow-icon" />
                           </Link>
@@ -132,11 +135,20 @@ export default function Navbar() {
           {activeLink?.name === 'Sandbox' && (
             <div className="sandbox-content">
               <div className="sandbox-glow" />
-              <TerminalSquare size={44} className="sandbox-icon" />
-              <h3 className="sandbox-title">Environment Offline</h3>
-              <p className="sandbox-status">
-                Booting soon ...
+              <TerminalSquare size={44} className="sandbox-icon text-primary-accent" />
+              <h3 className="sandbox-title">Process Management Sandbox</h3>
+              <p className="sandbox-status" style={{ marginBottom: '1.25rem' }}>
+                Interactive CPU scheduler, process states &amp; IPC playground
               </p>
+              <Link
+                to="/learn/process-management/sandbox"
+                className="boot-system-btn"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', zIndex: 10, textDecoration: 'none' }}
+                onClick={() => setHoveredNav(null)}
+              >
+                <span>Launch Interactive Sandbox</span>
+                <ArrowRight size={16} />
+              </Link>
             </div>
           )}
         </div>
