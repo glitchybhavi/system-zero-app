@@ -1,0 +1,374 @@
+[
+  {
+    "id": "fe_1",
+    "topic": "Process Concept",
+    "question": "Why does the OS kernel assign isolated virtual memory ranges to each spawned PCB?",
+    "options": [
+      {
+        "id": "a",
+        "text": "To accelerate CPU clock frequency on multi-core processors.",
+        "isCorrect": false,
+        "explanation": "CPU clock speed is a hardware property and unrelated to virtual memory isolation."
+      },
+      {
+        "id": "b",
+        "text": "To prevent one buggy or malicious process from corrupting another process’s code, stack, and heap.",
+        "isCorrect": true,
+        "explanation": "Correct! Hardware MMU page tables guarantee process isolation so one faulting program cannot overwrite another."
+      },
+      {
+        "id": "c",
+        "text": "To avoid generating unique Process Identifiers (PIDs).",
+        "isCorrect": false,
+        "explanation": "PIDs are kernel integer identifiers allocated independently of memory ranges."
+      },
+      {
+        "id": "d",
+        "text": "To force all programs to run single-threaded.",
+        "isCorrect": false,
+        "explanation": "Virtual memory supports both single-threaded and multi-threaded processes."
+      }
+    ]
+  },
+  {
+    "id": "fe_2",
+    "topic": "Memory Segments",
+    "question": "Where is memory allocated when a program executes `malloc(1024)` in C or `new Object()` in JavaScript?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Text Segment",
+        "isCorrect": false,
+        "explanation": "The text segment holds machine instructions and is read-only."
+      },
+      {
+        "id": "b",
+        "text": "Heap Segment",
+        "isCorrect": true,
+        "explanation": "Correct! Dynamic runtime memory allocations are served from the process Heap."
+      },
+      {
+        "id": "c",
+        "text": "Stack Segment",
+        "isCorrect": false,
+        "explanation": "The stack stores local variables with automatic storage duration."
+      },
+      {
+        "id": "d",
+        "text": "ROM BIOS",
+        "isCorrect": false,
+        "explanation": "ROM BIOS is hardware motherboard firmware."
+      }
+    ]
+  },
+  {
+    "id": "fe_3",
+    "topic": "Process Control Block",
+    "question": "Which of the following data elements is NOT stored inside a Process Control Block (PCB)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Program Counter (PC)",
+        "isCorrect": false,
+        "explanation": "The PC is stored in the PCB so the CPU knows which instruction to resume."
+      },
+      {
+        "id": "b",
+        "text": "CPU Register States (Accumulators, Stack Pointer)",
+        "isCorrect": false,
+        "explanation": "Registers are saved in the PCB during context switches."
+      },
+      {
+        "id": "c",
+        "text": "The physical serial number of the computer’s power supply unit.",
+        "isCorrect": true,
+        "explanation": "Correct! The PCB only tracks process execution state, memory tables, accounting, and file descriptors."
+      },
+      {
+        "id": "d",
+        "text": "List of open file descriptors",
+        "isCorrect": false,
+        "explanation": "The file descriptor table is tracked directly in the PCB."
+      }
+    ]
+  },
+  {
+    "id": "fe_4",
+    "topic": "Lifecycle States",
+    "question": "A process that is ready to execute but waiting for CPU allocation is in which state?",
+    "options": [
+      {
+        "id": "a",
+        "text": "WAITING",
+        "isCorrect": false,
+        "explanation": "Waiting processes are blocked waiting on external I/O or events."
+      },
+      {
+        "id": "b",
+        "text": "READY",
+        "isCorrect": true,
+        "explanation": "Correct! Ready processes are waiting in the Ready queue for the scheduler to dispatch them."
+      },
+      {
+        "id": "c",
+        "text": "NEW",
+        "isCorrect": false,
+        "explanation": "New processes are currently undergoing initialization and have not entered the Ready queue."
+      },
+      {
+        "id": "d",
+        "text": "TERMINATED",
+        "isCorrect": false,
+        "explanation": "Terminated processes have concluded execution."
+      }
+    ]
+  },
+  {
+    "id": "fe_5",
+    "topic": "State Transitions",
+    "question": "What transition occurs when a process calls `scanf()` or `fetch()` and pauses waiting for user input?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Running ➔ Waiting",
+        "isCorrect": true,
+        "explanation": "Correct! The process cannot continue until input arrives, transitioning from Running to Waiting."
+      },
+      {
+        "id": "b",
+        "text": "Running ➔ Ready",
+        "isCorrect": false,
+        "explanation": "Running to Ready occurs due to timer preemption or voluntary yield, not blocking I/O."
+      },
+      {
+        "id": "c",
+        "text": "Ready ➔ Terminated",
+        "isCorrect": false,
+        "explanation": "A process cannot terminate directly from the Ready queue."
+      },
+      {
+        "id": "d",
+        "text": "Waiting ➔ Running",
+        "isCorrect": false,
+        "explanation": "A process must go through Ready before Running."
+      }
+    ]
+  },
+  {
+    "id": "fe_6",
+    "topic": "Process Operations",
+    "question": "How do Unix-based operating systems create a new program execution workflow?",
+    "options": [
+      {
+        "id": "a",
+        "text": "By calling fork() to duplicate the parent, followed by exec() to replace code with the new binary.",
+        "isCorrect": true,
+        "explanation": "Correct! The fork-exec pattern is the foundational creation paradigm in Unix/Linux systems."
+      },
+      {
+        "id": "b",
+        "text": "By rebooting the CPU core.",
+        "isCorrect": false,
+        "explanation": "Rebooting is an emergency recovery action, not process creation."
+      },
+      {
+        "id": "c",
+        "text": "By directly altering BIOS CMOS memory.",
+        "isCorrect": false,
+        "explanation": "CMOS memory stores motherboard hardware configurations."
+      },
+      {
+        "id": "d",
+        "text": "By calling wait() before allocating memory.",
+        "isCorrect": false,
+        "explanation": "wait() is called by parents to reap exited children."
+      }
+    ]
+  },
+  {
+    "id": "fe_7",
+    "topic": "Zombie Processes",
+    "question": "What keeps a Zombie process present in the kernel process table?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The parent process has not called wait() to collect the child’s exit status.",
+        "isCorrect": true,
+        "explanation": "Correct! The OS preserves the minimal PCB entry so the parent can inspect whether the child succeeded or crashed."
+      },
+      {
+        "id": "b",
+        "text": "The child process refused to release its RAM memory.",
+        "isCorrect": false,
+        "explanation": "All child RAM is freed immediately upon exit(); only the PCB metadata remains."
+      },
+      {
+        "id": "c",
+        "text": "A network socket is still streaming data.",
+        "isCorrect": false,
+        "explanation": "Open sockets are automatically closed by the kernel when a process terminates."
+      },
+      {
+        "id": "d",
+        "text": "The CPU scheduler crashed.",
+        "isCorrect": false,
+        "explanation": "The scheduler is unaffected by zombie status."
+      }
+    ]
+  },
+  {
+    "id": "fe_8",
+    "topic": "Orphan Processes",
+    "question": "What happens to an Orphan process when its parent terminates before it does?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The kernel sends SIGKILL to immediately terminate it.",
+        "isCorrect": false,
+        "explanation": "Orphan processes continue executing normally."
+      },
+      {
+        "id": "b",
+        "text": "It is adopted by PID 1 (init / systemd), which serves as its new parent and reaps it upon exit.",
+        "isCorrect": true,
+        "explanation": "Correct! PID 1 adopts orphaned processes to guarantee they are reaped properly when they finish."
+      },
+      {
+        "id": "c",
+        "text": "It takes over the parent’s PID.",
+        "isCorrect": false,
+        "explanation": "PIDs are strictly immutable and never inherited."
+      },
+      {
+        "id": "d",
+        "text": "Its memory is transferred to the BIOS.",
+        "isCorrect": false,
+        "explanation": "Memory remains safely in system RAM."
+      }
+    ]
+  },
+  {
+    "id": "fe_9",
+    "topic": "Context Switching",
+    "question": "What constitutes the direct computational cost (overhead) during a Context Switch?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Saving active registers/PC to the old PCB, loading new registers, and suffering cache/TLB misses.",
+        "isCorrect": true,
+        "explanation": "Correct! The CPU spends non-productive administrative cycles saving and swapping state."
+      },
+      {
+        "id": "b",
+        "text": "Recompiling the source code of the incoming binary.",
+        "isCorrect": false,
+        "explanation": "Executables in memory are already compiled machine code."
+      },
+      {
+        "id": "c",
+        "text": "Zero time cost — modern CPUs perform instantaneous context switches with no overhead.",
+        "isCorrect": false,
+        "explanation": "Context switching always incurs microsecond overhead and cache penalty."
+      },
+      {
+        "id": "d",
+        "text": "Writing the whole operating system to secondary disk storage.",
+        "isCorrect": false,
+        "explanation": "The OS remains resident in RAM."
+      }
+    ]
+  },
+  {
+    "id": "fe_10",
+    "topic": "CPU Scheduling",
+    "question": "In Round Robin (RR) scheduling, what happens when a process’s assigned time quantum expires?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The process is killed by the kernel.",
+        "isCorrect": false,
+        "explanation": "The process is simply preempted and placed at the tail of the Ready queue."
+      },
+      {
+        "id": "b",
+        "text": "A timer interrupt triggers a context switch, moving the process from RUNNING to READY.",
+        "isCorrect": true,
+        "explanation": "Correct! The kernel preempts the process, giving the next task in the Ready queue its turn."
+      },
+      {
+        "id": "c",
+        "text": "The process enters the WAITING state.",
+        "isCorrect": false,
+        "explanation": "A process only enters Waiting when blocked on I/O or an event."
+      },
+      {
+        "id": "d",
+        "text": "The priority of the process increases to maximum.",
+        "isCorrect": false,
+        "explanation": "Time quantum expiration does not increase priority."
+      }
+    ]
+  },
+  {
+    "id": "fe_11",
+    "topic": "IPC Mechanisms",
+    "question": "Why does Shared Memory provide higher throughput than Message Passing pipes?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Shared Memory avoids copying data back and forth through kernel memory buffers.",
+        "isCorrect": true,
+        "explanation": "Correct! Both processes read/write directly to common RAM at bus speed without system call copies."
+      },
+      {
+        "id": "b",
+        "text": "Shared Memory uses fiber-optic CPU cables.",
+        "isCorrect": false,
+        "explanation": "Both mechanisms operate on standard silicon hardware."
+      },
+      {
+        "id": "c",
+        "text": "Message passing does not support integers.",
+        "isCorrect": false,
+        "explanation": "Message passing supports all arbitrary binary and textual data."
+      },
+      {
+        "id": "d",
+        "text": "Shared memory automatically guarantees zero race conditions.",
+        "isCorrect": false,
+        "explanation": "Shared memory requires manual mutex locking to prevent race conditions."
+      }
+    ]
+  },
+  {
+    "id": "fe_12",
+    "topic": "Concurrency & Locks",
+    "question": "What occurs if two processes write to a shared memory segment simultaneously without Mutex synchronization?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A Race Condition, resulting in corrupted or inconsistent data.",
+        "isCorrect": true,
+        "explanation": "Correct! Without mutual exclusion, interleaved writes produce unpredictable data corruption."
+      },
+      {
+        "id": "b",
+        "text": "The hardware motherboard catches fire.",
+        "isCorrect": false,
+        "explanation": "Hardware is not damaged by concurrent memory writes."
+      },
+      {
+        "id": "c",
+        "text": "The OS automatically translates the writes into JSON.",
+        "isCorrect": false,
+        "explanation": "The OS does not format unmanaged memory writes."
+      },
+      {
+        "id": "d",
+        "text": "Both processes are promoted to kernel administrator privileges.",
+        "isCorrect": false,
+        "explanation": "Privilege escalation does not occur from unsynchronized writes."
+      }
+    ]
+  }
+]

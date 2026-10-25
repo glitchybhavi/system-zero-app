@@ -16,7 +16,7 @@ export const CURRICULUM_MODULES = [
     title: "Operating Systems",
     iconType: "layers",
     topics: [
-      { id: 4, title: "Process Management" },
+      { id: 4, title: "Process Management", link: "/learn/process-management" },
       { id: 5, title: "Process Synchronization", link: "/os/sync" },
       { id: 6, title: "Storage & Disk Scheduling", link: "/os/disk" },
     ],
