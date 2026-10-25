@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { ThemeProvider } from './context/ThemeContext';
 import LandingPage from './landingPage/LandingPage';
 import SimulationPage from './bootSystem/SimulationPage';
+import IsaDesignPage from './arch/isa/IsaDesignPage';
+import DiskSchedulingPage from './storage/disk/DiskSchedulingPage';
 import NotFound from './notFound/NotFound';
 import ProcessSync from './os/process-synchronization/ProcessSync';
 
@@ -28,6 +30,8 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/simulation" element={<SimulationPage />} />
+            <Route path="/arch/isa" element={<IsaDesignPage />} />
+            <Route path="/os/disk" element={<DiskSchedulingPage />} />
             <Route path="/os/sync/*" element={<ProcessSync />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

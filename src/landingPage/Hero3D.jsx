@@ -29,6 +29,7 @@ export default function Hero3D() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
 

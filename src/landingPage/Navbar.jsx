@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Sun,
   Moon,
@@ -6,8 +6,7 @@ import {
   TerminalSquare,
   Cpu,
   Layers,
-  ArrowRight,
-  CircleAlert
+  ArrowRight
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { CURRICULUM_MODULES } from "./curriculumData";
@@ -40,19 +39,6 @@ export default function Navbar() {
 
   const activeLink = NAV_LINKS.find((link) => link.name === hoveredNav);
   const isOpen = Boolean(activeLink?.fullMenu || activeLink?.sandboxMenu);
-
-  const [showToast, setShowToast] = useState(false); 
-
-  const handleThemeClick = () => {
-    setShowToast(true); 
-  };
-
-  useEffect(() => {
-    if (showToast) {
-      const timer = setTimeout(() => setShowToast(false), 3000); 
-      return () => clearTimeout(timer); 
-    }
-  }, [showToast]);
 
   return (
     <nav className="navbar" onMouseLeave={() => setHoveredNav(null)}>
@@ -90,7 +76,7 @@ export default function Navbar() {
         </div>
 
         <div className="navbar-controls">
-          <button onClick={handleThemeClick} aria-label="Toggle theme" className="theme-toggle-btn">
+          <button onClick={toggleTheme} aria-label="Toggle theme" className="theme-toggle-btn">
             {theme === 'dark' ? <Sun size={nav_icon_size} /> : <Moon size={nav_icon_size} />}
           </button>
 
@@ -141,13 +127,6 @@ export default function Navbar() {
           )}
         </div>
       </div>
-
-      {showToast && (
-        <div className="theme-toast">
-          <CircleAlert/>
-          <span>Switching to Light mode is currently unavailable.</span>
-        </div>
-      )}
     </nav>
   );
 }

@@ -1,4 +1,4 @@
-:root {
+.process-sync-root {
   --bg: #0a0a0c;
   --panel: #12141a;
   --raised: #181b22;
@@ -19,20 +19,6 @@
   --font-ui: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
   --font-mono: var(--font-ui);
 
-  --bg-base: var(--bg);
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html,
-body,
-#root {
   min-height: 100%;
   width: 100%;
   background-color: var(--bg);
