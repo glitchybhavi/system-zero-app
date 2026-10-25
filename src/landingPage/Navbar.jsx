@@ -148,7 +148,6 @@ export default function Navbar() {
           <span>Switching to Light mode is currently unavailable.</span>
         </div>
       )}
-3
     </nav>
   );
 }

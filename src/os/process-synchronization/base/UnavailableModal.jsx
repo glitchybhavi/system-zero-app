@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 import '../styles/UnavailableModal.css';
@@ -8,6 +9,16 @@ export default function UnavailableModal(props) {
   function goBack() {
     navigate(-1);
   }
+
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === 'Escape') {
+        goBack();
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   let modalTitle = 'Currently Unavailable';
   if (props.title) {
@@ -26,8 +37,8 @@ export default function UnavailableModal(props) {
 
   return (
     <div className="sim-container">
-      <div className="modal-backdrop">
-        <div className="modal-card">
+      <div className="modal-backdrop" onClick={goBack}>
+        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
           <div className="modal-icon-box">
             <AlertCircle className="modal-icon" size={26} />
           </div>

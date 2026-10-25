@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { THREAD_COLORS } from '../base/utils';
+import { THREAD_COLORS, INITIAL_BALANCE, INCREMENT_VALUE } from '../base/utils';
+import { applyConfig } from './configSlice';
 
 const initialState = {
-  initialBalance: 100,
-  incrementValue: 10,
-  balance: 100,
-  expectedBalance: 100,
+  initialBalance: INITIAL_BALANCE,
+  incrementValue: INCREMENT_VALUE,
+  balance: INITIAL_BALANCE,
+  expectedBalance: INITIAL_BALANCE,
   count: 0,
   speed: 1,
   mode: 'manual',
@@ -57,9 +58,15 @@ export const raceConditionSlice = createSlice({
         p.line = 1;
         p.local = null;
         p.loadedBalance = null;
-        p.status = 'ready';
+        p.status = 'spawning';
         p.color = THREAD_COLORS[p.id % THREAD_COLORS.length];
         state.auditLog.unshift(`P${p.id} completed cycle`);
+      }
+    },
+    readyProcess: (state, action) => {
+      const track = action.payload;
+      if (state.processes[track]) {
+        state.processes[track].status = 'ready';
       }
     },
     setFlag: (state, action) => {
@@ -67,20 +74,6 @@ export const raceConditionSlice = createSlice({
     },
     setTurn: (state, action) => {
       state.turn = action.payload;
-    },
-    applyConfig: (state, action) => {
-      state.initialBalance = action.payload.initialBalance;
-      state.incrementValue = action.payload.incrementValue;
-      state.balance = action.payload.initialBalance;
-      state.expectedBalance = action.payload.initialBalance;
-      state.count = 0;
-      state.flag = [false, false];
-      state.turn = 0;
-      state.processes = [
-        { id: 0, track: 0, line: 1, local: null, loadedBalance: null, status: 'ready', color: THREAD_COLORS[0] },
-        { id: 1, track: 1, line: 1, local: null, loadedBalance: null, status: 'ready', color: THREAD_COLORS[1] },
-      ];
-      state.auditLog.unshift(`Config updated: Balance ₹${action.payload.initialBalance}, Increment ₹${action.payload.incrementValue}`);
     },
     resetSim: (state) => {
       state.balance = state.initialBalance;
@@ -95,16 +88,35 @@ export const raceConditionSlice = createSlice({
       state.auditLog.unshift('Simulation reset.');
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(applyConfig, (state, action) => {
+      state.initialBalance = action.payload.initialBalance;
+      state.incrementValue = action.payload.incrementValue;
+      state.balance = action.payload.initialBalance;
+      state.expectedBalance = action.payload.initialBalance;
+      state.count = 0;
+      state.flag = [false, false];
+      state.turn = 0;
+      state.processes = [
+        { id: 0, track: 0, line: 1, local: null, loadedBalance: null, status: 'ready', color: THREAD_COLORS[0] },
+        { id: 1, track: 1, line: 1, local: null, loadedBalance: null, status: 'ready', color: THREAD_COLORS[1] },
+      ];
+      state.auditLog.unshift(`Config updated: Balance ₹${action.payload.initialBalance}, Increment ₹${action.payload.incrementValue}`);
+    });
+  },
 });
 
 export const {
   setMode,
   setSpeed,
   stepProcess,
+  readyProcess,
   setFlag,
   setTurn,
-  applyConfig,
   resetSim,
 } = raceConditionSlice.actions;
 
+export { applyConfig };
+
 export default raceConditionSlice.reducer;
+

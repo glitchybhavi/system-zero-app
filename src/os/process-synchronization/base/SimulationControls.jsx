@@ -1,23 +1,27 @@
-import { useContext } from 'react';
-import { RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { useContext, useState } from 'react';
+import { RotateCcw, SlidersHorizontal, Play, Pause, Square, Plus, Minus } from 'lucide-react';
 import { SyncUIContext } from '../context/SyncUIContext';
 
-const SPEED_OPTIONS = [0.5, 1, 2];
 
 export default function SimulationControls(props) {
   const syncUI = useContext(SyncUIContext);
 
-  let currentSpeedIndex = 1;
-  for (let i = 0; i < SPEED_OPTIONS.length; i++) {
-    if (props.speed === SPEED_OPTIONS[i]) {
-      currentSpeedIndex = i;
-    }
+  function changeSpeed(event) {
+    const newSpeed = parseFloat(event.target.value); 
+    props.setSpeed(newSpeed);
   }
 
-  function changeSpeed(event) {
-    const index = parseInt(event.target.value, 10);
-    props.setSpeed(SPEED_OPTIONS[index]);
+  function decreaseSpeed() {
+    const nextSpeed = Math.max(0.5, Math.round((props.speed - 0.25) * 100 ) / 100); 
+    props.setSpeed(nextSpeed);  
   }
+
+  function increaseSpeed() {
+    const nextSpeed = Math.min(2, Math.round((props.speed + 0.25 ) * 100) / 100); 
+    props.setSpeed(nextSpeed)
+  }
+
+ 
 
   function openConfig() {
     if (syncUI) {
@@ -65,35 +69,105 @@ export default function SimulationControls(props) {
       </div>
     );
   } else {
-    const ticks = [];
-    for (let i = 0; i < SPEED_OPTIONS.length; i++) {
+    const presetSpeeds = [0.5, 1, 2];
+
+    const ticks = presetSpeeds.map((preset) => {
       let tickClass = 'slider-tick';
-      if (props.speed === SPEED_OPTIONS[i]) {
+      if (props.speed === preset) {
         tickClass = 'slider-tick active';
       }
 
-      ticks.push(
-        <span key={SPEED_OPTIONS[i]} className={tickClass} onClick={() => props.setSpeed(SPEED_OPTIONS[i])}>
-          {SPEED_OPTIONS[i]}x
+      const percent = ((preset - 0.5) / (2 - 0.5)) * 100;
+
+      return (
+        <span
+          key={preset}
+          className={tickClass}
+          style={{ left: `${percent}%` }}
+          onClick={() => props.setSpeed(preset)}
+        >
+          {preset === 1 ? '1' : `${preset}x`}
         </span>
       );
-    }
+    });
+
+    const SpeedControlBtnStrokeWidth = 3.5;
+    const SpeedControlBtnSize = 15;
 
     modeControls = (
       <div className="control-group">
         <label>Simulation Speed ({props.speed}x)</label>
-        <input
-          type="range"
-          className="custom-range-slider"
-          min="0"
-          max="2"
-          step="1"
-          value={currentSpeedIndex}
-          onChange={changeSpeed}
-        />
-        <div className="slider-ticks">{ticks}</div>
+
+        <div className="auto-controls-row">
+          <div className="speed-slider-group">
+            <div className="slider-with-buttons">
+              <button
+                type="button"
+                className="btn-speed-step"
+                onClick={decreaseSpeed}
+                disabled={props.speed <= 0.5}
+                title="Decrease speed"
+              >
+                <Minus size={SpeedControlBtnSize} strokeWidth={SpeedControlBtnStrokeWidth} />
+              </button>
+
+              <div className="slider-input-wrap">
+                <input
+                  type="range"
+                  className="custom-range-slider"
+                  min="0.5"
+                  max="2"
+                  step="0.1"
+                  value={props.speed}
+                  onChange={changeSpeed}
+                />
+              </div>
+
+              <button
+                type="button"
+                className="btn-speed-step"
+                onClick={increaseSpeed}
+                disabled={props.speed >= 2}
+                title="Increase speed"
+              >
+                <Plus size={SpeedControlBtnSize} strokeWidth={SpeedControlBtnStrokeWidth} />
+              </button>
+            </div>
+
+            <div className="slider-ticks-row">
+              <div className="slider-ticks">{ticks}</div>
+            </div>
+          </div>
+
+          <div className="playback-actions">
+            <button
+              type="button"
+              className="btn-playback btn-playback-toggle"
+              onClick={props.onTogglePause}
+              title={props.isPaused ? 'Resume' : 'Pause'}
+            >
+              {props.isPaused ? (
+                <Play size={13} fill="currentColor" />
+              ) : (
+                <Pause size={13} fill="currentColor" />
+              )}
+              <span>{props.isPaused ? 'Resume' : 'Pause'}</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn-playback btn-playback-stop"
+              onClick={props.onStop}
+              title="Stop"
+            >
+              <Square size={12} fill="currentColor" />
+              <span>Stop</span>
+            </button>
+          </div>
+        </div>
       </div>
     );
+
   }
 
   return (

@@ -36,7 +36,7 @@
 
 .theory-toolbar {
   position: sticky;
-  top: 4rem;
+  top: 4.5rem;
   z-index: 20;
   display: flex;
   flex-wrap: wrap;
@@ -50,22 +50,68 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-.theory-search-input {
+.theory-search-wrapper {
+  position: relative;
   flex: 1;
   min-width: 260px;
+  display: flex;
+  align-items: center;
+}
+
+.theory-search-input {
+  width: 100%;
   background: #090a0f;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
-  padding: 10px 16px;
+  padding: 10px 42px 10px 16px;
   color: #ffffff;
   font-family: var(--font-ui);
   font-size: 16px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .theory-search-input:focus {
   border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+}
+
+.clearSearch {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.clearSearch button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease;
+}
+
+.clearSearch button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+.clearSearch button:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .theory-filter-group {

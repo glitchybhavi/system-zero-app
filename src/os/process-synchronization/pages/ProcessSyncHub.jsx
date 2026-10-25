@@ -1,7 +1,7 @@
 import "../styles/ProcessSyncHub.css";
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, X, XCircle } from "lucide-react";
 import CustomDropDown from "../base/CustomDropDown";
 
 const TOPICS = [
@@ -558,6 +558,11 @@ export default function ProcessSyncHub() {
     setPage(1);
   }
 
+  function handleClearSearch(event) {
+    setSearch(""); 
+    setPage(1);
+  }
+
   function handlePerPageChange(event) {
     setPerPage(event.target.value);
     setPage(1);
@@ -692,13 +697,27 @@ export default function ProcessSyncHub() {
         </header>
 
         <div className="theory-toolbar">
-          <input
-            type="text"
-            className="theory-search-input"
-            placeholder="Search topic..."
-            value={search}
-            onChange={handleSearchChange}
-          />
+          <div className="theory-search-wrapper">
+            <input
+              type="text"
+              className="theory-search-input"
+              placeholder="Search topic..."
+              value={search}
+              onChange={handleSearchChange}
+            />
+            {search && (
+              <div className="clearSearch">
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  title="Clear search"
+                  aria-label="Clear search"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            )}
+          </div>
           <div className="theory-filter-group">
             <label htmlFor="topics-per-page">Topics per page:</label>
             <CustomDropDown

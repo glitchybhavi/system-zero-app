@@ -3,14 +3,19 @@
     left: 100%;
     transform: translateY(-50%) translateX(-100%);
     opacity: 0;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
-  15% {
+  20% {
+    left: 71%;
+    transform: translateY(-50%) translateX(-50%);
     opacity: 1;
-    transform: translateY(-50%) translateX(-85%);
+    animation-timing-function: linear;
   }
-  85% {
+  80% {
+    left: 29%;
+    transform: translateY(-50%) translateX(-50%);
     opacity: 1;
-    transform: translateY(-50%) translateX(-15%);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.84, 0);
   }
   100% {
     left: 0%;
@@ -41,7 +46,7 @@
 }
 
 .currency-token.flow-load {
-  animation: currencyLoadFlow 1.8s  cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
+  animation: currencyLoadFlow 1.05s forwards;
 }
 
 .currency-token.flow-store {

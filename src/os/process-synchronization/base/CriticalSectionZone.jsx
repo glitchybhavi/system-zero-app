@@ -3,9 +3,9 @@ import Balance from './Balance';
 import { INCREMENT_VALUE } from './utils';
 
 export default function CriticalSectionZone(props) {
-  const reduxBalance = useSelector((state) => state.raceCondition.balance);
-  const reduxExpected = useSelector((state) => state.raceCondition.expectedBalance);
-  const reduxInc = useSelector((state) => state.raceCondition.incrementValue);
+  const reduxBalance = useSelector((state) => state.raceCondition?.balance);
+  const reduxExpected = useSelector((state) => state.raceCondition?.expectedBalance);
+  const reduxInc = useSelector((state) => state.config?.incrementValue ?? state.raceCondition?.incrementValue);
 
   let sharedBalance = props.sharedBalance;
   if (sharedBalance === undefined) {
@@ -18,7 +18,9 @@ export default function CriticalSectionZone(props) {
   }
 
   let incVal = INCREMENT_VALUE;
-  if (reduxInc !== undefined) {
+  if (props.incrementValue !== undefined) {
+    incVal = props.incrementValue;
+  } else if (reduxInc !== undefined) {
     incVal = reduxInc;
   }
 

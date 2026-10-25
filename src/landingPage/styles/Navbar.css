@@ -46,10 +46,11 @@
 .navbar-container {
   position: relative;
   z-index: 30;
-  max-width: 80rem;
+  /* top: 0.675rem; */
+  max-width: 90rem;
   margin: 0 auto;
   padding: 0 2rem;
-  height: 4rem;
+  height: 4.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -243,6 +244,8 @@
   opacity: 1;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
   pointer-events: auto;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
 }
 
 .dark .navbar-dropdown.is-open {

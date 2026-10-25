@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import ArenaTrackLayer from './ArenaTrackLayer';
 import ProcessCard from './ProcessCard';
@@ -10,11 +10,13 @@ import {
   setMode,
   setSpeed,
   stepProcess,
+  readyProcess,
   resetSim,
 } from '../store/raceConditionSlice';
 import {
   replaceAt,
 } from './utils';
+import { SyncUIContext } from '../context/SyncUIContext';
 
 const LOAD_LINE = 2;
 const ADD_LINE = 3;
@@ -29,6 +31,7 @@ const TRACKS = [
 const NO_PACKET = { type: null, id: 0, color: '', value: null };
 
 export default function RaceConditionSimulator({ children }) {
+  const syncUI = useContext(SyncUIContext);
   const dispatch = useDispatch();
 
   const balance = useSelector((state) => state.raceCondition.balance);
@@ -36,7 +39,7 @@ export default function RaceConditionSimulator({ children }) {
   const speed = useSelector((state) => state.raceCondition.speed);
   const mode = useSelector((state) => state.raceCondition.mode);
   const processes = useSelector((state) => state.raceCondition.processes);
-  const incrementValue = useSelector((state) => state.raceCondition.incrementValue);
+  const incrementValue = useSelector((state) => state.config?.incrementValue ?? state.raceCondition.incrementValue);
 
   const [exiting, setExiting] = useState([null, null]);
   const [autoTurn, setAutoTurn] = useState(0);
@@ -44,6 +47,7 @@ export default function RaceConditionSimulator({ children }) {
   const [packet1, setPacket1] = useState(NO_PACKET);
   const [isPulsing, setIsPulsing] = useState(false);
   const [isAlarm, setIsAlarm] = useState(false);
+  const [isPaused, setIsPaused] = useState(false); 
 
   function showPacket(slot, type, color, value) {
     const packet = { type: type, id: Date.now(), color: color, value: value };
@@ -61,12 +65,15 @@ export default function RaceConditionSimulator({ children }) {
 
     if (p.line === STORE_LINE) {
       const finished = { ...p, line: FINISHED_LINE, status: 'terminated' };
-      setExiting(replaceAt(exiting, trackIndex, finished));
+      setExiting((old) => replaceAt(old, trackIndex, finished));
       setTimeout(() => {
-        setExiting((old) => replaceAt(old, trackIndex, null));
+        setExiting((old) => (old[trackIndex]?.id === finished.id ? replaceAt(old, trackIndex, null) : old));
       }, 1500);
 
       dispatch(stepProcess(trackIndex));
+      setTimeout(() => {
+        dispatch(readyProcess(trackIndex));
+      }, 900);
     } else {
       const nextLine = p.line + 1;
 
@@ -102,10 +109,21 @@ export default function RaceConditionSimulator({ children }) {
     setPacket1(NO_PACKET);
     setIsPulsing(false);
     setIsAlarm(false);
+    setIsPaused(false);
   }
 
   function handleSetMode(newMode) {
+    setIsPaused(false);
     dispatch(setMode(newMode));
+  }
+
+  function handleTogglePause() {
+    setIsPaused(!isPaused);  
+  }
+
+  function handleStop() {
+    setIsPaused(false); 
+    dispatch(setMode('manual'));
   }
 
   function handleSetSpeed(newSpeed) {
@@ -127,11 +145,11 @@ export default function RaceConditionSimulator({ children }) {
   }
 
   useEffect(() => {
-    if (mode === 'auto') {
+    if (mode === 'auto' && !isPaused) {
       const timer = setInterval(autoStep, 1100 / speed);
       return () => clearInterval(timer);
     }
-  }, [mode, speed, processes, autoTurn]);
+  }, [mode, speed, processes, autoTurn, isPaused]);
 
   const code = [
     { line: 1, text: 'void deposit() {' },
@@ -155,9 +173,36 @@ export default function RaceConditionSimulator({ children }) {
     }
   }
 
+  function getGuideText() {
+  if (lost > 0) {
+    return `Race condition detected! Lost ₹${lost} due to concurrent overwrite.`;
+  }
+  const p0 = processes[0];
+  const p1 = processes[1];
+  if (p0.line >= 2 && p0.line <= 4 && p1.line >= 2 && p1.line <= 4) {
+    return 'Critical overlap! Both processes are executing simultaneously without a lock.';
+  }
+  if (p0.line === 2 || p1.line === 2) {
+    return 'A process read the vault balance into its local register.';
+  }
+  if (p0.line === 3 || p1.line === 3) {
+    return 'A process added increment amount to its local value.';
+  }
+  if (p0.line === 4 || p1.line === 4) {
+    return 'A process wrote its local value back to the shared vault.';
+  }
+  return 'Ready. Step either process to begin the simulation.';
+}
+
+
   return (
     <section className="sim-container">
       <div className="sim-arena">
+        {syncUI?.showGuide && (
+  <div className="sim-guide-panel">
+    <span className="sim-guide-text">{getGuideText()}</span>
+  </div>
+)}
         <ArenaTrackLayer tracks={TRACKS} gate0Locked={false} gate1Locked={false} />
 
         {exitingCards}
@@ -172,6 +217,7 @@ export default function RaceConditionSimulator({ children }) {
           busPacket1={packet1}
           sharedBalance={balance}
           expectedBalance={expectedBalance}
+          incrementValue={incrementValue}
           drift={lost}
           vaultPulse={isPulsing}
           alarmActive={isAlarm}
@@ -187,6 +233,9 @@ export default function RaceConditionSimulator({ children }) {
           processes={processes}
           onStep={nextStep}
           onReset={handleReset}
+          isPaused={isPaused}
+          onTogglePause={handleTogglePause}
+          onStop={handleStop}
         />
 
         <CodeViewer title="deposit.c" code={code} processes={processes} maxLine={STORE_LINE} />
