@@ -1,0 +1,58 @@
+name: Protect Code
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'src/os/process-synchronization/**'
+      - 'src/notFound/**'
+  push:
+    paths:
+      - 'src/os/process-synchronization/**'
+      - 'src/notFound/**'
+
+jobs:
+  verify-ownership:
+    name: Verify Code Ownership
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify Authorized Actor and Committers
+        run: |
+          ALLOWED_ACTOR="Pranav-Kukreja10"
+          ALLOWED_EMAILS=("pranav3083.beai25@chitkara.edu.in" "pranavkukreja492@gmail.com")
+
+          ACTOR="${{ github.actor }}"
+          echo "GitHub Actor: $ACTOR"
+
+          if [ "$ACTOR" != "$ALLOWED_ACTOR" ]; then
+            echo "::error title=Unauthorized Modification::Actor '$ACTOR' is not authorized to edit protected files. Only @$ALLOWED_ACTOR can edit these files."
+            exit 1
+          fi
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_REF="origin/${{ github.base_ref }}"
+            CHANGED_FILES=$(git diff --name-only "$BASE_REF" HEAD -- 'src/os/process-synchronization/**' 'src/notFound/**')
+            if [ -n "$CHANGED_FILES" ]; then
+              COMMIT_EMAILS=$(git log "$BASE_REF"..HEAD --format="%ae" | sort -u)
+              for EMAIL in $COMMIT_EMAILS; do
+                MATCH=false
+                for ALLOWED in "${ALLOWED_EMAILS[@]}"; do
+                  if [ "$EMAIL" = "$ALLOWED" ]; then
+                    MATCH=true
+                    break
+                  fi
+                done
+                if [ "$MATCH" = false ]; then
+                  echo "::error title=Unauthorized Committer::Commit author email '$EMAIL' is not authorized for protected files."
+                  exit 1
+                fi
+              done
+            fi
+          fi
+
+          echo "Ownership verification passed for @$ALLOWED_ACTOR."
