@@ -1,12 +1,5 @@
 import React, { useEffect } from 'react';
 
-/**
- * QuizToast (Toast Notification Component)
- * 
- * Demonstrates:
- * - Conditional rendering
- * - useEffect with setTimeout and cleanup (clearTimeout)
- */
 export default function QuizToast({ toast, onClose }) {
   useEffect(() => {
     if (!toast) return;
@@ -16,7 +9,6 @@ export default function QuizToast({ toast, onClose }) {
       onClose();
     }, 3500);
 
-    // Cleanup timer on unmount or if toast changes
     return () => clearTimeout(timer);
   }, [toast, onClose]);
 

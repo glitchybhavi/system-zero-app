@@ -306,3 +306,179 @@
   color: #cbd5e1;
   font-size: 15px;
 }
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES FOR THEORY HUB
+   ========================================================================== */
+html.light .theory-page-container,
+.light .theory-page-container,
+.theory-page-container.light {
+  color: #0A2540;
+}
+
+html.light .theory-article-header,
+.light .theory-article-header {
+  border-bottom-color: rgba(10, 37, 64, 0.1);
+}
+
+html.light .theory-article-header h1,
+.light .theory-article-header h1 {
+  color: #0A2540;
+}
+
+html.light .theory-subtitle,
+.light .theory-subtitle {
+  color: #4F566B;
+}
+
+html.light .theory-toolbar,
+.light .theory-toolbar {
+  background: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.1);
+  box-shadow: 0 4px 16px rgba(10, 37, 64, 0.06);
+}
+
+html.light .theory-search-input,
+.light .theory-search-input {
+  background: #F8FAFC;
+  border-color: rgba(10, 37, 64, 0.15);
+  color: #0A2540;
+}
+
+html.light .theory-search-input:focus,
+.light .theory-search-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+html.light .clearSearch button,
+.light .clearSearch button {
+  background: rgba(10, 37, 64, 0.06);
+  border-color: rgba(10, 37, 64, 0.12);
+  color: #4F566B;
+}
+
+html.light .clearSearch button:hover,
+.light .clearSearch button:hover {
+  background: rgba(10, 37, 64, 0.12);
+  color: #0A2540;
+}
+
+html.light .theory-filter-group,
+.light .theory-filter-group {
+  color: #4F566B;
+}
+
+html.light .theory-per-page-select,
+.light .theory-per-page-select {
+  background: #F8FAFC;
+  border-color: rgba(10, 37, 64, 0.15);
+  color: #0A2540;
+}
+
+html.light .theory-section,
+.light .theory-section {
+  background: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.08);
+  box-shadow: 0 4px 20px rgba(10, 37, 64, 0.05);
+}
+
+html.light .theory-section h2,
+.light .theory-section h2 {
+  color: #0A2540;
+  border-bottom-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .theory-section h3,
+.light .theory-section h3 {
+  color: #0A2540;
+}
+
+html.light .theory-section p,
+.light .theory-section p {
+  color: #334155;
+}
+
+html.light .theory-section strong,
+.light .theory-section strong {
+  color: #0A2540;
+}
+
+html.light .theory-section em,
+.light .theory-section em {
+  color: #334155;
+}
+
+html.light .theory-section li,
+.light .theory-section li {
+  color: #334155;
+}
+
+html.light .theory-section code,
+.light .theory-section code {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.2);
+  color: #0369a1;
+}
+
+html.light .theory-visualize-btn,
+.light .theory-visualize-btn {
+  background: #F1F5F9;
+  border-color: rgba(10, 37, 64, 0.12);
+  color: #0A2540;
+  box-shadow: 0 2px 8px rgba(10, 37, 64, 0.06);
+}
+
+html.light .theory-visualize-btn:hover,
+.light .theory-visualize-btn:hover {
+  background: #E2E8F0;
+  border-color: rgba(10, 37, 64, 0.2);
+}
+
+html.light .theory-conclusion,
+.light .theory-conclusion {
+  background: #F0FDF4;
+  border-color: rgba(16, 185, 129, 0.2);
+  border-left-color: #059669;
+  color: #166534;
+}
+
+html.light .theory-empty-state,
+.light .theory-empty-state {
+  background: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.08);
+  color: #64748B;
+}
+
+html.light .theory-pagination,
+.light .theory-pagination {
+  background: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.1);
+  box-shadow: 0 4px 16px rgba(10, 37, 64, 0.06);
+}
+
+html.light .theory-page-btn,
+.light .theory-page-btn {
+  background: #F8FAFC;
+  border-color: rgba(10, 37, 64, 0.12);
+  color: #334155;
+}
+
+html.light .theory-page-btn:hover:not(:disabled),
+.light .theory-page-btn:hover:not(:disabled) {
+  background: #EDF2F7;
+  color: #0A2540;
+  border-color: rgba(10, 37, 64, 0.2);
+}
+
+html.light .theory-page-btn.active,
+.light .theory-page-btn.active {
+  background: #0284c7;
+  color: #FFFFFF;
+  border-color: #0284c7;
+}
+
+html.light .theory-page-info,
+.light .theory-page-info {
+  color: #64748B;
+}

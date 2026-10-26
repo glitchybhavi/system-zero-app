@@ -2,7 +2,7 @@ import React from 'react';
 import { useProcessSandbox } from '../state/ProcessSandboxContext';
 
 export default function CpuCoreVisualizer() {
-  const { state, blockProcess, killProcess } = useProcessSandbox();
+  const { state, blockProcess, killProcess, completeProcess } = useProcessSandbox();
   const { runningPid, processes, settings } = state;
 
   const runningProc = processes.find((p) => p.pid === runningPid);
@@ -67,6 +67,18 @@ export default function CpuCoreVisualizer() {
 
           {/* Actions on Running Process */}
           <div className="running-actions-row">
+            <div className="action-btn-with-caption">
+              <button
+                type="button"
+                className="running-action-btn complete-btn font-mono"
+                onClick={() => completeProcess(runningProc.pid)}
+                title="Complete execution and remove PCB from table"
+              >
+                ✓ Complete (exit)
+              </button>
+              <span className="action-caption">Finishes & removes from PCB table</span>
+            </div>
+
             <div className="action-btn-with-caption">
               <button
                 type="button"

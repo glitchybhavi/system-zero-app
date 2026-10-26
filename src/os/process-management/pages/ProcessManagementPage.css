@@ -135,3 +135,62 @@
     align-items: flex-start;
   }
 }
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES FOR PM PAGE
+   ========================================================================== */
+html.light .pm-page-root,
+.light .pm-page-root,
+.pm-page-root.light {
+  background-color: #F6F9FC;
+}
+
+html.light .pm-breadcrumb-link,
+.light .pm-breadcrumb-link {
+  color: #4F566B;
+}
+
+html.light .pm-breadcrumb-link:hover,
+.light .pm-breadcrumb-link:hover {
+  color: #0284c7;
+}
+
+html.light .pm-breadcrumb-sep,
+.light .pm-breadcrumb-sep {
+  color: #94A3B8;
+}
+
+html.light .pm-breadcrumb-current,
+.light .pm-breadcrumb-current {
+  color: #0A2540;
+}
+
+html.light .pm-nav-card,
+.light .pm-nav-card {
+  background-color: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.08);
+  box-shadow: 0 2px 8px rgba(10, 37, 64, 0.04);
+}
+
+html.light .pm-nav-card:hover,
+.light .pm-nav-card:hover {
+  background-color: #F8FAFC;
+  border-color: rgba(2, 132, 199, 0.4);
+  box-shadow: 0 8px 24px rgba(10, 37, 64, 0.08);
+}
+
+html.light .pm-nav-direction,
+.light .pm-nav-direction {
+  color: #0284c7;
+}
+
+html.light .pm-nav-title,
+.light .pm-nav-title {
+  color: #0A2540;
+}
+
+html.light .pm-nav-badge,
+.light .pm-nav-badge {
+  color: #4F566B;
+  background-color: rgba(10, 37, 64, 0.06);
+}

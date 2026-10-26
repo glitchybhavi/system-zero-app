@@ -10,6 +10,7 @@ export function ProgressProvider({ children }) {
     'process-management': false,
   });
 
+  //  sets the requested module’s value to true.
   const markModuleCompleted = (moduleId) => {
     setCompletedModules((prev) => ({
       ...prev,
@@ -24,6 +25,7 @@ export function ProgressProvider({ children }) {
   );
 }
 
+// a custom hook that lets a component read the shared context.
 export function useProgress() {
   const context = useContext(ProgressContext);
   return context || { completedModules: {}, markModuleCompleted: () => {} };

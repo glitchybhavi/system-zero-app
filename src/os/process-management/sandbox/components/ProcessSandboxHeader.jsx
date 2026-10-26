@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useProcessSandbox } from '../state/ProcessSandboxContext';
 import { SCHEDULING_ALGORITHMS } from '../engine/schedulerEngine';
 
-export default function ProcessSandboxHeader({ onOpenQuiz }) {
+export default function ProcessSandboxHeader() {
   const {
     state,
     clock,

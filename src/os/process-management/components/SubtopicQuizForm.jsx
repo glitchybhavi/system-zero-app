@@ -17,6 +17,8 @@ export default function SubtopicQuizForm({ quizData }) {
   const [unansweredList, setUnansweredList] = useState([]);
   const [validationMsg, setValidationMsg] = useState(null);
 
+  // When a student selects an answer, 
+  // handleSelectOption updates the answers object 
   const handleSelectOption = (questionId, optionId) => {
     if (isSubmitted) return;
     setAnswers((prev) => ({
@@ -27,6 +29,7 @@ export default function SubtopicQuizForm({ quizData }) {
     setValidationMsg(null);
   };
 
+  // prevents the browsers normlsl form submission 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isSubmitted) return;

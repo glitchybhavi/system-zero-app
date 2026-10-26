@@ -27,6 +27,20 @@
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.light .process-sync-root,
+.light.process-sync-root,
+.light .process-sync-root {
+  --bg: #F6F9FC;
+  --panel: #FFFFFF;
+  --raised: #EDF2F7;
+  --border: rgba(10, 37, 64, 0.1);
+  --text: #0A2540;
+  --muted: #4F566B;
+  --ok: #059669;
+  --danger: #dc2626;
 }
 
 button {

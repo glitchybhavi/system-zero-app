@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTheme } from '../../../context/ThemeContext';
 import Navbar from '../../../landingPage/Navbar';
 import Footer from '../../../landingPage/Footer';
 import ProcessSandbox from '../sandbox/ProcessSandbox';
@@ -9,6 +10,7 @@ const PM_PREV_TOPIC = { title: 'Process Management Theory', route: '/learn/proce
 const PM_NEXT_TOPIC = { title: 'Process Synchronization', route: '/os/sync' };
 
 export default function ProcessManagementPage() {
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [toastMessage, setToastMessage] = useState(null);
   const showToast = (msg) => {
@@ -19,7 +21,7 @@ export default function ProcessManagementPage() {
   const nextTopic = PM_NEXT_TOPIC;
 
   return (
-    <div className="pm-page-root">
+    <div className={`pm-page-root ${theme || 'dark'}`}>
       {/* Breadcrumb Navigation */}
       <nav className="pm-breadcrumb" aria-label="Breadcrumb" style={{ marginTop: '12px' }}>
         <Link to="/" className="pm-breadcrumb-link">Home</Link>

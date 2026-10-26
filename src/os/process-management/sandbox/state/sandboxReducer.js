@@ -205,29 +205,27 @@ export function sandboxReducer(state, action) {
     case 'KILL_PROCESS': {
       const pidToKill = Number(action.payload.pid);
       const target = state.processes.find((p) => p.pid === pidToKill);
-      if (!target || target.state === PROCESS_STATES.TERMINATED) return state;
+      if (!target) return state;
 
       const wasRunning = state.runningPid === pidToKill;
 
-      // Check for orphan adoption if killed process had children
-      const updatedProcesses = state.processes.map((p) => {
-        if (p.pid === pidToKill) {
-          return {
-            ...p,
-            state: PROCESS_STATES.TERMINATED,
-            remainingTime: 0,
-            isZombie: false,
-          };
-        }
-        // If this killed process was the parent of active children, children become orphans (adopted by PID 1)
-        if (p.ppid === pidToKill && p.state !== PROCESS_STATES.TERMINATED) {
-          return { ...p, ppid: 1, isOrphan: true };
-        }
-        return p;
-      });
+      // Deallocate PCB and remove from PCB table!
+      // If this killed process was the parent of active children, children become orphans (adopted by PID 1)
+      const updatedProcesses = state.processes
+        .filter((p) => p.pid !== pidToKill)
+        .map((p) => {
+          if (p.ppid === pidToKill) {
+            return { ...p, ppid: 1, isOrphan: true };
+          }
+          return p;
+        });
 
       const updatedReadyQueue = state.readyQueue.filter((id) => id !== pidToKill);
       const updatedWaitQueue = state.waitQueue.filter((id) => id !== pidToKill);
+
+      const nextSelectedPid = state.selectedPid === pidToKill
+        ? (updatedProcesses[0]?.pid || null)
+        : state.selectedPid;
 
       return {
         ...state,
@@ -235,6 +233,7 @@ export function sandboxReducer(state, action) {
         readyQueue: updatedReadyQueue,
         waitQueue: updatedWaitQueue,
         runningPid: wasRunning ? null : state.runningPid,
+        selectedPid: nextSelectedPid,
         metrics: {
           ...state.metrics,
           completedProcessesCount: state.metrics.completedProcessesCount + 1,
@@ -245,7 +244,79 @@ export function sandboxReducer(state, action) {
             timestamp: ts,
             type: 'KILL_SIGNAL',
             pid: pidToKill,
-            message: `SIGKILL delivered to PID ${pidToKill} ("${target.name}"). State → TERMINATED. Queue slot freed.`,
+            message: `SIGKILL delivered to PID ${pidToKill} ("${target.name}"). Process terminated & PCB removed from PCB table.`,
+          },
+          ...state.log,
+        ],
+      };
+    }
+
+    case 'COMPLETE_PROCESS': {
+      const pidToComplete = Number(action.payload.pid);
+      const target = state.processes.find((p) => p.pid === pidToComplete);
+      if (!target) return state;
+
+      const wasRunning = state.runningPid === pidToComplete;
+      const hasParentWaiting = target.ppid && target.ppid !== 1;
+      const becomesZombie = hasParentWaiting;
+
+      let updatedProcesses;
+      if (becomesZombie) {
+        updatedProcesses = state.processes.map((p) => {
+          if (p.pid === pidToComplete) {
+            return {
+              ...p,
+              state: PROCESS_STATES.ZOMBIE,
+              isZombie: true,
+              remainingTime: 0,
+            };
+          }
+          if (p.ppid === pidToComplete) {
+            return { ...p, ppid: 1, isOrphan: true };
+          }
+          return p;
+        });
+      } else {
+        // Normal process completes: PCB deallocated and removed from PCB table!
+        updatedProcesses = state.processes
+          .filter((p) => p.pid !== pidToComplete)
+          .map((p) => {
+            if (p.ppid === pidToComplete) {
+              return { ...p, ppid: 1, isOrphan: true };
+            }
+            return p;
+          });
+      }
+
+      const updatedReadyQueue = state.readyQueue.filter((id) => id !== pidToComplete);
+      const updatedWaitQueue = state.waitQueue.filter((id) => id !== pidToComplete);
+
+      const nextSelectedPid = state.selectedPid === pidToComplete
+        ? (updatedProcesses[0]?.pid || null)
+        : state.selectedPid;
+
+      const logMsg = becomesZombie
+        ? `PID ${pidToComplete} ("${target.name}") completed execution via exit(0). State → ZOMBIE (awaiting parent PID ${target.ppid} wait() reap).`
+        : `PID ${pidToComplete} ("${target.name}") completed execution via exit(0). PCB removed from PCB table & memory freed.`;
+
+      return {
+        ...state,
+        processes: updatedProcesses,
+        readyQueue: updatedReadyQueue,
+        waitQueue: updatedWaitQueue,
+        runningPid: wasRunning ? null : state.runningPid,
+        selectedPid: nextSelectedPid,
+        metrics: {
+          ...state.metrics,
+          completedProcessesCount: state.metrics.completedProcessesCount + (becomesZombie ? 0 : 1),
+        },
+        log: [
+          {
+            id: nextLogId,
+            timestamp: ts,
+            type: becomesZombie ? 'ZOMBIE_CREATED' : 'PROCESS_TERMINATED',
+            pid: pidToComplete,
+            message: logMsg,
           },
           ...state.log,
         ],
@@ -466,11 +537,21 @@ export function sandboxReducer(state, action) {
         ? state.metrics.totalOverheadUs + result.overheadUs
         : state.metrics.totalOverheadUs;
 
+      const completedEventsCount = (result.events || []).filter(
+        (ev) => ev.type === 'PROCESS_TERMINATED'
+      ).length;
+
+      const isSelectedAlive = result.processes.some((p) => p.pid === state.selectedPid);
+      const nextSelectedPid = isSelectedAlive
+        ? state.selectedPid
+        : (result.runningPid || result.readyQueue[0] || result.processes[0]?.pid || null);
+
       return {
         ...state,
         processes: result.processes,
         readyQueue: result.readyQueue,
         runningPid: result.runningPid,
+        selectedPid: nextSelectedPid,
         cpuState: {
           isContextSwitching: result.contextSwitched,
           switchFromPid: result.previousPid,
@@ -484,6 +565,7 @@ export function sandboxReducer(state, action) {
           totalContextSwitches: newSwitches,
           totalOverheadUs: Number(newOverhead.toFixed(1)),
           totalCpuTime: state.metrics.totalCpuTime + (result.runningPid ? tickDeltaMs : 0),
+          completedProcessesCount: state.metrics.completedProcessesCount + completedEventsCount,
         },
         log: newEvents.length ? [...newEvents, ...state.log] : state.log,
       };

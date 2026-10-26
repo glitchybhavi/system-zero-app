@@ -134,3 +134,47 @@
 .subtopic-retry-btn:hover {
   background: rgba(255, 255, 255, 0.14);
 }
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES FOR SUBTOPIC QUIZ FORM
+   ========================================================================== */
+html.light .subtopic-quiz-wrapper,
+.light .subtopic-quiz-wrapper {
+  background: #FFFFFF;
+  border-color: rgba(2, 132, 199, 0.25);
+  box-shadow: 0 4px 20px rgba(10, 37, 64, 0.06);
+}
+
+html.light .subtopic-quiz-header,
+.light .subtopic-quiz-header {
+  border-bottom-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .subtopic-quiz-title,
+.light .subtopic-quiz-title {
+  color: #0A2540;
+}
+
+html.light .subtopic-quiz-desc,
+.light .subtopic-quiz-desc {
+  color: #4F566B;
+}
+
+html.light .subtopic-retry-btn,
+.light .subtopic-retry-btn {
+  background: #F1F5F9;
+  color: #0A2540;
+  border-color: rgba(10, 37, 64, 0.15);
+}
+
+html.light .subtopic-retry-btn:hover,
+.light .subtopic-retry-btn:hover {
+  background: #E2E8F0;
+}
+
+html.light .subtopic-validation-msg,
+.light .subtopic-validation-msg {
+  color: #92400e;
+  background: #FEF3C7;
+  border-color: #FCD34D;
+}

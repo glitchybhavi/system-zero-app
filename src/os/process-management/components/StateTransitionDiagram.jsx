@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './StateTransitionDiagram.css';
 
+// describes the available events, such as “Scheduler Dispatch,”
 const TRANSITIONS = [
   {
     id: 'admit',
@@ -46,6 +47,7 @@ const TRANSITIONS = [
   },
 ];
 
+// describes the state cards, including their labels and colors
 const STATES = [
   { id: 'NEW', title: 'New', badge: 'Created', color: '#a855f7' },
   { id: 'READY', title: 'Ready', badge: 'Queued for CPU', color: '#38bdf8' },
@@ -55,7 +57,9 @@ const STATES = [
 ];
 
 export default function StateTransitionDiagram() {
-  const [activeTransition, setActiveTransition] = useState(TRANSITIONS[1]); // Default dispatch
+
+  // initially selects the Ready → Running dispatch transition.
+  const [activeTransition, setActiveTransition] = useState(TRANSITIONS[1]); 
 
   return (
     <div className="std-container">

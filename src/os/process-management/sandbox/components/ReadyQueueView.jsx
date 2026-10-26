@@ -2,7 +2,7 @@ import React from 'react';
 import { useProcessSandbox } from '../state/ProcessSandboxContext';
 
 export default function ReadyQueueView() {
-  const { state, killProcess, blockProcess, selectPid } = useProcessSandbox();
+  const { state, killProcess, completeProcess, blockProcess, selectPid } = useProcessSandbox();
   const { readyQueue, processes, settings, runningPid, selectedPid } = state;
   const limit = settings.readyQueueLimit;
   const isFull = readyQueue.length >= limit;
@@ -65,6 +65,17 @@ export default function ReadyQueueView() {
               </div>
 
               <div className="slot-actions">
+                <button
+                  type="button"
+                  className="slot-action-btn complete-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    completeProcess(proc.pid);
+                  }}
+                  title="Complete process execution and remove PCB from table"
+                >
+                  ✓ Complete
+                </button>
                 <button
                   type="button"
                   className="slot-action-btn block-btn"

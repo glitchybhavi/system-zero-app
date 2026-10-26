@@ -154,3 +154,100 @@
   margin: 0;
   line-height: 1.5;
 }
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES FOR STATE TRANSITION DIAGRAM
+   ========================================================================== */
+html.light .std-container,
+.light .std-container {
+  background: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.08);
+  box-shadow: 0 4px 20px rgba(10, 37, 64, 0.05);
+}
+
+html.light .std-title,
+.light .std-title {
+  color: #0284c7;
+}
+
+html.light .std-subtitle,
+.light .std-subtitle {
+  color: #4F566B;
+}
+
+html.light .std-node-card,
+.light .std-node-card {
+  background: #F8FAFC;
+  border-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .std-node-card.is-active,
+.light .std-node-card.is-active {
+  background: #FFFFFF;
+  border-color: #0284c7;
+  box-shadow: 0 0 16px rgba(2, 132, 199, 0.15);
+}
+
+html.light .std-node-title,
+.light .std-node-title {
+  color: #0A2540;
+}
+
+html.light .std-node-badge,
+.light .std-node-badge {
+  color: #64748B;
+}
+
+html.light .role-source,
+.light .role-source {
+  background: rgba(10, 37, 64, 0.08);
+  color: #4F566B;
+}
+
+html.light .role-target,
+.light .role-target {
+  background: rgba(5, 150, 105, 0.12);
+  color: #059669;
+}
+
+html.light .std-events-label,
+.light .std-events-label {
+  color: #64748B;
+}
+
+html.light .std-event-btn,
+.light .std-event-btn {
+  background: #F8FAFC;
+  border-color: rgba(10, 37, 64, 0.12);
+  color: #334155;
+}
+
+html.light .std-event-btn:hover,
+.light .std-event-btn:hover {
+  background: #EDF2F7;
+  color: #0A2540;
+}
+
+html.light .std-event-btn.active,
+.light .std-event-btn.active {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #FFFFFF;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.25);
+}
+
+html.light .std-explanation-box,
+.light .std-explanation-box {
+  background: #F0F9FF;
+  border-color: rgba(2, 132, 199, 0.2);
+}
+
+html.light .std-exp-badge,
+.light .std-exp-badge {
+  color: #0284c7;
+}
+
+html.light .std-exp-text,
+.light .std-exp-text {
+  color: #334155;
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { ArrowRight, X } from 'lucide-react';
+import { useTheme } from '../../../context/ThemeContext';
 import CustomDropDown from '../../process-synchronization/base/CustomDropDown';
 import StateTransitionDiagram from '../components/StateTransitionDiagram';
 import SubtopicQuizForm from '../components/SubtopicQuizForm';
@@ -249,13 +250,6 @@ const TOPICS = [
         {/* Checkpoint 2: In-line Question Form for Process States & Lifecycle */}
         <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.states_lifecycle} />
 
-        <div className="theory-action-box">
-          <Link to="/learn/process-management/sandbox" className="theory-visualize-btn">
-            <span>Visualize State Transitions in Sandbox</span>
-            <ArrowRight size={16} />
-          </Link>
-        </div>
-
         <p className="theory-conclusion">
           <strong>Conclusion:</strong> State transitions are strictly event-driven &mdash; triggered by scheduler dispatches, clock interrupts, and hardware I/O completions.
         </p>
@@ -393,13 +387,6 @@ const TOPICS = [
 
         {/* Checkpoint 3: In-line Question Form for fork/exec, Zombies & Orphans */}
         <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.creation_termination} />
-
-        <div className="theory-action-box">
-          <Link to="/learn/process-management/sandbox" className="theory-visualize-btn">
-            <span>Experiment in Zombie &amp; Orphan Lab</span>
-            <ArrowRight size={16} />
-          </Link>
-        </div>
 
         <p className="theory-conclusion">
           <strong>Conclusion:</strong> Failure to harvest return codes with wait() leaks kernel table slots, while init adoption shields modern kernels from stranded orphan tasks.
@@ -553,10 +540,6 @@ const TOPICS = [
         <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.context_ipc} />
 
         <div className="theory-action-box" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <Link to="/learn/process-management/sandbox" className="theory-visualize-btn">
-            <span>Launch IPC Playground in Sandbox</span>
-            <ArrowRight size={16} />
-          </Link>
           <Link
             to="/learn/process-management/quiz"
             className="theory-visualize-btn"
@@ -580,6 +563,7 @@ const TOPICS = [
 ];
 
 export default function ProcessManagementTheoryPage() {
+  const { theme } = useTheme();
   const location = useLocation();
   const [search, setSearch] = useState('');
   const [perPage, setPerPage] = useState('all');
@@ -591,6 +575,7 @@ export default function ProcessManagementTheoryPage() {
     { value: '4', label: '4 Topics / Page' },
   ];
 
+  // Updates the search field and resets the page to 1 
   function handleSearchChange(event) {
     setSearch(event.target.value);
     setPage(1);
@@ -601,6 +586,7 @@ export default function ProcessManagementTheoryPage() {
     setPage(1);
   }
 
+  // window.scrollTo() -> Helps to go to page top when we change the per page topic 
   function handlePerPageChange(value) {
     setPerPage(value);
     setPage(1);
@@ -632,6 +618,7 @@ export default function ProcessManagementTheoryPage() {
     pageSize = 1;
   }
 
+  // ceil -> returns the smallest integer greater than or equal 
   const totalPages = Math.ceil(filteredTopics.length / pageSize);
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
@@ -641,10 +628,12 @@ export default function ProcessManagementTheoryPage() {
     visibleSections.push(filteredTopics[i].content);
   }
 
+  // helps to jump to a topic when url contains a hash
   useEffect(() => {
     if (location.hash !== '') {
       const sectionId = location.hash.slice(1);
 
+      // Found the topic in the filtered list 
       let foundIndex = -1;
       for (let i = 0; i < filteredTopics.length; i++) {
         if (filteredTopics[i].id === sectionId) {
@@ -653,14 +642,17 @@ export default function ProcessManagementTheoryPage() {
         }
       }
 
+      // floor -> returns the greatest integer ( use when topics split across pages )
       if (foundIndex !== -1 && perPage !== 'all') {
         const targetPage = Math.floor(foundIndex / pageSize) + 1;
+        // If topic is not on the page , react then render that page 
         if (targetPage !== page) {
           setPage(targetPage);
           return;
         }
       }
 
+      // makes the searched topic scoll to top 
       const element = document.getElementById(sectionId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -703,6 +695,7 @@ export default function ProcessManagementTheoryPage() {
           Page {page} of {totalPages} ({filteredTopics.length} topics)
         </span>
         <div className="theory-page-buttons">
+          {/*  button to go to previous page  */}
           <button
             type="button"
             className="theory-page-btn"
@@ -710,6 +703,7 @@ export default function ProcessManagementTheoryPage() {
             onClick={() => goToPage(page - 1)}
           >
             Previous
+            {/* Button to go to the next page */}
           </button>
           {pageButtons}
           <button
@@ -726,7 +720,7 @@ export default function ProcessManagementTheoryPage() {
   }
 
   return (
-    <div className="theory-page-container">
+    <div className={`theory-page-container ${theme || 'dark'}`}>
       <article className="theory-article">
         <header className="theory-article-header">
           <h1>Process Management &amp; Concurrency</h1>

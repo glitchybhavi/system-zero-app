@@ -1,5 +1,7 @@
 import { useLocation } from 'react-router-dom';
 
+// checks the current URL using useLocation()
+// It changes its category and title for the sandbox and exam routes
 export default function PMHeader() {
   const { pathname } = useLocation();
 

@@ -324,20 +324,25 @@ export function stepSimulation({
 
         const finalState = becomesZombie ? PROCESS_STATES.ZOMBIE : PROCESS_STATES.TERMINATED;
 
-        updatedProcesses = updatedProcesses.map((p) => {
-          if (p.pid === runningProc.pid) {
-            return {
-              ...p,
-              remainingTime: 0,
-              totalCpuTime: newTotalCpuTime,
-              state: finalState,
-              isZombie: becomesZombie,
-              pc: newPc,
-              registers: newRegisters,
-            };
-          }
-          return p;
-        });
+        if (becomesZombie) {
+          updatedProcesses = updatedProcesses.map((p) => {
+            if (p.pid === runningProc.pid) {
+              return {
+                ...p,
+                remainingTime: 0,
+                totalCpuTime: newTotalCpuTime,
+                state: finalState,
+                isZombie: true,
+                pc: newPc,
+                registers: newRegisters,
+              };
+            }
+            return p;
+          });
+        } else {
+          // Process completed execution: deallocate PCB and remove from PCB table
+          updatedProcesses = updatedProcesses.filter((p) => p.pid !== runningProc.pid);
+        }
 
         updatedRunningPid = null;
 
@@ -351,7 +356,7 @@ export function stepSimulation({
           events.push({
             type: 'PROCESS_TERMINATED',
             pid: runningProc.pid,
-            message: `PID ${runningProc.pid} completed execution. PCB freed from memory.`,
+            message: `PID ${runningProc.pid} completed execution. PCB removed from PCB table & memory freed.`,
           });
         }
       } else {

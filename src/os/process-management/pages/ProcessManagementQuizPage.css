@@ -117,3 +117,71 @@
   background: rgba(56, 189, 248, 0.18);
   transform: translateY(-1px);
 }
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES FOR PM QUIZ PAGE
+   ========================================================================== */
+html.light .pm-quiz-page-root,
+.light .pm-quiz-page-root,
+.pm-quiz-page-root.light {
+  background-color: #F6F9FC;
+  color: #0A2540;
+}
+
+html.light .pm-quiz-hero,
+.light .pm-quiz-hero {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F6F9FC 100%);
+  border-bottom-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .pm-quiz-hero-title,
+.light .pm-quiz-hero-title {
+  color: #0A2540;
+}
+
+html.light .pm-quiz-hero-lead,
+.light .pm-quiz-hero-lead {
+  color: #4F566B;
+}
+
+html.light .pm-quiz-meta-item,
+.light .pm-quiz-meta-item {
+  color: #4F566B;
+  background: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.1);
+  box-shadow: 0 1px 4px rgba(10, 37, 64, 0.04);
+}
+
+html.light .pm-quiz-nav-row,
+.light .pm-quiz-nav-row {
+  border-top-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .pm-quiz-back-btn,
+.light .pm-quiz-back-btn {
+  color: #4F566B;
+  background: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.12);
+  box-shadow: 0 2px 6px rgba(10, 37, 64, 0.04);
+}
+
+html.light .pm-quiz-back-btn:hover,
+.light .pm-quiz-back-btn:hover {
+  color: #0A2540;
+  background: #F8FAFC;
+  border-color: rgba(10, 37, 64, 0.2);
+}
+
+html.light .pm-quiz-sim-btn,
+.light .pm-quiz-sim-btn {
+  color: #0284c7;
+  background: #F0F9FF;
+  border-color: rgba(2, 132, 199, 0.3);
+  box-shadow: 0 2px 6px rgba(10, 37, 64, 0.04);
+}
+
+html.light .pm-quiz-sim-btn:hover,
+.light .pm-quiz-sim-btn:hover {
+  background: #E0F2FE;
+  border-color: #0284c7;
+}

@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 
+// isplays links and highlights the current section
 export default function PMSidebar() {
   const { pathname } = useLocation();
 
@@ -29,6 +30,7 @@ export default function PMSidebar() {
     ) {
       isActive = true;
     }
+
 
     let linkClass = 'nav-link';
     if (isActive) {

@@ -31,6 +31,10 @@ export function ProcessSandboxProvider({ children }) {
     dispatch({ type: 'KILL_PROCESS', payload: { pid } });
   }, []);
 
+  const completeProcess = useCallback((pid) => {
+    dispatch({ type: 'COMPLETE_PROCESS', payload: { pid } });
+  }, []);
+
   const blockProcess = useCallback((pid, reason) => {
     dispatch({ type: 'BLOCK_PROCESS', payload: { pid, reason } });
   }, []);
@@ -134,6 +138,7 @@ export function ProcessSandboxProvider({ children }) {
     clock,
     guidedSteps: GUIDED_STEPS,
     spawnProcess,
+    completeProcess,
     killProcess,
     blockProcess,
     unblockProcess,

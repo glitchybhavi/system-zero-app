@@ -1,4 +1,5 @@
 import { useLocation, Routes, Route } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 import Navbar from '../../landingPage/Navbar';
 import PMSidebar from './components/PMSidebar';
 import PMHeader from './components/PMHeader';
@@ -12,6 +13,7 @@ import '../process-synchronization/styles/animations.css';
 
 export default function ProcessManagement() {
   const location = useLocation();
+
   const isTheoryHub =
     location.pathname === '/learn/process-management' ||
     location.pathname === '/learn/process-management/' ||
@@ -30,13 +32,16 @@ export default function ProcessManagement() {
     rootClass = 'process-sync-root is-sim-page';
   }
 
+  
   let footerComponent = null;
   if (isFullScroll) {
     footerComponent = <Footer />;
   }
 
+  const { theme } = useTheme();
+
   return (
-    <div className={rootClass}>
+    <div className={`${rootClass} ${theme || 'dark'}`}>
       <Navbar />
       <div className="app-layout">
         <PMSidebar />

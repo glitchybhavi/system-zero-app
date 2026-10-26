@@ -21,7 +21,7 @@ export default function PcbGrid() {
       {/* PCB Cards Grid */}
       {processes.length === 0 ? (
         <div className="pcb-empty-state font-mono">
-          <span>No processes in memory. Spawn one above to get started.</span>
+          <span>No active processes in PCB table. Spawn one above to get started.</span>
         </div>
       ) : (
         <div className="pcb-cards-grid">

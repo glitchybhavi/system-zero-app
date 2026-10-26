@@ -1,21 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../../../context/ThemeContext';
 import Navbar from '../../../landingPage/Navbar';
 import Footer from '../../../landingPage/Footer';
-import KnowledgeQuiz from '../sandbox/components/KnowledgeQuiz';
+import KnowledgeQuiz from '../components/KnowledgeQuiz';
 import { ProgressProvider } from '../context/ProgressContext';
 import './ProcessManagementQuizPage.css';
 
-/**
- * ProcessManagementQuizPage
- * 
- * Dedicated standalone page for the collective 12-question final exam.
- * Completely separate from the simulator sandbox and accessible via its own route!
- */
 export default function ProcessManagementQuizPage() {
+  const { theme } = useTheme();
+
   return (
     <ProgressProvider>
-      <div className="pm-quiz-page-root">
+      <div className={`pm-quiz-page-root ${theme || 'dark'}`}>
         {/* Hero Header */}
         <header className="pm-quiz-hero">
           <div className="pm-quiz-hero-container">

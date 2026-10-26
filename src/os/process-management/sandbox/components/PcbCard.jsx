@@ -3,7 +3,7 @@ import { useProcessSandbox } from '../state/ProcessSandboxContext';
 import { PROCESS_STATES } from '../engine/schedulerEngine';
 
 export default function PcbCard({ process, isSelected }) {
-  const { state: sandboxState, killProcess, blockProcess, unblockProcess, selectPid } = useProcessSandbox();
+  const { state: sandboxState, killProcess, completeProcess, blockProcess, unblockProcess, selectPid } = useProcessSandbox();
   const [showDetails, setShowDetails] = useState(false);
 
   const {
@@ -126,6 +126,21 @@ export default function PcbCard({ process, isSelected }) {
                 <span className="action-caption">Pretend it's waiting on disk/network</span>
               </div>
             )}
+
+            <div className="action-btn-with-caption">
+              <button
+                type="button"
+                className="pcb-btn complete-btn font-mono"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  completeProcess(pid);
+                }}
+                title="Complete process execution and remove PCB from table"
+              >
+                ✓ Complete
+              </button>
+              <span className="action-caption">Exits & removes from PCB table</span>
+            </div>
 
             <div className="action-btn-with-caption">
               <button

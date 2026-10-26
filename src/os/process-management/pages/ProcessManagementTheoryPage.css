@@ -671,3 +671,278 @@
     max-width: 100%;
   }
 }
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES FOR THEORY PAGE
+   ========================================================================== */
+html.light .pm-theory-root,
+.light .pm-theory-root,
+.pm-theory-root.light {
+  background-color: #F6F9FC;
+  color: #0A2540;
+}
+
+html.light .pm-breadcrumb-link,
+.light .pm-breadcrumb-link {
+  color: #4F566B;
+}
+
+html.light .pm-breadcrumb-link:hover,
+.light .pm-breadcrumb-link:hover {
+  color: #0284c7;
+}
+
+html.light .pm-breadcrumb-sep,
+.light .pm-breadcrumb-sep {
+  color: #94A3B8;
+}
+
+html.light .pm-breadcrumb-current,
+.light .pm-breadcrumb-current {
+  color: #0A2540;
+}
+
+html.light .pm-theory-hero,
+.light .pm-theory-hero {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F6F9FC 100%);
+  border-bottom-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .pm-hero-title,
+.light .pm-hero-title {
+  color: #0A2540;
+}
+
+html.light .pm-hero-lead,
+.light .pm-hero-lead {
+  color: #4F566B;
+}
+
+html.light .pm-search-box,
+.light .pm-search-box {
+  background: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.1);
+  box-shadow: 0 4px 16px rgba(10, 37, 64, 0.05);
+}
+
+html.light .pm-search-input,
+.light .pm-search-input {
+  background: #F8FAFC;
+  border-color: rgba(10, 37, 64, 0.14);
+  color: #0A2540;
+}
+
+html.light .pm-search-input:focus,
+.light .pm-search-input:focus {
+  border-color: #0284c7;
+}
+
+html.light .pm-search-clear-btn,
+.light .pm-search-clear-btn {
+  background: rgba(10, 37, 64, 0.08);
+  color: #4F566B;
+}
+
+html.light .pm-search-tag,
+.light .pm-search-tag {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.25);
+  color: #0284c7;
+}
+
+html.light .pm-section-card,
+.light .pm-section-card {
+  background: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.08);
+  box-shadow: 0 4px 20px rgba(10, 37, 64, 0.05);
+}
+
+html.light .pm-section-header,
+.light .pm-section-header {
+  border-bottom-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .pm-section-title,
+.light .pm-section-title {
+  color: #0A2540;
+}
+
+html.light .pm-section-subtitle,
+.light .pm-section-subtitle {
+  color: #4F566B;
+}
+
+html.light .pm-subtopic-block,
+.light .pm-subtopic-block {
+  border-bottom-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .pm-subtopic-title,
+.light .pm-subtopic-title {
+  color: #0284c7;
+}
+
+html.light .tier-text,
+.light .tier-text {
+  color: #334155;
+}
+
+html.light .tier-basics,
+.light .tier-basics {
+  background: #F0F9FF;
+  border-color: rgba(2, 132, 199, 0.2);
+  border-left-color: #0284c7;
+}
+
+html.light .analogy-callout,
+.light .analogy-callout {
+  background: #FFFFFF;
+  border-left-color: #0284c7;
+  color: #334155;
+  box-shadow: 0 2px 6px rgba(10, 37, 64, 0.04);
+}
+
+html.light .tier-mechanism,
+.light .tier-mechanism {
+  background: #F5F3FF;
+  border-color: rgba(124, 58, 237, 0.15);
+  border-left-color: #7c3aed;
+}
+
+html.light .tier-mechanism .tier-label,
+.light .tier-mechanism .tier-label {
+  color: #7c3aed;
+}
+
+html.light .mechanism-steps,
+.light .mechanism-steps {
+  color: #334155;
+}
+
+html.light .worked-example,
+.light .worked-example {
+  background: #FFFFFF;
+  border-color: rgba(124, 58, 237, 0.2);
+  border-left-color: #7c3aed;
+  box-shadow: 0 2px 6px rgba(10, 37, 64, 0.04);
+}
+
+html.light .worked-example-title,
+.light .worked-example-title {
+  color: #7c3aed;
+}
+
+html.light .worked-example p,
+.light .worked-example p {
+  color: #334155;
+}
+
+html.light .tier-goodtoknow,
+.light .tier-goodtoknow {
+  background: #FFFBEB;
+  border-color: rgba(217, 119, 6, 0.2);
+  border-left-color: #d97706;
+}
+
+html.light .tier-goodtoknow .tier-label,
+.light .tier-goodtoknow .tier-label {
+  color: #d97706;
+}
+
+html.light .pcb-field-item,
+.light .pcb-field-item {
+  background: #F8FAFC;
+  border-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .field-name,
+.light .field-name {
+  color: #0284c7;
+}
+
+html.light .field-desc,
+.light .field-desc {
+  color: #4F566B;
+}
+
+html.light .states-bullet-list,
+.light .states-bullet-list {
+  color: #334155;
+}
+
+html.light .term-type-card,
+.light .term-type-card {
+  background: #F8FAFC;
+  border-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .term-card-title,
+.light .term-card-title {
+  color: #0A2540;
+}
+
+html.light .term-type-card p,
+.light .term-type-card p {
+  color: #4F566B;
+}
+
+html.light .ipc-model-card,
+.light .ipc-model-card {
+  background: #F8FAFC;
+  border-color: rgba(2, 132, 199, 0.2);
+}
+
+html.light .ipc-card-title,
+.light .ipc-card-title {
+  color: #0284c7;
+}
+
+html.light .ipc-model-card p,
+.light .ipc-model-card p {
+  color: #334155;
+}
+
+html.light .ipc-card-list,
+.light .ipc-card-list {
+  color: #4F566B;
+}
+
+html.light .pm-section-cta-card,
+.light .pm-section-cta-card {
+  background: #F0F9FF;
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
+html.light .cta-heading,
+.light .cta-heading {
+  color: #0284c7;
+}
+
+html.light .cta-description,
+.light .cta-description {
+  color: #334155;
+}
+
+html.light .pm-prev-next,
+.light .pm-prev-next {
+  border-top-color: rgba(10, 37, 64, 0.08);
+}
+
+html.light .pm-nav-card,
+.light .pm-nav-card {
+  background-color: #FFFFFF;
+  border-color: rgba(10, 37, 64, 0.08);
+  box-shadow: 0 2px 8px rgba(10, 37, 64, 0.04);
+}
+
+html.light .pm-nav-card:hover,
+.light .pm-nav-card:hover {
+  background-color: #F8FAFC;
+  border-color: rgba(2, 132, 199, 0.4);
+  box-shadow: 0 4px 14px rgba(10, 37, 64, 0.08);
+}
+
+html.light .pm-nav-title,
+.light .pm-nav-title {
+  color: #0A2540;
+}

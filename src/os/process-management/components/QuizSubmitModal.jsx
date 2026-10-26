@@ -1,10 +1,5 @@
 import React from 'react';
 
-/**
- * QuizSubmitModal (Modal Component)
- * 
- * Simple confirmation dialog using standard React conditional rendering.
- */
 export default function QuizSubmitModal({
   isOpen,
   totalQuestions,
