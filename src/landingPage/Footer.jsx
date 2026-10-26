@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="footer-project-container">
           <h2 className="footer-project-statement">Execute the theory.</h2>
           <p className="footer-project-desc">
-            Bridging the intuition gap in computer science education. Watch the machine think.
+            Bridging the intuition gap in computer science education.
           </p>
         </div>
 

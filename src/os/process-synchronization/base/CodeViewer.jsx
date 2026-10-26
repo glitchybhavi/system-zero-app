@@ -11,7 +11,12 @@ export default function CodeViewer(props) {
     }
 
     pills.push(
-      <span key={p.id} className="indicator-pill" style={{ color: p.color }}>
+      <span
+        key={p.id}
+        className={`indicator-pill thread-slot-${p.id % 4}`}
+        data-thread-id={p.id}
+        style={{ color: p.color }}
+      >
         P{p.id}: {progress}
       </span>
     );
@@ -30,9 +35,10 @@ export default function CodeViewer(props) {
 
     let lineStyle = {};
     let numStyle = {};
-    let textStyle = {};
+    let activeClass = '';
     if (onThisLine.length > 0) {
       const first = onThisLine[0];
+      activeClass = ` active active-thread-${first.id % 4}`;
       lineStyle = {
         background: `linear-gradient(90deg, color-mix(in srgb, ${first.color} 22%, transparent) 0%, color-mix(in srgb, ${first.color} 4%, transparent) 100%)`,
         borderLeft: `3px solid ${first.color}`,
@@ -42,15 +48,12 @@ export default function CodeViewer(props) {
         color: first.color,
         fontWeight: 700,
       };
-      textStyle = {
-        color: '#ffffff',
-      };
     }
 
     lines.push(
-      <div key={codeLine.line} className="code-line" style={lineStyle}>
+      <div key={codeLine.line} className={`code-line${activeClass}`} style={lineStyle}>
         <span className="line-num" style={numStyle}>{codeLine.line}</span>
-        <span className="line-text" style={textStyle}>{codeLine.text}</span>
+        <span className="line-text">{codeLine.text}</span>
       </div>
     );
   }

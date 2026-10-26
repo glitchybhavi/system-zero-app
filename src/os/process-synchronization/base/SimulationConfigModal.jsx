@@ -107,44 +107,45 @@ export default function SimulationConfigModal() {
     setStep('10');
     setError('');
     setErrorField('');
-    setGuide(false); 
+    setGuide(false);
   }
 
 
   let errorDisplay = null;
   if (error !== '') {
     errorDisplay = (
-      <div style={{ color: '#f87171', fontSize: '13px', marginBottom: '14px', textAlign: 'left' }}>
+      <div className="modal-error-message">
         {error}
       </div>
     );
   }
 
-  let balanceBorder = '1px solid rgba(255, 255, 255, 0.15)';
+  let balanceClass = 'modal-text-input';
   if (errorField === 'balance') {
-    balanceBorder = '1px solid #f87171';
+    balanceClass = 'modal-text-input has-error';
   }
 
-  let stepBorder = '1px solid rgba(255, 255, 255, 0.15)';
+  let stepClass = 'modal-text-input';
   if (errorField === 'step') {
-    stepBorder = '1px solid #f87171';
+    stepClass = 'modal-text-input has-error';
   }
 
   return (
     <div className="modal-backdrop">
-      <div className="modal-card" style={{ maxWidth: '440px', textAlign: 'left' }}>
-        <h2 className="modal-title" style={{ marginBottom: '16px' }}>Simulation Configurations</h2>
+      <div className="modal-card modal-config-card">
+        <h2 className="modal-title">Simulation Configurations</h2>
 
         <form onSubmit={handleSubmit}>
           {errorDisplay}
 
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: '#a1a1aa', marginBottom: '6px' }}>
+          <div className="modal-field-group">
+            <label className="modal-field-label">
               Initial Vault Balance (₹)
             </label>
             <input
               type="text"
-              inputMode='numeric'
+              inputMode="numeric"
+              className={balanceClass}
               value={balance}
               onChange={(e) => {
                 setBalance(e.target.value);
@@ -153,27 +154,17 @@ export default function SimulationConfigModal() {
                   setErrorField('');
                 }
               }}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: balanceBorder,
-                background: '#141722',
-                color: '#fff',
-                fontSize: '14px',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
             />
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: '#a1a1aa', marginBottom: '6px' }}>
+          <div className="modal-field-group">
+            <label className="modal-field-label">
               Increment Amount per Step (₹)
             </label>
             <input
               type="text"
-              inputMode='numeric'
+              inputMode="numeric"
+              className={stepClass}
               value={step}
               onChange={(e) => {
                 setStep(e.target.value);
@@ -182,95 +173,43 @@ export default function SimulationConfigModal() {
                   setErrorField('');
                 }
               }}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: stepBorder,
-                background: '#141722',
-                color: '#fff',
-                fontSize: '14px',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
             />
           </div>
 
-          <label
-            htmlFor="guideToggle"
-            style={{
-              marginBottom: '20px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '10px',
-              cursor: 'pointer',
-              userSelect: 'none',
-            }}
-          >
+          <label htmlFor="guideToggle" className="modal-checkbox-label-wrap">
             <input
               type="checkbox"
               id="guideToggle"
               checked={guide}
               onChange={(e) => setGuide(e.target.checked)}
-              style={{ display: 'none' }}
+              className="modal-hidden-checkbox"
             />
-            <span
-              style={{
-                width: '18px',
-                height: '18px',
-                borderRadius: '5px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: guide ? '#ffffff' : '#141722',
-                border: guide ? '1px solid #ffffff' : '1px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: guide ? '0 0 10px rgba(255, 255, 255, 0.2)' : 'none',
-                transition: 'background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease',
-                flexShrink: 0,
-              }}
-            >
-              {guide && <Check size={12} strokeWidth={3.5} color="#000000" />}
+            <span className={`modal-checkbox-box ${guide ? 'checked' : ''}`}>
+              {guide && <Check size={12} strokeWidth={3.5} className="modal-check-icon" />}
             </span>
-            <span style={{ fontSize: '13px', color: guide ? '#f1f5f9' : '#a1a1aa', fontWeight: 500 }}>
+            <span className={`modal-checkbox-text ${guide ? 'active' : ''}`}>
               Guided Text Assist
             </span>
           </label>
 
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <div className="modal-btn-actions">
             <button
               type="button"
+              className="modal-btn-secondary"
               onClick={handleReset}
-              style={{
-                padding: '8px 14px',
-                borderRadius: '8px',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                background: 'transparent',
-                color: '#cbd5e1',
-                fontSize: '13px',
-                cursor: 'pointer',
-              }}
             >
               Reset
             </button>
             <button
               type="button"
+              className="modal-btn-secondary"
               onClick={handleClose}
-              style={{
-                padding: '8px 14px',
-                borderRadius: '8px',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                background: 'transparent',
-                color: '#cbd5e1',
-                fontSize: '13px',
-                cursor: 'pointer',
-              }}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="modal-btn"
-              style={{ width: 'auto', padding: '8px 18px' }}
+              className="modal-config-apply-btn"
             >
               Apply
             </button>

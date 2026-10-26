@@ -233,23 +233,41 @@ export default function PetersonPage() {
   }
 
   function getGuideText() {
-    const inBay = shownProcesses.find((p) => p.status === 'in-bay');
-    if (inBay) {
-      return `P${inBay.id} is in the Critical Section. The gate protects the vault.`;
-    }
+    const inBay = shownProcesses.find((p) => p.status === 'in-bay' && p.line === 4);
     const waiting = shownProcesses.find((p) => p.status === 'waiting');
+
+    if (inBay && waiting) {
+      return `Mutual Exclusion active! P${inBay.id} is in the Critical Section while P${waiting.id} busy-waits at the spinlock.`;
+    }
+    if (inBay) {
+      return `P${inBay.id} is in the Critical Section. The gate protects the shared vault.`;
+    }
+
+    const exiting = shownProcesses.find((p) => p.line === 5);
+    if (exiting) {
+      return `P${exiting.id} is in the Exit Section, resetting flag[${exiting.track}] = false to release the lock.`;
+    }
+
     if (waiting) {
-      const otherId = 1 - waiting.track;
-      return `P${waiting.id} is busy-waiting. Flag[${otherId}] is true and turn is ${turn}.`;
+      const otherTrack = 1 - waiting.track;
+      return `P${waiting.id} is busy-waiting. flag[${otherTrack}] is true and turn is ${turn}.`;
     }
-    const requesting = shownProcesses.find((p) => p.line === 2);
-    if (requesting) {
-      return `P${requesting.id} raised its flag to declare interest in entering.`;
-    }
+
     const yielded = shownProcesses.find((p) => p.line === 3);
     if (yielded) {
-      return `P${yielded.id} set turn to the other process to prevent starvation.`;
+      const otherTrack = 1 - yielded.track;
+      return `P${yielded.id} yielded turn = ${otherTrack} to break ties and guarantee bounded waiting.`;
     }
+
+    const requesting = shownProcesses.find((p) => p.line === 2);
+    if (requesting) {
+      return `P${requesting.id} set flag[${requesting.track}] = true to declare intent to enter.`;
+    }
+
+    if (count > 0 && shownProcesses.every((p) => p.line === 1)) {
+      return 'Execution cycle complete. Processes safely updated the vault with zero race conditions.';
+    }
+
     return 'Both processes are ready. Step either process to request entry.';
   }
 

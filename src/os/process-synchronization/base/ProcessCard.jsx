@@ -6,7 +6,8 @@ export default function ProcessCard(props) {
     isTerminated = true;
   }
 
-  let cardClass = 'process-card ' + getProcessCardClass(props.process.status);
+  const threadSlot = props.process.id % 4;
+  let cardClass = `process-card thread-slot-${threadSlot} ${getProcessCardClass(props.process.status)}`;
   if (isTerminated) {
     cardClass = cardClass + ' card-exiting';
   }
@@ -36,8 +37,8 @@ export default function ProcessCard(props) {
   }
 
   return (
-    <div className={cardClass} style={{ top: props.top }} title={tip}>
-      <div className="card-id-tag" style={{ color: props.process.color }}>
+    <div className={cardClass} style={{ top: props.top }} title={tip} data-thread-id={props.process.id}>
+      <div className={`card-id-tag thread-slot-${threadSlot}`} style={{ color: props.process.color }}>
         P{props.process.id}
       </div>
 

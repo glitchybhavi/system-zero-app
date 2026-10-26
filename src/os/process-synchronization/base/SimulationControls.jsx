@@ -7,21 +7,21 @@ export default function SimulationControls(props) {
   const syncUI = useContext(SyncUIContext);
 
   function changeSpeed(event) {
-    const newSpeed = parseFloat(event.target.value); 
+    const newSpeed = parseFloat(event.target.value);
     props.setSpeed(newSpeed);
   }
 
   function decreaseSpeed() {
-    const nextSpeed = Math.max(0.5, Math.round((props.speed - 0.25) * 100 ) / 100); 
-    props.setSpeed(nextSpeed);  
+    const nextSpeed = Math.max(0.5, Math.round((props.speed - 0.25) * 100) / 100);
+    props.setSpeed(nextSpeed);
   }
 
   function increaseSpeed() {
-    const nextSpeed = Math.min(2, Math.round((props.speed + 0.25 ) * 100) / 100); 
+    const nextSpeed = Math.min(2, Math.round((props.speed + 0.25) * 100) / 100);
     props.setSpeed(nextSpeed)
   }
 
- 
+
 
   function openConfig() {
     if (syncUI) {
@@ -52,7 +52,7 @@ export default function SimulationControls(props) {
         <button
           key={p.id}
           type="button"
-          className="btn-track"
+          className={`btn-track thread-slot-${p.id % 4}`}
           disabled={cannotStep}
           onClick={() => props.onStep(i)}
           style={{ '--btn-border': p.color }}
