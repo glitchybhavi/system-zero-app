@@ -1,14 +1,36 @@
-import { useState } from 'react';
-import { Activity, Play, RotateCcw, CheckCircle2, ArrowDown, ArrowUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Activity, Play, RotateCcw, CheckCircle2, ArrowDown, ArrowUp, AlertCircle } from 'lucide-react';
+import {
+  setDatapathOperands,
+  setDatapathOperation,
+  setDatapathExecuting,
+  commitDatapathResult,
+  resetDatapath,
+} from './store/isaSlice';
+import { useIsaContext } from './context/IsaContext';
 
 export default function DataPathSection() {
-  const [acVal, setAcVal] = useState(14);
-  const [drVal, setDrVal] = useState(8);
-  const [operation, setOperation] = useState('ADD');
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [lastResult, setLastResult] = useState(null);
+  const dispatch = useDispatch();
+  const { acVal, drVal, operation, isExecuting, lastResult } = useSelector(
+    (state) => state.isa.datapath
+  );
+  const { displayRadix } = useIsaContext();
 
-  // Compute ALU output
+  // Controlled form state for direct numerical inputs
+  const [inputAc, setInputAc] = useState(acVal.toString());
+  const [inputDr, setInputDr] = useState(drVal.toString());
+  const [formError, setFormError] = useState('');
+
+  useEffect(() => {
+    setInputAc(acVal.toString());
+  }, [acVal]);
+
+  useEffect(() => {
+    setInputDr(drVal.toString());
+  }, [drVal]);
+
+  // Compute ALU output helper
   const computeAlu = (op, a, b) => {
     let res = 0;
     let carry = false;
@@ -41,35 +63,59 @@ export default function DataPathSection() {
 
   const currentResult = computeAlu(operation, acVal, drVal);
 
+  // Form submission handler
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    const parsedAc = parseInt(inputAc, 10);
+    const parsedDr = parseInt(inputDr, 10);
+
+    if (isNaN(parsedAc) || parsedAc < 0 || parsedAc > 65535) {
+      setFormError('AC operand must be between 0 and 65535');
+      return;
+    }
+    if (isNaN(parsedDr) || parsedDr < 0 || parsedDr > 65535) {
+      setFormError('DR operand must be between 0 and 65535');
+      return;
+    }
+
+    setFormError('');
+    dispatch(setDatapathOperands({ acVal: parsedAc, drVal: parsedDr }));
+  };
+
   const handleExecute = () => {
-    setIsExecuting(true);
-    setLastResult(currentResult);
+    dispatch(setDatapathExecuting(true));
     setTimeout(() => {
-      // Latch result back into Accumulator
-      setAcVal(currentResult.res);
-      setIsExecuting(false);
+      dispatch(commitDatapathResult(currentResult));
     }, 600);
   };
 
   const handleReset = () => {
-    setAcVal(14);
-    setDrVal(8);
-    setOperation('ADD');
-    setLastResult(null);
+    dispatch(resetDatapath());
+    setFormError('');
+  };
+
+  const formatVal = (val) => {
+    if (displayRadix === 'dec') return val.toString();
+    return `0x${val.toString(16).toUpperCase().padStart(4, '0')}`;
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center py-20 px-6 border-b border-borderLine">
       <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row-reverse items-center justify-between gap-10">
         
-        {/* Left: Interactive Dialogue Card */}
+        {/* Left: Interactive Dialogue Card with React Form Handling */}
         <div className="w-full md:w-1/2 flex justify-center">
           <div className="w-full max-w-md bg-card/60 backdrop-blur-xl border border-borderLine p-7 rounded-2xl shadow-xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-[#8b5cf6]/20 text-[#8b5cf6]">
-                <Activity size={20} />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#8b5cf6]/20 text-[#8b5cf6]">
+                  <Activity size={20} />
+                </div>
+                <h3 className="font-mono font-bold text-xl text-textMain">CPU Datapath & ALU</h3>
               </div>
-              <h3 className="font-mono font-bold text-xl text-textMain">CPU Datapath & ALU</h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#8b5cf6]/10 text-[#8b5cf6] border border-[#8b5cf6]/20">
+                Redux & Form Driven
+              </span>
             </div>
             
             <p className="text-sm text-textMuted leading-relaxed mb-5">
@@ -78,59 +124,110 @@ export default function DataPathSection() {
 
             <div className="bg-background/80 p-4 rounded-xl border border-borderLine space-y-4 font-mono text-xs">
               
-              {/* Register Inputs */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <span className="text-textMuted block text-[11px]">Accumulator (AC):</span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => setAcVal((prev) => Math.max(0, prev - 1))}
-                      className="px-2 py-1 rounded border border-borderLine bg-background hover:text-textMain text-textMuted"
-                    >
-                      -
-                    </button>
-                    <div className="flex-1 text-center py-1 rounded border border-borderLine bg-card font-bold text-[#ff007f]">
-                      {acVal}
+              {/* Controlled Operands Form */}
+              <form onSubmit={handleFormSubmit} className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-[11px] text-textMuted font-bold">1. Operand Registers Input Form:</span>
+                  {formError && (
+                    <span className="text-red-400 text-[10px] flex items-center gap-1">
+                      <AlertCircle size={10} /> {formError}
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label htmlFor="ac-input" className="text-textMuted block text-[11px]">
+                      Accumulator (AC):
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = Math.max(0, acVal - 1);
+                          dispatch(setDatapathOperands({ acVal: next }));
+                        }}
+                        className="px-2 py-1 rounded border border-borderLine bg-background hover:text-textMain text-textMuted"
+                      >
+                        -
+                      </button>
+                      <input
+                        id="ac-input"
+                        type="number"
+                        min="0"
+                        max="65535"
+                        value={inputAc}
+                        onChange={(e) => setInputAc(e.target.value)}
+                        className="w-full text-center py-1 rounded border border-borderLine bg-card font-bold text-[#ff007f] outline-none focus:border-primary text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = (acVal + 1) & 0xffff;
+                          dispatch(setDatapathOperands({ acVal: next }));
+                        }}
+                        className="px-2 py-1 rounded border border-borderLine bg-background hover:text-textMain text-textMuted"
+                      >
+                        +
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setAcVal((prev) => (prev + 1) & 0xffff)}
-                      className="px-2 py-1 rounded border border-borderLine bg-background hover:text-textMain text-textMuted"
-                    >
-                      +
-                    </button>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor="dr-input" className="text-textMuted block text-[11px]">
+                      Data Register (DR):
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = Math.max(0, drVal - 1);
+                          dispatch(setDatapathOperands({ drVal: next }));
+                        }}
+                        className="px-2 py-1 rounded border border-borderLine bg-background hover:text-textMain text-textMuted"
+                      >
+                        -
+                      </button>
+                      <input
+                        id="dr-input"
+                        type="number"
+                        min="0"
+                        max="65535"
+                        value={inputDr}
+                        onChange={(e) => setInputDr(e.target.value)}
+                        className="w-full text-center py-1 rounded border border-borderLine bg-card font-bold text-[#00f2fe] outline-none focus:border-primary text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = (drVal + 1) & 0xffff;
+                          dispatch(setDatapathOperands({ drVal: next }));
+                        }}
+                        className="px-2 py-1 rounded border border-borderLine bg-background hover:text-textMain text-textMuted"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <span className="text-textMuted block text-[11px]">Data Register (DR):</span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => setDrVal((prev) => Math.max(0, prev - 1))}
-                      className="px-2 py-1 rounded border border-borderLine bg-background hover:text-textMain text-textMuted"
-                    >
-                      -
-                    </button>
-                    <div className="flex-1 text-center py-1 rounded border border-borderLine bg-card font-bold text-[#00f2fe]">
-                      {drVal}
-                    </div>
-                    <button
-                      onClick={() => setDrVal((prev) => (prev + 1) & 0xffff)}
-                      className="px-2 py-1 rounded border border-borderLine bg-background hover:text-textMain text-textMuted"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
+                <button
+                  type="submit"
+                  className="w-full py-1 rounded bg-card hover:bg-card/80 border border-borderLine text-textMuted hover:text-textMain text-[10px] uppercase font-bold tracking-wider transition-all"
+                >
+                  Apply Operands to Bus
+                </button>
+              </form>
 
               {/* ALU Operation Selectors */}
               <div>
-                <span className="text-textMuted block mb-1.5 text-[11px]">ALU Operation Function:</span>
+                <span className="text-textMuted block mb-1.5 text-[11px]">2. ALU Operation Function:</span>
                 <div className="grid grid-cols-5 gap-1.5">
                   {['ADD', 'SUB', 'AND', 'OR', 'XOR'].map((op) => (
                     <button
                       key={op}
-                      onClick={() => setOperation(op)}
+                      type="button"
+                      onClick={() => dispatch(setDatapathOperation(op))}
                       className={`py-1.5 rounded border text-xs transition-all ${
                         operation === op
                           ? 'bg-[#8b5cf6]/20 border-[#8b5cf6] text-[#8b5cf6] font-bold'
@@ -220,14 +317,14 @@ export default function DataPathSection() {
               <div className="w-full grid grid-cols-2 gap-6 mb-3">
                 <div className="p-3 rounded-xl border border-[#ff007f]/40 bg-[#ff007f]/10 text-center">
                   <div className="text-[10px] text-textMuted">SOURCE REGISTER A</div>
-                  <div className="text-base font-bold text-[#ff007f]">AC: {acVal}</div>
-                  <div className="text-[9px] text-textMuted">0x{acVal.toString(16).toUpperCase().padStart(4, '0')}</div>
+                  <div className="text-base font-bold text-[#ff007f]">AC: {formatVal(acVal)}</div>
+                  <div className="text-[9px] text-textMuted">Raw: {acVal}</div>
                 </div>
 
                 <div className="p-3 rounded-xl border border-[#00f2fe]/40 bg-[#00f2fe]/10 text-center">
                   <div className="text-[10px] text-textMuted">SOURCE REGISTER B</div>
-                  <div className="text-base font-bold text-[#00f2fe]">DR: {drVal}</div>
-                  <div className="text-[9px] text-textMuted">0x{drVal.toString(16).toUpperCase().padStart(4, '0')}</div>
+                  <div className="text-base font-bold text-[#00f2fe]">DR: {formatVal(drVal)}</div>
+                  <div className="text-[9px] text-textMuted">Raw: {drVal}</div>
                 </div>
               </div>
 
@@ -256,7 +353,7 @@ export default function DataPathSection() {
                   {operation} ({acVal}, {drVal})
                 </div>
                 <div className="text-[11px] text-[#8b5cf6] font-bold mt-1">
-                  &rarr; Output: {currentResult.res} (0x{currentResult.res.toString(16).toUpperCase().padStart(4, '0')})
+                  &rarr; Output: {formatVal(currentResult.res)}
                 </div>
               </div>
 
@@ -280,14 +377,14 @@ export default function DataPathSection() {
                 </span>
               </div>
               <div className="text-xs font-semibold text-textMain bg-card/40 p-2 rounded border border-borderLine">
-                Operation: AC &larr; AC {operation === 'ADD' ? '+' : operation === 'SUB' ? '-' : operation} DR
+                Operation: AC ← AC {operation === 'ADD' ? '+' : operation === 'SUB' ? '-' : operation} DR
               </div>
               <div className="text-[11px] text-textMuted flex items-center gap-1.5 pt-1 border-t border-borderLine">
                 <CheckCircle2 size={13} className="text-[#1fd655] shrink-0" />
                 <span>
                   {lastResult
-                    ? `Calculation finished: ${acVal} successfully latched into Accumulator.`
-                    : 'Press Clock Pulse: Execute to latch the computation into Accumulator.'}
+                    ? `Calculation complete: ${formatVal(acVal)} latched into Accumulator.`
+                    : 'Press Clock Pulse: Execute to latch computation into Accumulator.'}
                 </span>
               </div>
             </div>

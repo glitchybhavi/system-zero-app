@@ -1,66 +1,75 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Clock, Play, Pause, RotateCcw, ArrowRight, Zap, CheckCircle2 } from 'lucide-react';
-
-const CYCLE_STATES = [
-  {
-    step: 'T0',
-    name: 'Latch Address',
-    action: 'AR \u2190 PC',
-    desc: 'The Program Counter places its address onto the bus, and the Address Register latches it.',
-    color: '#00f2fe',
-    busMsg: 'BUS ACTIVE: PC (0x021) \u279D AR',
-  },
-  {
-    step: 'T1',
-    name: 'Fetch & Advance',
-    action: 'IR \u2190 M[AR], PC \u2190 PC + 1',
-    desc: 'Instruction word is fetched from memory at address AR into IR. PC increments to the next word.',
-    color: '#1fd655',
-    busMsg: 'BUS ACTIVE: Memory[0x021] \u279D IR (0x108A) | PC \u2192 0x022',
-  },
-  {
-    step: 'T2',
-    name: 'Decode Opcode',
-    action: 'Decode IR[14-12], AR \u2190 IR[11-0], I \u2190 IR[15]',
-    desc: 'Control Unit decodes the opcode bits. The operand address bits are latched into AR. Addressing mode I is evaluated.',
-    color: '#ffcc00',
-    busMsg: 'CONTROL UNIT: Opcode 001 (ADD) Decoded | Mode I = 0 (Direct)',
-  },
-  {
-    step: 'T3',
-    name: 'Execute ALU',
-    action: 'AC \u2190 AC + M[AR]',
-    desc: 'ALU retrieves operand from Memory[AR] and calculates the sum into Accumulator. Sequence counter resets to T0.',
-    color: '#ff007f',
-    busMsg: 'ALU COMPUTATION: AC (0x0014) + M[0x08A] (0x0006) = 0x001A',
-  },
-];
+import { stepCycle, setCycleStep, resetCycle, setAutoPlaying } from './store/isaSlice';
+import { useIsaContext } from './context/IsaContext';
 
 export default function InstructionCycleSection() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const dispatch = useDispatch();
+  const currentStep = useSelector((state) => state.isa.cycle.currentStep);
+  const isAutoPlaying = useSelector((state) => state.isa.cycle.isAutoPlaying);
+  const instruction = useSelector((state) => state.isa.instruction);
+  const { clockSpeed, formatRadix, displayRadix } = useIsaContext();
 
-  // Auto-play timer
+  const currentOpcode = instruction.opcode || 'ADD';
+  const currentAddress = instruction.address || '0x08A';
+  const isDirect = instruction.mode === '0';
+
+  const CYCLE_STATES = [
+    {
+      step: 'T0',
+      name: 'Latch Address',
+      action: 'AR ← PC',
+      desc: 'The Program Counter places its address onto the bus, and the Address Register latches it.',
+      color: '#00f2fe',
+      busMsg: 'BUS ACTIVE: PC (0x021) ➔ AR',
+    },
+    {
+      step: 'T1',
+      name: 'Fetch & Advance',
+      action: 'IR ← M[AR], PC ← PC + 1',
+      desc: `Instruction word (${currentOpcode} ${currentAddress}) is fetched from memory at address AR into IR. PC increments to the next word.`,
+      color: '#1fd655',
+      busMsg: `BUS ACTIVE: Memory[0x021] ➔ IR (${currentOpcode} ${currentAddress}) | PC → 0x022`,
+    },
+    {
+      step: 'T2',
+      name: 'Decode Opcode',
+      action: 'Decode IR[14-12], AR ← IR[11-0], I ← IR[15]',
+      desc: `Control Unit decodes ${currentOpcode} (Bits: ${instruction.opBin}). Operand address ${currentAddress} latched into AR. Addressing mode I = ${instruction.mode} evaluated.`,
+      color: '#ffcc00',
+      busMsg: `CONTROL UNIT: Opcode ${instruction.opBin} (${currentOpcode}) Decoded | Mode I = ${instruction.mode} (${isDirect ? 'Direct' : 'Indirect'})`,
+    },
+    {
+      step: 'T3',
+      name: 'Execute ALU',
+      action: `AC ← AC ${currentOpcode === 'ADD' ? '+' : currentOpcode === 'AND' ? '∧' : currentOpcode} M[AR]`,
+      desc: `ALU retrieves operand from Memory[${currentAddress}] and executes ${currentOpcode}. Sequence counter resets to T0.`,
+      color: '#ff007f',
+      busMsg: `ALU COMPUTATION: AC (0x0014) & Memory[${currentAddress}] ➔ AC Updated`,
+    },
+  ];
+
+  // Auto-play timer using pacing from Context
   useEffect(() => {
     let timer;
     if (isAutoPlaying) {
       timer = setInterval(() => {
-        setCurrentStep((prev) => (prev + 1) % CYCLE_STATES.length);
-      }, 2000);
+        dispatch(stepCycle());
+      }, clockSpeed);
     }
     return () => clearInterval(timer);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, clockSpeed, dispatch]);
 
   const activeState = CYCLE_STATES[currentStep];
 
   const handleNextStep = () => {
-    setIsAutoPlaying(false);
-    setCurrentStep((prev) => (prev + 1) % CYCLE_STATES.length);
+    dispatch(setAutoPlaying(false));
+    dispatch(stepCycle());
   };
 
   const handleReset = () => {
-    setIsAutoPlaying(false);
-    setCurrentStep(0);
+    dispatch(resetCycle());
   };
 
   return (
@@ -70,11 +79,16 @@ export default function InstructionCycleSection() {
         {/* Left: Interactive Dialogue Card */}
         <div className="w-full md:w-1/2 flex justify-center">
           <div className="w-full max-w-md bg-card/60 backdrop-blur-xl border border-borderLine p-7 rounded-2xl shadow-xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-[#1fd655]/20 text-[#1fd655]">
-                <Clock size={20} />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#1fd655]/20 text-[#1fd655]">
+                  <Clock size={20} />
+                </div>
+                <h3 className="font-mono font-bold text-xl text-textMain">Instruction Cycle & Timing</h3>
               </div>
-              <h3 className="font-mono font-bold text-xl text-textMain">Instruction Cycle & Timing</h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1fd655]/10 text-[#1fd655] border border-[#1fd655]/20">
+                Clock: {clockSpeed / 1000}s
+              </span>
             </div>
             
             <p className="text-sm text-textMuted leading-relaxed mb-5">
@@ -115,7 +129,7 @@ export default function InstructionCycleSection() {
                 </button>
 
                 <button
-                  onClick={() => setIsAutoPlaying((prev) => !prev)}
+                  onClick={() => dispatch(setAutoPlaying(!isAutoPlaying))}
                   className={`p-2 border rounded-lg transition-all ${
                     isAutoPlaying
                       ? 'bg-primary/20 border-primary text-primary'
@@ -137,7 +151,9 @@ export default function InstructionCycleSection() {
 
               <div className="pt-1 text-[11px] text-textMuted text-center">
                 {isAutoPlaying ? (
-                  <span className="text-[#1fd655] animate-pulse">● Auto-stepping clock generator active (2s/cycle)</span>
+                  <span className="text-[#1fd655] animate-pulse">
+                    ● Auto-stepping clock generator active ({clockSpeed / 1000}s/pulse)
+                  </span>
                 ) : (
                   <span>Click Step Cycle to advance sequence counter</span>
                 )}
@@ -168,8 +184,8 @@ export default function InstructionCycleSection() {
                   <div
                     key={state.step}
                     onClick={() => {
-                      setIsAutoPlaying(false);
-                      setCurrentStep(idx);
+                      dispatch(setAutoPlaying(false));
+                      dispatch(setCycleStep(idx));
                     }}
                     className={`cursor-pointer p-2.5 rounded-xl border text-center transition-all ${
                       isActive
@@ -205,7 +221,7 @@ export default function InstructionCycleSection() {
               <div className="p-3 rounded-xl border border-borderLine bg-background/80 space-y-1">
                 <span className="text-[10px] text-textMuted block">PROGRAM COUNTER (PC)</span>
                 <div className="text-base font-bold text-[#00f2fe]">
-                  0x{currentStep >= 1 ? '022' : '021'}
+                  {formatRadix(currentStep >= 1 ? 0x022 : 0x021)}
                 </div>
                 <div className="text-[9px] text-textMuted">
                   {currentStep >= 1 ? 'Incremented' : 'Holds pointer'}
@@ -215,7 +231,7 @@ export default function InstructionCycleSection() {
               <div className="p-3 rounded-xl border border-borderLine bg-background/80 space-y-1">
                 <span className="text-[10px] text-textMuted block">ADDRESS REG (AR)</span>
                 <div className="text-base font-bold text-[#1fd655]">
-                  0x{currentStep >= 2 ? '08A' : currentStep >= 0 ? '021' : '000'}
+                  {formatRadix(currentStep >= 2 ? currentAddress : currentStep >= 0 ? 0x021 : 0x000)}
                 </div>
                 <div className="text-[9px] text-textMuted">
                   {currentStep >= 2 ? 'Latched operand addr' : 'Latched PC addr'}
@@ -225,7 +241,7 @@ export default function InstructionCycleSection() {
               <div className="p-3 rounded-xl border border-borderLine bg-background/80 space-y-1">
                 <span className="text-[10px] text-textMuted block">INSTRUCTION REG (IR)</span>
                 <div className="text-base font-bold text-[#ffcc00]">
-                  {currentStep >= 1 ? 'ADD 0x08A' : '0x0000'}
+                  {currentStep >= 1 ? `${currentOpcode} ${formatRadix(currentAddress)}` : '0x0000'}
                 </div>
                 <div className="text-[9px] text-textMuted">
                   {currentStep >= 1 ? 'Opcode + Address' : 'Idle / Flushed'}
@@ -235,10 +251,10 @@ export default function InstructionCycleSection() {
               <div className="p-3 rounded-xl border border-borderLine bg-background/80 space-y-1">
                 <span className="text-[10px] text-textMuted block">ACCUMULATOR (AC)</span>
                 <div className="text-base font-bold text-[#ff007f]">
-                  0x{currentStep === 3 ? '001A' : '0014'}
+                  {formatRadix(currentStep === 3 ? 0x001A : 0x0014)}
                 </div>
                 <div className="text-[9px] text-textMuted">
-                  {currentStep === 3 ? 'Sum Computed' : 'Prior Stored Value'}
+                  {currentStep === 3 ? 'Result Latched' : 'Prior Stored Value'}
                 </div>
               </div>
             </div>
@@ -249,7 +265,7 @@ export default function InstructionCycleSection() {
                 <span>Internal Bus Monitor:</span>
                 <span className="flex items-center gap-1 text-[#1fd655]">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#1fd655] animate-ping" />
-                  Clock Pulse High
+                  Clock Pulse Active
                 </span>
               </div>
               <div className="text-xs font-semibold text-textMain break-all bg-card/40 p-2 rounded border border-borderLine">
@@ -259,8 +275,8 @@ export default function InstructionCycleSection() {
                 <CheckCircle2 size={13} className="text-[#1fd655] shrink-0" />
                 <span>
                   {currentStep === 3
-                    ? 'Instruction complete. Sequence counter SC \u2190 0.'
-                    : `Next state will be T${currentStep + 1} on the next clock rising edge.`}
+                    ? `Instruction complete. Sequence counter SC ← 0.`
+                    : `Next state will be T${currentStep + 1} on the next clock pulse.`}
                 </span>
               </div>
             </div>

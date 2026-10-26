@@ -31,7 +31,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/simulation" element={<SimulationPage />} />
-            <Route path="/arch/isa" element={<IsaDesignPage />} />
+            <Route path="/arch/isa/*" element={<IsaDesignPage />} />
             <Route path="/os/disk" element={<DiskSchedulingPage />} />
             <Route path="/os/sync/*" element={<ProcessSync />} />
             
