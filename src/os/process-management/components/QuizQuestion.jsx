@@ -23,7 +23,7 @@ export default function QuizQuestion({
   const chosenOptionObj = question.options.find((opt) => opt.id === selectedOption);
 
   return (
-    <div className={`quiz-question-card ${isUnanswered ? 'card-unanswered-error' : ''}`}>
+    <div id={`question-${question.id}`} className={`quiz-question-card ${isUnanswered ? 'card-unanswered-error' : ''}`}>
       <div className="question-header">
         <span className="question-number-badge">Q{index + 1}</span>
         <h4 className="question-title">{question.question}</h4>

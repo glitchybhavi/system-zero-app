@@ -3,6 +3,7 @@ import raceConditionReducer from '../os/process-synchronization/store/raceCondit
 import configReducer from '../os/process-synchronization/store/configSlice';
 import isaReducer from '../arch/isa/store/isaSlice';
 import diskReducer from '../storage/disk/store/diskSlice';
+import processReducer from '../os/process-management/store/processSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     raceCondition: raceConditionReducer,
     isa: isaReducer,
     disk: diskReducer,
+    processManagement: processReducer,
   },
 });
 

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { recordExamResult, resetExamResult } from '../store/processSlice';
 import QuizQuestion from './QuizQuestion';
 import QuizSubmitModal from './QuizSubmitModal';
 import QuizToast from './QuizToast';
@@ -7,6 +9,7 @@ import { COLLECTIVE_FINAL_EXAM } from '../data/processManagementQuizData';
 import './KnowledgeQuiz.css';
 
 export default function KnowledgeQuiz() {
+  const dispatch = useDispatch();
   // 5. Consuming API & Async State
   const [questions, setQuestions] = useState(COLLECTIVE_FINAL_EXAM);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +72,15 @@ export default function KnowledgeQuiz() {
     setUnansweredList((prev) => prev.filter((id) => id !== questionId));
   };
 
+  // Helper to smoothly scroll viewport and parent containers to top
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const pageWrapper = document.querySelector('.page-wrapper');
+    if (pageWrapper) pageWrapper.scrollTo({ top: 0, behavior: 'smooth' });
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // 2. Validation before showing submit confirmation modal
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -86,17 +98,24 @@ export default function KnowledgeQuiz() {
         type: 'warning',
         message: `Please answer all questions before submitting (${missing.length} remaining).`,
       });
+      // Scroll smoothly to first unanswered question so user can see it
+      const missingEl = document.getElementById(`question-${missing[0]}`);
+      if (missingEl) {
+        missingEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 
-    // Validation passed: clear errors and prompt confirmation modal
+    // Validation passed: scroll smoothly to top and open confirmation modal
     setUnansweredList([]);
+    scrollToTop();
     setIsModalOpen(true);
   };
 
   // 3. Grade quiz after modal confirmation
   const handleConfirmSubmit = () => {
     setIsModalOpen(false);
+    scrollToTop();
 
     let calculatedScore = 0;
     questions.forEach((q) => {
@@ -110,10 +129,20 @@ export default function KnowledgeQuiz() {
     setScore(calculatedScore);
     setIsSubmitted(true);
 
-    const passingScore = Math.ceil(questions.length * 0.6); // 60% passing threshold (e.g. 3/5)
+    const passingScore = Math.ceil(questions.length * 0.6); // 60% passing threshold (e.g. 8/12)
+    const isPassed = calculatedScore >= passingScore;
 
-    if (calculatedScore >= passingScore) {
-      // 4. Update Context API
+    // 4. Update Redux Toolkit Global Store
+    dispatch(
+      recordExamResult({
+        score: calculatedScore,
+        total: questions.length,
+        isPassed,
+      })
+    );
+
+    if (isPassed) {
+      // 5. Update Context API
       markModuleCompleted('process-management');
       setToast({
         type: 'success',
@@ -129,6 +158,8 @@ export default function KnowledgeQuiz() {
 
   // Reset quiz to retry
   const handleResetQuiz = () => {
+    dispatch(resetExamResult());
+    scrollToTop();
     setAnswers({});
     setIsSubmitted(false);
     setScore(0);
