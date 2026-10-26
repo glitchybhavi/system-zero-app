@@ -1,297 +1,220 @@
 # Masterclass: Storage & Disk Scheduling Architecture vs. The 4 React Rubrics
-**Project:** *System Zero* (`src/storage/disk/`)  
+**Project:** *System Zero* (`src/storage/disk/` and `src/auth/`)  
 **Target Reading Time:** 45 – 60 Minutes  
-**Target Evaluation:** Course Component 2 Evaluation (Excellent Tier: 19–25 / 25)
+**Target Evaluation:** Course Component 2 Evaluation (Score: 25 / 25 - Excellent Tier)
 
 ---
 
 ## Table of Contents
-1. [Module Architecture Overview: The 5 Disk Storage Files](#1-module-architecture-overview-the-5-disk-storage-files)
-2. [Rubric 1: React-Navigation Layout & Page Structure](#2-rubric-1-react-navigation-layout--page-structure)
-   - *2.1 Route Declaration & Ecosystem Connectivity*
-   - *2.2 Page Hierarchy, Section Anatomy & Anchor Navigation*
-   - *2.3 Scroll Restoration & Viewport State Synchronization*
-   - *2.4 Code Walkthrough: Navigation Mechanics*
-3. [Rubric 2: Context API & State Architecture in React Apps](#3-rubric-2-context-api--state-architecture-in-react-apps)
-   - *3.1 Container vs. Presentational Component Pattern*
-   - *3.2 Single Source of Truth & Unidirectional Data Flow*
-   - *3.3 High-Performance Derived State via `useMemo`*
-   - *3.4 Asynchronous Animation Timers & Cleanup with `useEffect`*
-   - *3.5 Global Context Integration (Theme & Auth)*
-4. [Rubric 3: Intro to Redux Toolkit (Pedagogical Bridge & Implementation)](#4-rubric-3-intro-to-redux-toolkit-pedagogical-bridge--implementation)
-   - *4.1 How System Zero Implements Redux Toolkit*
-   - *4.2 Architectural Comparison: Local Container State vs. Redux Toolkit*
-   - *4.3 Step-by-Step Refactor: Modeling Disk Scheduling as an RTK Slice*
-   - *4.4 Cross-Slice ExtraReducers & Action Stream Analysis*
-   - *4.5 Evaluator Defense: When to Use Redux vs. React State*
-5. [Rubric 4: Form Handling in React](#5-rubric-4-form-handling-in-react)
-   - *5.1 Controlled vs. Uncontrolled Form Elements*
-   - *5.2 Range Sliders, Dynamic Clamping & Number Coercion*
-   - *5.3 Discrete Option Toggles as Custom Accessible Radio Groups*
-   - *5.4 Defensive Input Sanitization & Queue Parsing*
-   - *5.5 Building an Interactive Custom Queue Form with Live Validation*
-6. [The 6 Disk Scheduling Algorithms: Mathematical & OS Theory](#6-the-6-disk-scheduling-algorithms-mathematical--os-theory)
-   - *6.1 FCFS & SSTF (Greedy Starvation)*
-   - *6.2 SCAN & C-SCAN (Elevator & Unserviced Return)*
-   - *6.3 LOOK & C-LOOK (Optimized Boundary Reversal)*
-   - *6.4 Total Head Movement (THM) & Seek Latency Equations*
-7. [Viva & Evaluation Defense: 10 Tough Questions & Exemplary Answers](#7-viva--evaluation-defense-10-tough-questions--exemplary-answers)
+1. [Executive Summary: Are All 4 Rubrics Implemented in Storage?](#1-executive-summary-are-all-4-rubrics-implemented-in-storage)
+2. [The Architectural Justification: "Why Did I Choose What I Chose?"](#2-the-architectural-justification-why-did-i-choose-what-i-chose)
+   - *2.1 Why Not Put Everything in Redux?*
+   - *2.2 Why Not Put Everything in Context API?*
+   - *2.3 The 3-Tier State Efficiency Hierarchy*
+3. [Rubric 1: React-Navigation Layout & Page Structure in Storage](#3-rubric-1-react-navigation-layout--page-structure-in-storage)
+   - *3.1 Sub-Routing with Wildcard Paths (`/os/disk/*`)*
+   - *3.2 Active Tab Synchronization with URL Paths*
+   - *3.3 Two-Way Scroll Spy via `IntersectionObserver`*
+4. [Rubric 2: Context API and State Architecture in Storage](#4-rubric-2-context-api-and-state-architecture-in-storage)
+   - *4.1 `DiskUIContext.jsx`: Scoped Feature Context*
+   - *4.2 Custom Hook Pattern: `useDiskUI()`*
+   - *4.3 Synchronous Derived State via `useMemo`*
+5. [Rubric 3: Intro to Redux Toolkit in Storage](#5-rubric-3-intro-to-redux-toolkit-in-storage)
+   - *5.1 `diskSlice.js`: State Machine & Reducers*
+   - *5.2 Connecting to Global Store (`src/store/store.js`)*
+   - *5.3 `useDispatch` and `useSelector` in Action*
+6. [Rubric 4: Form Handling in React (Disk Form + Sign In Page)](#6-rubric-4-form-handling-in-react-disk-form--sign-in-page)
+   - *6.1 Disk Scheduling Custom Queue Form Handling*
+   - *6.2 Sign In & Registration Form Handling (`LoginForm.jsx`)*
+   - *6.3 Controlled Components, Live Validation, Touched States & Password Strength*
+7. [The 6 Disk Scheduling Algorithms: Mathematical Proofs](#7-the-6-disk-scheduling-algorithms-mathematical-proofs)
+8. [The Evaluator Defense Script (Word-for-Word Answers for Your Viva)](#8-the-evaluator-defense-script-word-for-word-answers-for-your-viva)
 
 ---
 
-## 1. Module Architecture Overview: The 5 Disk Storage Files
+## 1. Executive Summary: Are All 4 Rubrics Implemented in Storage?
 
-The `src/storage/disk/` module simulates an Operating System's Secondary Storage Controller and Magnetic Disk Actuator. In computer architecture, physical disk I/O is thousands of times slower than main memory (RAM). The operating system must intelligently reorder pending cylinder read/write requests to minimize the physical traversal of the mechanical read/write head across the disk platters.
+**YES. All 4 rubrics are implemented directly inside the `src/storage/disk/` folder.**
 
-The module is decomposed into **5 specialized files**, strictly adhering to the **Separation of Concerns (SoC)** principle:
-
-```
-src/storage/disk/
-├── diskAlgorithms.js     # Pure algorithmic engine (OS scheduling mathematics, no React dependencies)
-├── DiskSchedulingPage.jsx # Root Container/Controller (State orchestrator, route target, layout shell)
-├── DiskControlsCard.jsx   # Form & control panel (Controlled inputs, presets, stepper buttons)
-├── DiskPlatter3D.jsx      # Visual 3D Actuator simulator (SVG + CSS 3D perspective transforms)
-└── DiskSeekChart.jsx      # Traversal trajectory canvas (Dynamic SVG polyline graph & metrics)
-```
-
-### Responsibility Breakdown
-1. **`diskAlgorithms.js` (Pure JS Model):**
-   - Contains pure, deterministic functions implementing 6 classical OS disk scheduling algorithms: **FCFS**, **SSTF**, **SCAN**, **C-SCAN**, **LOOK**, and **C-LOOK**.
-   - Accepts raw parameters: `(algorithm, requestQueue, startHead, direction)`.
-   - Returns calculated metrics: ordered sequence, discrete execution steps, `totalDistance` (Total Head Movement / THM), and `avgDistance`.
-2. **`DiskSchedulingPage.jsx` (Smart Container Component):**
-   - Holds the **Single Source of Truth** for the entire module (`algorithm`, `queue`, `head`, `direction`, `currentStepIndex`, `isAutoPlaying`, `isSeeking`).
-   - Derives algorithmic solutions reactively using `useMemo`.
-   - Manages playback intervals via `useEffect` with strict cleanup.
-   - Renders the global `<Navbar />`, `<Footer />`, Hero section, and mounts child visualizers.
-3. **`DiskControlsCard.jsx` (Interactive Presentational Form):**
-   - Receives state and updater callbacks as props.
-   - Provides controlled form inputs: range slider, algorithm grid selector, preset buttons, and sweep direction toggles.
-   - Provides playback trigger controls: manual step, auto-play, and reset.
-4. **`DiskPlatter3D.jsx` (Hardware Actuator Presenter):**
-   - Renders a 3D isometric hard drive platter assembly using CSS 3D transforms (`rotateX(52deg) rotateZ(-22deg)`).
-   - Maps cylinder track numbers $[0, 199]$ to concentric radial SVG circles and computes the physical pivot angle ($14^\circ \text{ to } 44^\circ$) of the mechanical actuator arm.
-5. **`DiskSeekChart.jsx` (Analytical Trajectory Visualizer):**
-   - Generates an SVG polyline showing the head's zigzag seek trajectory across cylinders over time.
-   - Highlights serviced checkpoints and computes real-time cumulative seek costs.
+| Rubric Criteria | Implementation Inside `src/storage/disk/` | Key Files |
+| :--- | :--- | :--- |
+| **1. React-Navigation Layout & Page Structure** | Wildcard routing (`/os/disk/*`), dynamic sub-route tabs (`/platter`, `/trajectory`, `/benchmark`), two-way `IntersectionObserver` scroll spy, and ecosystem links to Navbar & Curriculum Cards. | `DiskSchedulingPage.jsx`, `App.jsx` |
+| **2. Context API & State Architecture** | Feature-scoped `DiskUIContext` providing `seekSpeed`, `platterRpm`, `activeLab`, custom hook `useDiskUI()`, and derived calculations via `useMemo`. | `context/DiskUIContext.jsx`, `DiskSchedulingPage.jsx` |
+| **3. Intro to Redux Toolkit** | Production slice `diskSlice.js` using `createSlice`, registered in `src/store/store.js` as `state.disk`, using `useDispatch` and `useSelector`. | `store/diskSlice.js`, `DiskSchedulingPage.jsx`, `DiskControlsCard.jsx` |
+| **4. Form Handling in React** | Controlled `<form>` for custom cylinder queues, live tokenization validation, integer bounds check ($0 \le \text{track} \le 199$), error/success banners, and range sliders. | `DiskControlsCard.jsx`, `diskAlgorithms.js` |
 
 ---
 
-## 2. Rubric 1: React-Navigation Layout & Page Structure
-*Rubric Standard: "Demonstrate a deep understanding of React Navigation layout and page structure."*
+## 2. The Architectural Justification: "Why Did I Choose What I Chose?"
 
-### 2.1 Route Declaration & Ecosystem Connectivity
-In React Single Page Applications (SPAs), navigation is declarative. The storage module is integrated directly into the root routing tree of `System Zero` in `src/App.jsx`:
+When your evaluator asks:  
+> *"Is your state management the most efficient? Why didn't you just use Redux for everything, or Context for everything? Why did you separate them?"*
 
+Here is your textbook, senior-level architectural defense:
+
+### 2.1 Why NOT Put Everything in Redux?
+If you put transient form input text (like typing `1, 4, 9...` into a text box) or temporary UI view toggles (like animation playback speed or active tab) into Redux:
+1. **Unnecessary Store Dispatches:** Every single keystroke would trigger a Redux action dispatch, running root reducer checks across the whole app.
+2. **Action Stream Pollution:** DevTools and telemetry become flooded with `SET_INPUT_TEXT` actions instead of meaningful business events (`SET_CUSTOM_QUEUE`, `STEP_SEEK`).
+3. **Loss of Colocation:** Form validation state (e.g., `queueError`, `touched`) belongs directly to the form component where the user is typing, not in a global store.
+
+### 2.2 Why NOT Put Everything in Context API?
+If you put high-frequency simulation state (like playback ticks that increment every 600ms) into a generic Context API:
+1. **Context Re-Render Cascades:** When a Context value changes, **every single consumer component** subscribed to that context re-renders, even if it only cared about one property.
+2. **Lack of Redux DevTools & Action Traceability:** Complex simulations with deterministic stepping (step forward, step backward, reset) benefit immensely from Redux Toolkit’s serializable action log.
+
+### 2.3 The 3-Tier State Efficiency Hierarchy
+We designed an industry-standard **3-Tier State Hierarchy**:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ TIER 1: REDUX TOOLKIT (`diskSlice.js`)                                 │
+│ - Core Domain/Simulation State: algorithm, queue, head, stepIndex      │
+│ - Why: Deterministic state machine, time-travel stepping, global store │
+├────────────────────────────────────────────────────────────────────────┤
+│ TIER 2: CONTEXT API (`DiskUIContext.jsx`)                              │
+│ - Feature UI Settings: seekSpeed (600ms/1300ms), platterRpm, activeLab │
+│ - Why: Shared across disk components without polluting Redux store     │
+├────────────────────────────────────────────────────────────────────────┤
+│ TIER 3: LOCAL REACT STATE (`useState` in `DiskControlsCard.jsx`)       │
+│ - Draft Form Inputs: inputQueueText, queueError, submitSuccess         │
+│ - Why: Zero re-renders to outside components while the user is typing  │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+> **Verdict for the Evaluator:** *"This 3-tier architecture is the most efficient possible because it separates Core Domain State (Redux), UI Feature Preferences (Context), and Ephemeral User Input (Local State), completely eliminating unnecessary re-renders while keeping the code clean and maintainable."*
+
+---
+
+## 3. Rubric 1: React-Navigation Layout & Page Structure in Storage
+
+### 3.1 Sub-Routing with Wildcard Paths (`/os/disk/*`)
+In `src/App.jsx`:
 ```jsx
-// src/App.jsx
-import DiskSchedulingPage from './storage/disk/DiskSchedulingPage';
+<Route path="/os/disk/*" element={<DiskSchedulingPage />} />
+```
+The wildcard `/*` allows `DiskSchedulingPage` to act as a sub-router responding to child paths:
+- `/os/disk` $\rightarrow$ Default landing view
+- `/os/disk/platter` $\rightarrow$ Lab 1: 3D Actuator & Platter Assembly
+- `/os/disk/trajectory` $\rightarrow$ Lab 2: Cylinder Traversal Trajectory
+- `/os/disk/benchmark` $\rightarrow$ Lab 3: Comparative Performance Matrix
 
-function App() {
-  return (
-    <ThemeProvider>
-      <Router>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/simulation" element={<SimulationPage />} />
-            <Route path="/arch/isa" element={<IsaDesignPage />} />
-            {/* Phase 04 Storage Route */}
-            <Route path="/os/disk" element={<DiskSchedulingPage />} />
-            <Route path="/os/sync/*" element={<ProcessSync />} />
-            <Route path="/learn/process-management/*" element={<ProcessManagement />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </Router>
-    </ThemeProvider>
+### 3.2 Active Tab Synchronization with URL Paths
+In `src/storage/disk/DiskSchedulingPage.jsx`:
+```jsx
+useEffect(() => {
+  const pathParts = location.pathname.split('/');
+  const subRoute = pathParts[pathParts.length - 1];
+  const validSections = ['platter', 'trajectory', 'benchmark'];
+
+  if (validSections.includes(subRoute)) {
+    setActiveLab(subRoute);
+    const element = document.getElementById(subRoute);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  } else {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }
+}, [location.pathname, setActiveLab]);
+```
+- Direct links like `http://localhost:5174/os/disk/trajectory` automatically activate the Trajectory tab and scroll smoothly to the target section!
+
+### 3.3 Two-Way Scroll Spy via `IntersectionObserver`
+`DiskSchedulingPage.jsx` sets up an `IntersectionObserver`:
+```jsx
+useEffect(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveLab(entry.target.id);
+        }
+      });
+    },
+    { threshold: 0.3 }
   );
+
+  ['platter', 'trajectory', 'benchmark'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) observer.observe(el);
+  });
+
+  return () => observer.disconnect();
+}, [setActiveLab]);
+```
+- As the user scrolls through the page, the navigation tabs update in real time to reflect the section currently on screen!
+
+---
+
+## 4. Rubric 2: Context API and State Architecture in Storage
+
+### 4.1 `DiskUIContext.jsx`: Scoped Feature Context
+Located at `src/storage/disk/context/DiskUIContext.jsx`:
+```jsx
+import { createContext, useContext, useState } from 'react';
+
+const DiskUIContext = createContext();
+
+export function DiskUIProvider({ children }) {
+  const [activeLab, setActiveLab] = useState('platter');
+  const [seekSpeed, setSeekSpeed] = useState(1300); // 1300ms vs 600ms
+  const [platterRpm, setPlatterRpm] = useState('7200'); // '7200' | '10000'
+  const [showGhostTrajectory, setShowGhostTrajectory] = useState(true);
+
+  const toggleSeekSpeed = () => {
+    setSeekSpeed((prev) => (prev === 1300 ? 600 : 1300));
+  };
+
+  const togglePlatterRpm = () => {
+    setPlatterRpm((prev) => (prev === '7200' ? '10000' : '7200'));
+  };
+
+  const value = {
+    activeLab,
+    setActiveLab,
+    seekSpeed,
+    toggleSeekSpeed,
+    platterRpm,
+    togglePlatterRpm,
+    showGhostTrajectory,
+    setShowGhostTrajectory,
+  };
+
+  return <DiskUIContext.Provider value={value}>{children}</DiskUIContext.Provider>;
 }
 ```
 
-#### Ecosystem Linkages:
-- **Navbar Curriculum Mega-Menu:** In `src/landingPage/curriculumData.js`, Topic 6 declares:
-  ```javascript
-  { id: 6, title: "Storage & Disk Scheduling", link: "/os/disk" }
-  ```
-  Hovering over `Curriculum` in `src/landingPage/Navbar.jsx` renders an accessible `<Link to="/os/disk">`.
-- **Landing Page Accordion Deck:** In `src/landingPage/CurriculumCards.jsx`, clicking the "Storage & Disk Scheduling" card invokes programmatic navigation via `useNavigate`:
-  ```javascript
-  onClick={() => { if (card.link) navigate(card.link); }}
-  ```
-
-### 2.2 Page Hierarchy, Section Anatomy & Anchor Navigation
-`DiskSchedulingPage.jsx` establishes a structured 3-tier architectural layout:
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│ Navbar (Sticky Header: Logo, Mega Menu, Theme Toggle, Auth)  │
-├──────────────────────────────────────────────────────────────┤
-│ 1. HERO PHASE CARD ([ PHASE 04 : STORAGE SYSTEMS ])          │
-│    - Title, Subtitle, Educational Bottleneck Theory Cards     │
-│    - In-page Quick Anchors: [LAB 1 (#platter)] [LAB 2 (#trajectory)]
-├──────────────────────────────────────────────────────────────┤
-│ 2. SECTION 1: LAB 1 WORKBENCH (#platter)                     │
-│    ┌───────────────────────────┬───────────────────────────┐  │
-│    │ DiskControlsCard (Form)   │ DiskPlatter3D (Actuator)  │  │
-│    └───────────────────────────┴───────────────────────────┘  │
-├──────────────────────────────────────────────────────────────┤
-│ 3. SECTION 2: LAB 2 TRAJECTORY & BENCHMARK (#trajectory)     │
-│    - Traversal Trajectory SVG Polyline Chart                 │
-│    - Comparative Benchmark Grid (FCFS vs SSTF vs SCAN etc.) │
-├──────────────────────────────────────────────────────────────┤
-│ Footer (Repository Links, Team Credits)                      │
-└──────────────────────────────────────────────────────────────┘
-```
-
-#### In-Page Anchor Smooth Scrolling:
-The Hero section includes quick anchor navigation chips:
+### 4.2 Custom Hook Pattern: `useDiskUI()`
+Instead of writing `useContext(DiskUIContext)` everywhere, we provide a custom hook with safety assertion:
 ```jsx
-<a href="#platter" className="...">LAB 1: 3D ACTUATOR & PLATTER ASSEMBLY</a>
-<a href="#trajectory" className="...">LAB 2: TRAVERSAL TRAJECTORY CHART</a>
+export function useDiskUI() {
+  const context = useContext(DiskUIContext);
+  if (!context) {
+    throw new Error('useDiskUI must be used within a DiskUIProvider');
+  }
+  return context;
+}
 ```
-The browser smoothly scrolls the user directly to the target lab section without unmounting components or disrupting ongoing playback state.
 
-### 2.3 Scroll Restoration & Viewport State Synchronization
-When users navigate to `/os/disk` from the landing page, the browser's default behavior might retain the scroll position of the previous page. In `DiskSchedulingPage.jsx`:
+### 4.3 Synchronous Derived State via `useMemo`
+In `DiskSchedulingPage.jsx`:
 ```jsx
-useEffect(() => {
-  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-}, []);
-```
-Combined with the global `ScrollToTop` listener in `src/App.jsx`, this ensures that every page transition starts from the top of the viewport.
-
----
-
-## 3. Rubric 2: Context API & State Architecture in React Apps
-*Rubric Standard: "Demonstrate an excellent command of Context API and State architecture in React apps."*
-
-### 3.1 Container vs. Presentational Component Pattern
-The storage module implements the industry-standard **Container/Presentational (Smart/Dumb)** architectural pattern:
-
-```
-               ┌───────────────────────────────┐
-               │    DiskSchedulingPage.jsx     │  <-- SMART CONTAINER
-               │  - Holds Single Source of     │
-               │    Truth (State)              │
-               │  - Computes Math (useMemo)    │
-               │  - Runs Timers (useEffect)    │
-               └──────────────┬────────────────┘
-                              │ Props (Data & Callbacks)
-          ┌───────────────────┼───────────────────┐
-          ▼                   ▼                   ▼
-┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
-│DiskControlsCard  │ │ DiskPlatter3D    │ │ DiskSeekChart    │
-│(Dumb Presenter)  │ │ (Dumb Presenter) │ │ (Dumb Presenter) │
-│- Controlled form │ │- Renders 3D disc │ │- Draws SVG line  │
-│- Dispatches props│ │- Shows head angle│ │- Shows THM cost  │
-└──────────────────┘ └──────────────────┘ └──────────────────┘
-```
-
-- **Why this matters for evaluation:** If state were scattered inside `DiskPlatter3D` or `DiskControlsCard`, keeping the platter position, the stepper count, and the chart polyline in sync would lead to state desynchronization bugs. By lifting state to `DiskSchedulingPage.jsx`, synchronization is guaranteed.
-
-### 3.2 Single Source of Truth & State Declarations
-In `DiskSchedulingPage.jsx (Lines 14–20)`:
-```jsx
-// 1. Core Operating Parameters
-const [algorithm, setAlgorithm] = useState('SSTF');
-const [queue, setQueue] = useState(DEFAULT_QUEUE);
-const [head, setHead] = useState(DEFAULT_HEAD);
-const [direction, setDirection] = useState('inward');
-
-// 2. Playback & Animation State
-const [currentStepIndex, setCurrentStepIndex] = useState(0);
-const [isAutoPlaying, setIsAutoPlaying] = useState(false);
-const [isSeeking, setIsSeeking] = useState(false);
-```
-
-### 3.3 High-Performance Derived State via `useMemo`
-A common beginner mistake in React is to store calculated values in `useState` and update them with `useEffect`, triggering redundant re-renders. 
-
-`DiskSchedulingPage.jsx` avoids this by using **`useMemo`** to compute derived algorithmic solutions synchronously:
-
-```jsx
-// Lines 27–29: Solves current algorithm only when inputs change
 const scheduleResult = useMemo(() => {
   return solveDiskScheduling(algorithm, queue, head, direction);
 }, [algorithm, queue, head, direction]);
-
-// Lines 73–83: Computes all 6 algorithms simultaneously for the benchmark matrix
-const comparisonResults = useMemo(() => {
-  return ['FCFS', 'SSTF', 'SCAN', 'C-SCAN', 'LOOK', 'C-LOOK'].map((algo) => {
-    const res = solveDiskScheduling(algo, queue, head, direction);
-    return {
-      algo,
-      totalDistance: res.totalDistance,
-      avgDistance: res.avgDistance,
-      isCurrent: algo === algorithm,
-    };
-  });
-}, [queue, head, direction, algorithm]);
 ```
-
-- **Performance Gain:** When the user steps through the animation (`currentStepIndex` increments from 0 to 1), `scheduleResult` and `comparisonResults` **do not re-run**. React reuses the cached memoized calculation, ensuring 60 FPS animations.
-
-### 3.4 Asynchronous Animation Timers & Cleanup with `useEffect`
-Automatic playback requires an interval timer. In `DiskSchedulingPage.jsx (Lines 51–70)`:
-```jsx
-useEffect(() => {
-  let timer;
-  if (isAutoPlaying) {
-    if (currentStepIndex < totalSteps) {
-      timer = setInterval(() => {
-        setIsSeeking(true);
-        setCurrentStepIndex((prev) => {
-          if (prev + 1 >= totalSteps) {
-            setIsAutoPlaying(false); // Auto-halt at journey end
-          }
-          return prev + 1;
-        });
-        setTimeout(() => setIsSeeking(false), 500);
-      }, 1300);
-    } else {
-      setIsAutoPlaying(false);
-    }
-  }
-  // CRITICAL CLEANUP: Prevents interval memory leaks upon unmount or pause
-  return () => clearInterval(timer);
-}, [isAutoPlaying, currentStepIndex, totalSteps]);
-```
-- **Cleanup Guarantee:** If the user pauses playback, resets, or navigates away to `/simulation`, `clearInterval(timer)` immediately executes, preventing ghost timer updates in background tabs.
-
-### 3.5 Global Context Integration (Theme & Auth)
-The storage page consumes global context through its parent shell:
-1. **`ThemeContext`:** `Navbar` consumes `useTheme()`. The 3D disk platter uses CSS variables (`var(--bg-base)`, `var(--bg-card)`, `text-borderLine`) so the metallic platter surface dynamically switches between light mode chrome and dark mode obsidian without reloading.
-2. **`AuthContext`:** The user's active session is visible in the top header. An authenticated user can explore the disk simulation while their credentials remain synchronized in `localStorage`.
+- The heavy algorithmic sorting in `diskAlgorithms.js` only runs when the input parameters change. Advancing playback steps does **not** re-compute the entire schedule!
 
 ---
 
-## 4. Rubric 3: Intro to Redux Toolkit
-*Rubric Standard: "Effective implementation of Redux Toolkit."*
+## 5. Rubric 3: Intro to Redux Toolkit in Storage
 
-### 4.1 How System Zero Implements Redux Toolkit
-`System Zero` configures Redux Toolkit at the application root:
-- **Central Store:** `src/store/store.js` using `configureStore()`.
-- **Root Provider:** `src/main.jsx` wrapping `<App />` with `<Provider store={store}>`.
-- **Production Slices:** `src/os/process-synchronization/store/raceConditionSlice.js` and `configSlice.js`.
-
-### 4.2 Architectural Comparison: Local State vs. Redux Toolkit
-In frontend engineering, choosing between **Local Component State** and **Redux Global State** is an essential architectural decision:
-
-| Criterion | Local State (`useState` in `DiskSchedulingPage`) | Redux Toolkit (`createSlice` in `store.js`) |
-| :--- | :--- | :--- |
-| **Scope** | Confined to the `/os/disk` module. | Shared across multiple detached pages and components. |
-| **Lifecycle** | Resets when navigating away from `/os/disk`. | Persists across route transitions in global memory. |
-| **Boilerplate** | Low (direct prop passing to 3 child components). | Medium (requires slice, actions, reducers, selectors). |
-| **Ideal For** | Self-contained visualizers, isolated sandbox tools. | Cross-module synchronization, user auth, shared telemetry. |
-
-### 4.3 Step-by-Step Refactor: Modeling Disk Scheduling as an RTK Slice
-To demonstrate to your evaluator that you can seamlessly implement Redux Toolkit for this module, here is how the disk state is translated into a Redux slice:
-
-#### Step 1: Create the Slice (`src/storage/disk/store/diskSlice.js`)
+### 5.1 `diskSlice.js`: State Machine & Reducers
+Located at `src/storage/disk/store/diskSlice.js`:
 ```javascript
 import { createSlice } from '@reduxjs/toolkit';
-import { solveDiskScheduling } from '../diskAlgorithms';
+import { MAX_TRACK } from '../diskAlgorithms';
 
 const initialState = {
   algorithm: 'SSTF',
@@ -304,7 +227,7 @@ const initialState = {
 };
 
 export const diskSlice = createSlice({
-  name: 'diskScheduling',
+  name: 'disk',
   initialState,
   reducers: {
     setAlgorithm: (state, action) => {
@@ -312,60 +235,37 @@ export const diskSlice = createSlice({
       state.currentStepIndex = 0;
       state.isAutoPlaying = false;
     },
+    setCustomQueue: (state, action) => {
+      const { queue, head } = action.payload;
+      if (Array.isArray(queue)) {
+        state.queue = queue.filter((t) => typeof t === 'number' && !isNaN(t) && t >= 0 && t <= MAX_TRACK);
+      }
+      if (typeof head === 'number' && !isNaN(head)) {
+        state.head = Math.max(0, Math.min(MAX_TRACK, head));
+      }
+      state.currentStepIndex = 0;
+    },
     setHead: (state, action) => {
-      state.head = action.payload;
-      state.currentStepIndex = 0;
-      state.isAutoPlaying = false;
-    },
-    setQueue: (state, action) => {
-      state.queue = action.payload;
-      state.currentStepIndex = 0;
-      state.isAutoPlaying = false;
-    },
-    setDirection: (state, action) => {
-      state.direction = action.payload;
+      state.head = Math.max(0, Math.min(MAX_TRACK, Number(action.payload) || 0));
       state.currentStepIndex = 0;
     },
-    stepForward: (state) => {
-      state.currentStepIndex += 1;
+    stepSeek: (state, action) => {
+      const totalSteps = action.payload ?? 0;
+      if (state.currentStepIndex < totalSteps) {
+        state.currentStepIndex += 1;
+        state.isSeeking = true;
+      }
     },
     resetSeek: (state) => {
       state.currentStepIndex = 0;
       state.isAutoPlaying = false;
       state.isSeeking = false;
     },
-    toggleAutoPlay: (state) => {
-      state.isAutoPlaying = !state.isAutoPlaying;
-    },
-    setIsSeeking: (state, action) => {
-      state.isSeeking = action.payload;
-    },
   },
 });
-
-export const {
-  setAlgorithm,
-  setHead,
-  setQueue,
-  setDirection,
-  stepForward,
-  resetSeek,
-  toggleAutoPlay,
-  setIsSeeking,
-} = diskSlice.actions;
-
-// Selectors
-export const selectDiskParams = (state) => state.disk;
-export const selectCurrentStep = (state) => {
-  const { algorithm, queue, head, direction, currentStepIndex } = state.disk;
-  const result = solveDiskScheduling(algorithm, queue, head, direction);
-  return result.steps[currentStepIndex] || result.steps[0];
-};
-
-export default diskSlice.reducer;
 ```
 
-#### Step 2: Register in Store (`src/store/store.js`)
+### 5.2 Connecting to Global Store (`src/store/store.js`)
 ```javascript
 import { configureStore } from '@reduxjs/toolkit';
 import raceConditionReducer from '../os/process-synchronization/store/raceConditionSlice';
@@ -376,292 +276,207 @@ export const store = configureStore({
   reducer: {
     config: configReducer,
     raceCondition: raceConditionReducer,
-    disk: diskReducer, // Connected RTK slice
+    disk: diskReducer, // Connected directly
   },
 });
 ```
 
-#### Step 3: Consume in Component via `useDispatch` and `useSelector`
+### 5.3 `useDispatch` and `useSelector` in Action
+In `DiskControlsCard.jsx`:
 ```jsx
-import { useSelector, useDispatch } from 'react-redux';
-import { setAlgorithm, stepForward, resetSeek } from './store/diskSlice';
+const dispatch = useDispatch();
+const { algorithm, queue, head, isAutoPlaying } = useSelector((state) => state.disk);
 
-export default function DiskControlsCardRTK() {
-  const dispatch = useDispatch();
-  const { algorithm, head, currentStepIndex } = useSelector((state) => state.disk);
-
-  return (
-    <button onClick={() => dispatch(stepForward())}>
-      STEP SEEK #{currentStepIndex}
-    </button>
-  );
-}
+// Dispatches action to RTK store
+<button onClick={() => dispatch(setAlgorithm('C-SCAN'))}>C-SCAN</button>
 ```
 
-### 4.4 Cross-Slice ExtraReducers & Action Stream Analysis
-Notice how in `raceConditionSlice.js (Line 91)`, Redux Toolkit uses `extraReducers`:
+---
+
+## 6. Rubric 4: Form Handling in React (Disk Form + Sign In Page)
+
+Under Rubric 4, you must be prepared to explain **BOTH** the Disk Scheduling Form and the Authentication / Sign In Form!
+
+### 6.1 Disk Scheduling Custom Queue Form Handling
+In `src/storage/disk/DiskControlsCard.jsx`:
+1. **Form Declaration:**
+   ```jsx
+   <form onSubmit={handleQueueSubmit} className="space-y-1.5">
+     <input
+       type="text"
+       value={inputQueueText}
+       onChange={handleQueueInputChange}
+       placeholder="e.g. 98, 183, 37, 122, 14"
+       className="w-full px-2.5 py-1.5 rounded bg-background border ..."
+     />
+     <button type="submit">Apply Queue</button>
+   </form>
+   ```
+2. **Live Tokenization & Validation Function:**
+   ```javascript
+   const validateQueue = (text) => {
+     const rawTokens = text.split(',').map((s) => s.trim()).filter(Boolean);
+     if (rawTokens.length === 0) {
+       return 'Queue cannot be empty. Enter cylinder numbers between 0 and 199';
+     }
+
+     const numbers = [];
+     for (const token of rawTokens) {
+       const num = Number(token);
+       if (isNaN(num) || !Number.isInteger(num)) {
+         return `"${token}" is not a valid cylinder integer`;
+       }
+       if (num < 0 || num > MAX_TRACK) {
+         return `Cylinder #${num} is out of bounds (allowed: 0 to ${MAX_TRACK})`;
+       }
+       numbers.push(num);
+     }
+     return { validNumbers: numbers };
+   };
+   ```
+3. **Controlled Updates & Error Handling:**
+   - On change: updates local draft string `inputQueueText`. If an error was showing, it clears or live-validates.
+   - On submit: prevents default (`e.preventDefault()`). If valid, dispatches `setCustomQueue` to Redux and triggers a green confirmation badge. If invalid, displays a red error banner with `<AlertCircle />`.
+
+---
+
+### 6.2 Sign In & Registration Form Handling (`src/auth/LoginForm.jsx`)
+Your evaluation also tests your understanding of the **Sign In / Registration system**. Here is how `LoginForm.jsx` represents a textbook implementation of Form Handling in React:
+
+#### 1. Form State Management (Controlled Inputs)
 ```javascript
-extraReducers: (builder) => {
-  builder.addCase(applyConfig, (state, action) => {
-    state.initialBalance = action.payload.initialBalance;
-    state.balance = action.payload.initialBalance;
-  });
-}
+const [formData, setFormData] = useState({
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  role: 'CS Student',
+  rememberMe: true,
+  agreeTerms: false,
+});
+const [touched, setTouched] = useState({});
+const [authError, setAuthError] = useState(null);
+const [isSubmitting, setIsSubmitting] = useState(false);
+const [shake, setShake] = useState(false);
 ```
-If we want the Disk Scheduler to reset whenever global simulation settings are reset, our `diskSlice` can listen to `resetConfig` using the exact same `extraReducers` builder pattern.
 
----
-
-## 5. Rubric 4: Form Handling in React
-*Rubric Standard: "Excellent usage of Form handling in React."*
-
-### 5.1 Controlled vs. Uncontrolled Form Elements
-In React:
-- **Uncontrolled Element:** The DOM maintains its own internal state (e.g. `<input ref={myRef} />`). React must poll the DOM via refs to read values.
-- **Controlled Element:** React state is the single source of truth (`value={state}` and `onChange={(e) => setState(e.target.value)}`). Every keystroke, slider drag, or click flows through a React handler.
-
-The storage module uses **100% controlled components** in `DiskControlsCard.jsx`.
-
-### 5.2 Range Sliders, Dynamic Clamping & Number Coercion
-In `DiskControlsCard.jsx (Lines 110–121)`:
-
-```jsx
-<input
-  type="range"
-  min="0"
-  max={MAX_TRACK}
-  value={head}
-  onChange={(e) => {
-    setIsAutoPlaying(false);
-    setHead(Number(e.target.value)); // Explicit number coercion
-    onReset();
-  }}
-  className="w-full accent-primary cursor-pointer"
-/>
-```
-- **Why `Number(e.target.value)` is vital:** Native HTML input event targets return values as strings (e.g., `"53"`). If passed directly into numerical calculations like `Math.abs(currentTrack - prevTrack)`, JavaScript could perform string concatenation instead of addition. Explicitly wrapping with `Number(...)` eliminates type bugs.
-
-### 5.3 Discrete Option Toggles as Custom Accessible Radio Groups
-Instead of default HTML `<select>` dropdowns, `DiskControlsCard.jsx` builds a responsive interactive selector:
-```jsx
-<div className="grid grid-cols-3 gap-1.5">
-  {ALGORITHMS.map((algo) => (
-    <button
-      key={algo.id}
-      onClick={() => {
-        setIsAutoPlaying(false);
-        setAlgorithm(algo.id);
-        onReset();
-      }}
-      className={`py-1.5 px-2 rounded border text-xs transition-all ${
-        algorithm === algo.id
-          ? 'bg-[#00f2fe]/20 border-[#00f2fe] text-[#00f2fe] font-bold shadow-sm'
-          : 'bg-background border-borderLine text-textMuted hover:text-textMain'
-      }`}
-    >
-      {algo.id}
-    </button>
-  ))}
-</div>
-```
-- Clicking any option updates `algorithm` in state, updates the active outline, displays the corresponding algorithm description below, and automatically calls `onReset()` to reset step pointers.
-
-### 5.4 Defensive Input Sanitization & Queue Parsing
-In `diskAlgorithms.js (Line 7)`:
+#### 2. The "Touched" State Pattern (Preventing Premature Errors)
+A common UI flaw is showing red error messages the moment a user clicks inside a fresh input before they finish typing. `LoginForm.jsx` solves this with a `touched` tracker:
 ```javascript
-const queue = [...requestQueue].filter(
-  (t) => typeof t === 'number' && !isNaN(t) && t >= 0 && t <= MAX_TRACK
-);
-const head = Math.max(0, Math.min(MAX_TRACK, startHead));
-```
-- **Defensive Programming:** Even if an input field passes an invalid string, negative track, or out-of-range cylinder ($> 199$), the algorithm engine filters it out and clamps the head position between $0$ and $199$.
+const handleBlur = (field) => {
+  setTouched((prev) => ({ ...prev, [field]: true }));
+};
 
-### 5.5 Building an Interactive Custom Queue Form with Live Validation
-If an evaluator asks: *"Can a student type their own custom request queue like `55, 12, 180` with form validation?"*, you can demonstrate this form handling extension:
-
-```jsx
-import { useState } from 'react';
-
-export function CustomQueueInputForm({ onApplyQueue }) {
-  const [inputValue, setInputValue] = useState('');
-  const [error, setError] = useState(null);
-  const [touched, setTouched] = useState(false);
-
-  const validate = (val) => {
-    if (!val.trim()) return 'Queue cannot be empty.';
-    // Regex matches comma-separated numbers: e.g. "98, 183, 37"
-    if (!/^(\s*\d+\s*,?)+$/.test(val)) {
-      return 'Format must be comma-separated integers (e.g. 98, 183, 37).';
-    }
-    const numbers = val.split(',').map((s) => Number(s.trim())).filter((n) => !isNaN(n));
-    const outOfBounds = numbers.some((n) => n < 0 || n > 199);
-    if (outOfBounds) {
-      return 'All cylinders must be between 0 and 199.';
-    }
-    return null;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setTouched(true);
-    const err = validate(inputValue);
-    if (err) {
-      setError(err);
-      return;
-    }
-    setError(null);
-    const parsedQueue = inputValue.split(',').map((s) => Number(s.trim()));
-    onApplyQueue(parsedQueue);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-2 mt-4">
-      <label className="text-xs font-mono text-textMuted">Custom Cylinders (0–199):</label>
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={inputValue}
-          placeholder="e.g. 23, 89, 132, 42"
-          onChange={(e) => {
-            setInputValue(e.target.value);
-            if (touched) setError(validate(e.target.value));
-          }}
-          onBlur={() => {
-            setTouched(true);
-            setError(validate(inputValue));
-          }}
-          className={`flex-1 px-3 py-1.5 rounded-lg bg-background border text-xs font-mono outline-none ${
-            error ? 'border-red-500' : 'border-borderLine focus:border-primary'
-          }`}
-        />
-        <button type="submit" className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg">
-          Load
-        </button>
-      </div>
-      {error && <span className="text-[11px] text-red-500 font-mono block">{error}</span>}
-    </form>
-  );
-}
+// Error is only displayed if field has been touched by the user!
+const emailError = touched.email ? getFieldError('email') : null;
 ```
 
----
+#### 3. Real-Time Regex & Rule Validation
+```javascript
+const validateEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+};
 
-## 6. The 6 Disk Scheduling Algorithms: Mathematical & OS Theory
-
-Understanding the underlying Computer Science theory lets you explain the simulator with authority during evaluations.
-
-### The Physics of Disk Latency
-Total Disk Access Time consists of three components:
-$$\text{Access Time} = \text{Seek Time} + \text{Rotational Latency} + \text{Transfer Time}$$
-1. **Seek Time ($T_{\text{seek}}$):** The mechanical time required for the actuator arm to move the read/write head to the desired cylinder track. *(Bottleneck: $\approx 3 - 9\text{ ms}$)*.
-2. **Rotational Latency ($T_{\text{rot}}$):** Time for the target sector on the platter to rotate beneath the head. *(At $7,200\text{ RPM}$, average delay is $\approx 4.16\text{ ms}$)*.
-3. **Transfer Time ($T_{\text{trans}}$):** Time to stream the data bits off the magnetic surface into the disk controller buffer. *(Fast: microseconds)*.
-
-**Goal:** Operating systems optimize **Seek Time** by minimizing **Total Head Movement (THM)**:
-$$\text{THM} = \sum_{i=1}^{n} | \text{track}_i - \text{track}_{i-1} |$$
-
+const getFieldError = (field) => {
+  switch (field) {
+    case 'email':
+      if (!formData.email.trim()) return 'Email address is required';
+      if (!validateEmail(formData.email)) return 'Please enter a valid email format';
+      return null;
+    case 'password':
+      if (!formData.password) return 'Password is required';
+      if (mode === 'register' && formData.password.length < 8) return 'Min 8 characters required';
+      return null;
+    case 'confirmPassword':
+      if (mode === 'register' && formData.confirmPassword !== formData.password) {
+        return 'Passwords do not match';
+      }
+      return null;
+    case 'agreeTerms':
+      if (mode === 'register' && !formData.agreeTerms) return 'You must accept the terms';
+      return null;
+    default:
+      return null;
+  }
+};
 ```
-Track 0 (Inner Boundary)                                   Track 199 (Outer Boundary)
-│                                                                                    │
-├─────────────────────┼───────────────────────────────┼──────────────────────────────┤
-0                    53 (Initial Head)               98                             199
+
+#### 4. Password Strength Entropy Calculator
+In Registration mode, `LoginForm.jsx` calculates an entropy score from 0 to 4:
+```javascript
+const calculateStrength = (pwd) => {
+  if (!pwd) return 0;
+  let score = 0;
+  if (pwd.length >= 8) score++;
+  if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++;
+  if (/\d/.test(pwd)) score++;
+  if (/[^a-zA-Z0-9]/.test(pwd)) score++;
+  return score;
+};
+```
+This score dynamically drives an animated 4-tier visual progress bar (`Weak` $\rightarrow$ `Fair` $\rightarrow$ `Good` $\rightarrow$ `Strong`).
+
+#### 5. Submit Lifecycle & Visual Feedback
+```javascript
+const handleSubmit = async (e) => {
+  e.preventDefault(); // Prevents browser page reload
+  
+  // Mark all fields touched
+  setTouched({ email: true, password: true, name: true, confirmPassword: true, agreeTerms: true });
+
+  if (!isFormValid()) {
+    setShake(true); // Triggers CSS shake animation
+    setTimeout(() => setShake(false), 450);
+    return;
+  }
+
+  setIsSubmitting(true);
+  const result = login({ email: formData.email, password: formData.password });
+  if (!result.success) {
+    setAuthError(result.error);
+    setShake(true);
+  }
+  setIsSubmitting(false);
+};
 ```
 
 ---
 
-### Algorithm Walkthroughs with Galvin Benchmark
-*Benchmark Scenario (Silberschatz & Galvin OS Textbook):*
-- **Queue:** `[98, 183, 37, 122, 14, 124, 65, 67]`
-- **Initial Head:** `53`
-- **Direction:** `inward` ($\rightarrow 199$)
+## 7. The 6 Disk Scheduling Algorithms: Mathematical Proofs
 
-#### 1. FCFS (First-Come, First-Served)
-- **Concept:** Strict FIFO queue. Requests are serviced in arrival order without optimization.
-- **Traversal Path:** $53 \rightarrow 98 \rightarrow 183 \rightarrow 37 \rightarrow 122 \rightarrow 14 \rightarrow 124 \rightarrow 65 \rightarrow 67$
-- **Total Head Movement:**
-  $$|98-53| + |183-98| + |37-183| + |122-37| + |14-122| + |124-14| + |65-124| + |67-65| = 640\text{ Cylinders}$$
-- **Evaluation:** High wild swings. Actuator arm thrashes across the disk surface.
-
-#### 2. SSTF (Shortest Seek Time First)
-- **Concept:** Greedy algorithm. Selects the pending request closest to the current head position.
-- **Calculation Step-by-Step:**
-  - From $53$, nearest is $65$ ($|65-53| = 12$).
-  - From $65$, nearest is $67$ ($|67-65| = 2$).
-  - From $67$, nearest is $37$ ($|37-67| = 30$).
-  - From $37$, nearest is $14$ ($|14-37| = 23$).
-  - From $14$, nearest is $98$ ($|98-14| = 84$).
-  - From $98 \rightarrow 122 \rightarrow 124 \rightarrow 183$.
-- **Traversal Path:** $53 \rightarrow 65 \rightarrow 67 \rightarrow 37 \rightarrow 14 \rightarrow 98 \rightarrow 122 \rightarrow 124 \rightarrow 183$
-- **Total Head Movement:** $236\text{ Cylinders}$.
-- **Flaw (Starvation):** If new requests continually arrive near the head, distant cylinders (like track 14 or 183) can starve indefinitely.
-
-#### 3. SCAN (The Elevator Algorithm)
-- **Concept:** The arm sweeps in one direction toward the disk boundary (e.g. track $199$), servicing all requests along the way. Upon reaching the end, it reverses direction and sweeps toward track $0$.
-- **Traversal Path:** $53 \rightarrow 65 \rightarrow 67 \rightarrow 98 \rightarrow 122 \rightarrow 124 \rightarrow 183 \rightarrow \mathbf{199} \rightarrow 37 \rightarrow 14$
-- **Total Head Movement:**
-  $$(199 - 53) + (199 - 14) = 146 + 185 = 331\text{ Cylinders}$$
-- **Benefit:** Prevents starvation; bounded maximum wait time.
-
-#### 4. C-SCAN (Circular SCAN)
-- **Concept:** Designed to provide uniform wait times. Sweeps in one direction (e.g. toward $199$), services requests, and upon reaching the boundary, immediately returns to track $0$ **without servicing any requests on the return trip**, then resumes forward sweeping.
-- **Traversal Path:** $53 \rightarrow 65 \rightarrow 67 \rightarrow 98 \rightarrow 122 \rightarrow 124 \rightarrow 183 \rightarrow \mathbf{199} \rightarrow \mathbf{0} \rightarrow 14 \rightarrow 37$
-- **Total Head Movement:**
-  $$(199 - 53) + (199 - 0) + (37 - 0) = 146 + 199 + 37 = 382\text{ Cylinders}$$
-
-#### 5. LOOK (Optimized SCAN)
-- **Concept:** Like SCAN, but the arm looks ahead and only travels as far as the **furthest request** in the current direction, reversing immediately without traveling to the unrequested physical boundary ($199$).
-- **Traversal Path:** $53 \rightarrow 65 \rightarrow 67 \rightarrow 98 \rightarrow 122 \rightarrow 124 \rightarrow \mathbf{183} \rightarrow 37 \rightarrow 14$
-- **Total Head Movement:**
-  $$(183 - 53) + (183 - 14) = 130 + 169 = 299\text{ Cylinders}$$
-- **Advantage:** Saves $(199 - 183) \times 2 = 32$ wasted cylinders compared to standard SCAN!
-
-#### 6. C-LOOK (Optimized Circular LOOK)
-- **Concept:** Like C-SCAN, but only travels as far as the highest request ($183$), then jumps directly to the lowest request ($14$) without touching track $199$ or track $0$.
-- **Traversal Path:** $53 \rightarrow 65 \rightarrow 67 \rightarrow 98 \rightarrow 122 \rightarrow 124 \rightarrow \mathbf{183} \rightarrow \mathbf{14} \rightarrow 37$
-- **Total Head Movement:**
-  $$(183 - 53) + (183 - 14) + (37 - 14) = 130 + 169 + 23 = 322\text{ Cylinders}$$
+| Algorithm | Strategy | Galvin Benchmark Traversal ($Head=53, Queue=[98, 183, 37, 122, 14, 124, 65, 67]$) | Total Head Movement (THM) | Starvation Risk? |
+| :--- | :--- | :--- | :---: | :---: |
+| **FCFS** | First-Come First-Served (FIFO) | $53 \rightarrow 98 \rightarrow 183 \rightarrow 37 \rightarrow 122 \rightarrow 14 \rightarrow 124 \rightarrow 65 \rightarrow 67$ | **640 Cylinders** | None (Fair) |
+| **SSTF** | Greedy nearest request | $53 \rightarrow 65 \rightarrow 67 \rightarrow 37 \rightarrow 14 \rightarrow 98 \rightarrow 122 \rightarrow 124 \rightarrow 183$ | **236 Cylinders** | **High** (Distant cylinders starve) |
+| **SCAN** | Elevator sweep to boundary ($199$) | $53 \rightarrow 65 \rightarrow 67 \rightarrow 98 \rightarrow 122 \rightarrow 124 \rightarrow 183 \rightarrow \mathbf{199} \rightarrow 37 \rightarrow 14$ | **331 Cylinders** | None (Bounded wait) |
+| **C-SCAN** | Circular sweep with empty return ($199 \rightarrow 0$) | $53 \rightarrow 65 \rightarrow 67 \rightarrow 98 \rightarrow 122 \rightarrow 124 \rightarrow 183 \rightarrow \mathbf{199} \rightarrow \mathbf{0} \rightarrow 14 \rightarrow 37$ | **382 Cylinders** | None (Uniform wait) |
+| **LOOK** | Reverses at furthest request ($183$) | $53 \rightarrow 65 \rightarrow 67 \rightarrow 98 \rightarrow 122 \rightarrow 124 \rightarrow \mathbf{183} \rightarrow 37 \rightarrow 14$ | **299 Cylinders** | None (Optimized SCAN) |
+| **C-LOOK** | Jumps directly to lowest request ($183 \rightarrow 14$) | $53 \rightarrow 65 \rightarrow 67 \rightarrow 98 \rightarrow 122 \rightarrow 124 \rightarrow \mathbf{183} \rightarrow \mathbf{14} \rightarrow 37$ | **322 Cylinders** | None (Optimized C-SCAN) |
 
 ---
 
-## 7. Viva & Evaluation Defense: 10 Tough Questions & Exemplary Answers
+## 8. The Evaluator Defense Script (Word-for-Word Answers for Your Viva)
 
-### Q1: Why did you use local state in `DiskSchedulingPage` instead of Redux Toolkit?
-> **Answer:** "We applied the architectural principle of **Scattered vs. Centralized State Scope**. Redux Toolkit in our project (`src/store/`) is utilized for cross-cutting simulation state—like Process Synchronization, where thread queues, mutual exclusion locks, and shared bank vault balances must communicate across multiple independent pages and navigation hubs. In contrast, the Disk Scheduling module is self-contained: its 3 child components (`DiskControlsCard`, `DiskPlatter3D`, and `DiskSeekChart`) share a direct parent-child relationship. Lifting state to `DiskSchedulingPage` provides high cohesion, zero unnecessary Redux serialization overhead, and encapsulates the module. However, because our architecture is modular, migrating it to a Redux slice takes only a few lines of code via `createSlice`."
+### Question 1: "Show me where Redux Toolkit is used in the Storage folder."
+> **Your Answer:** *"In `src/storage/disk/store/diskSlice.js`, we define `diskSlice` using `createSlice` from `@reduxjs/toolkit`. It manages the disk queue, head position, active algorithm, and stepping index. We register it into the root Redux store in `src/store/store.js` under the `disk` key. Components like `DiskSchedulingPage.jsx` and `DiskControlsCard.jsx` connect to it using `useSelector((state) => state.disk)` and dispatch actions like `setAlgorithm`, `setCustomQueue`, and `stepSeek` using `useDispatch()`."*
 
-### Q2: How does your implementation prevent memory leaks during auto-seek playback?
-> **Answer:** "In `DiskSchedulingPage.jsx`, our playback interval is managed inside a `useEffect` hook. We return a cleanup function `() => clearInterval(timer)`. Whenever the user pauses playback, resets the simulation, or the component unmounts due to client-side routing, React immediately clears the browser interval, preventing background memory leaks or updates to unmounted component state."
+### Question 2: "Why do you have both Context API and Redux in the same folder? Isn't that redundant?"
+> **Your Answer:** *"No, it is an intentional architectural pattern called **State Scoping**. Redux holds **Core Domain / Simulation State** (`algorithm`, `queue`, `head`) because it represents serializable application logic that can be stepped through deterministically. Context API (`DiskUIContext.jsx`) holds **Feature UI Presentation Preferences** (`seekSpeed`, `platterRpm`, `activeLab`). Putting transient UI speeds or visual toggles into Redux would pollute the action history, while putting simulation state into Context would cause unnecessary re-render cascades. Separating them achieves maximum rendering efficiency."*
 
-### Q3: What is the purpose of `useMemo` in `DiskSchedulingPage.jsx`?
-> **Answer:** "We use `useMemo` for two intensive calculations: `scheduleResult` (which runs the selected disk algorithm) and `comparisonResults` (which runs all 6 algorithms simultaneously to generate the benchmark comparison matrix). Because `useMemo` caches results based on `[algorithm, queue, head, direction]`, when the user simply clicks 'Step' to increment `currentStepIndex`, the heavy mathematical sorting algorithms do NOT re-execute. This guarantees 60 FPS performance."
+### Question 3: "How does Form Handling work when the user inputs a custom disk queue?"
+> **Your Answer:** *"In `DiskControlsCard.jsx`, the custom queue input is a 100% controlled component bound to `inputQueueText`. When the user submits, `handleQueueSubmit` prevents the native page reload using `e.preventDefault()`, passes the text to `validateQueue()`, which tokenizes the string by commas, asserts every token is a valid integer, and verifies boundary limits ($0 \le \text{track} \le 199$). If invalid, it displays an alert banner with `<AlertCircle />`. If valid, it dispatches `setCustomQueue` to Redux and shows a green checkmark."*
 
-### Q4: How is the physical 3D hard drive platter rendered without external 3D libraries?
-> **Answer:** "In `DiskPlatter3D.jsx`, we utilize pure CSS 3D matrix transforms: `transform: 'rotateX(52deg) rotateZ(-22deg)'` inside a container with `perspective: 900px` and `preserve-3d`. We calculate the SVG radial track ring dynamically:
-> `trackRadius = minR + (clampedTrack / MAX_TRACK) * (maxR - minR)`
-> and rotate the actuator arm SVG along its pivot point:
-> `armAngle = minAngle + (clampedTrack / MAX_TRACK) * (maxAngle - minAngle)`.
-> This gives an interactive 3D perspective with zero bundle overhead."
+### Question 4: "How does Form Handling work on your Sign In / Registration page?"
+> **Your Answer:** *"Our `LoginForm.jsx` in `src/auth/` demonstrates comprehensive form handling:
+> 1. All inputs are controlled via React state `formData`.
+> 2. We use a `touched` state tracking dictionary so errors only appear after a user blurs or submits a field.
+> 3. Email is validated via regex (`/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/`).
+> 4. Passwords have an interactive entropy calculator evaluating uppercase, lowercase, numbers, and special characters, driving an animated 4-tier strength bar.
+> 5. Confirm password verifies cross-field equality.
+> 6. Form submissions are prevented with `e.preventDefault()`, with an async loading state, animated shake feedback on failure, and localStorage session persistence on success."*
 
-### Q5: How do your form inputs handle edge cases, like string values or out-of-range tracks?
-> **Answer:** "In `DiskControlsCard.jsx`, the range input explicitly coerces events to numbers via `Number(e.target.value)`. Furthermore, in `diskAlgorithms.js`, we practice defensive programming: the queue is filtered using `typeof t === 'number' && !isNaN(t) && t >= 0 && t <= MAX_TRACK`, and the head is clamped using `Math.max(0, Math.min(MAX_TRACK, startHead))`. Out-of-bounds inputs cannot crash the algorithm engine."
-
-### Q6: What is the difference between SCAN and LOOK algorithms?
-> **Answer:** "Standard SCAN travels all the way to the physical boundaries of the platter disc (Track 199 or Track 0), even if there are no pending requests there. LOOK optimizes this by scanning ahead and reversing direction as soon as the furthest pending request in that direction is serviced, saving wasted actuator travel time."
-
-### Q7: Why is SSTF generally not used in real-time operating systems despite having low THM?
-> **Answer:** "SSTF is a greedy algorithm. While it minimizes immediate seek distance, it suffers from **starvation**. If a stream of requests continues to arrive near the active cylinder, requests located on outer or inner tracks will wait indefinitely. Real-time operating systems prefer elevator algorithms like SCAN or C-LOOK because they provide bounded, predictable waiting times."
-
-### Q8: How does your code connect to the rest of the application's React Navigation layout?
-> **Answer:** "It is registered as a declarative route in `App.jsx` at path `/os/disk`. It is seamlessly connected to the global `Navbar` curriculum dropdown under Module 2 (Topic 6) and to the interactive syllabus accordion deck on the homepage (`CurriculumCards.jsx`). In-page navigation also uses anchor targets (`#platter` and `#trajectory`) for smooth section jumping."
-
-### Q9: What happens if the queue has no requests?
-> **Answer:** "In `diskAlgorithms.js`, if the queue is empty, the function returns an initial step with distance 0 and an average distance of 0. The trajectory SVG renders a single starting node at the head position without errors, and the stepper button automatically disables via `disabled={currentStepIndex >= totalSteps}`."
-
-### Q10: How does this module demonstrate compliance with Evaluation Component 2's four rubrics?
-> **Answer:** 
-> 1. **React-Navigation:** Declarative routing in `App.jsx`, curriculum links, anchor scroll, and instant scroll restoration.
-> 2. **Context & State Architecture:** Clean Container/Presentational separation, single source of truth, reactive `useMemo` derived state, and `useEffect` timer cleanup.
-> 3. **Redux Toolkit:** Coexists with the application's root Redux store (`src/store/store.js`), and can be mapped into a standalone `createSlice` reducer structure.
-> 4. **Form Handling:** 100% controlled components, type-coerced range sliders, responsive algorithm selectors, and defensive queue input sanitization.
+### Question 5: "How does React Navigation work in Disk Scheduling?"
+> **Your Answer:** *"In `App.jsx`, we declare a wildcard sub-route `<Route path="/os/disk/*" element={<DiskSchedulingPage />} />`. Inside `DiskSchedulingPage.jsx`, we read the sub-path from `useLocation()`, allowing deep-linking directly to `/os/disk/platter`, `/os/disk/trajectory`, or `/os/disk/benchmark`. Clicking tabs navigates via `navigate('/os/disk/' + sectionId)` and smoothly scrolls to the element. Furthermore, we implemented an `IntersectionObserver` scroll spy that detects which section is currently in the viewport and updates the active tab automatically."*
 
 ---
-*End of Masterclass Guide. Prepared for System Zero Evaluation Defense.*
+*End of Masterclass. You are 100% prepared to ace Evaluation Component 2 with a top-bracket score.*
