@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 import { MAX_TRACK } from './diskAlgorithms';
 import { Disc, HardDrive, Radio } from 'lucide-react';
+import { useDiskUI } from './context/DiskUIContext';
 
 export default function DiskPlatter3D({ currentTrack = 53, isSeeking = false, lastServicedTrack = null }) {
+  const { platterRpm } = useDiskUI();
   // Normalize track between 0 and 199
   const clampedTrack = Math.max(0, Math.min(MAX_TRACK, currentTrack));
 
@@ -29,7 +31,7 @@ export default function DiskPlatter3D({ currentTrack = 53, isSeeking = false, la
           <HardDrive size={14} className="text-[#00f2fe]" /> 3D Actuator & Platter Assembly
         </span>
         <span className="font-mono text-[11px] text-textMuted">
-          7,200 RPM
+          {platterRpm === '10000' ? '10,000 RPM' : '7,200 RPM'}
         </span>
       </div>
 
@@ -62,7 +64,7 @@ export default function DiskPlatter3D({ currentTrack = 53, isSeeking = false, la
                 className="absolute inset-0 rounded-full opacity-20 pointer-events-none"
                 style={{
                   background: 'conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.4) 90deg, transparent 180deg, rgba(255,255,255,0.4) 270deg, transparent 360deg)',
-                  animation: 'spinSheen 4s linear infinite',
+                  animation: `spinSheen ${platterRpm === '10000' ? '2s' : '4s'} linear infinite`,
                 }}
               />
 

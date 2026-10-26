@@ -32,7 +32,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/simulation" element={<SimulationPage />} />
             <Route path="/arch/isa/*" element={<IsaDesignPage />} />
-            <Route path="/os/disk" element={<DiskSchedulingPage />} />
+            <Route path="/os/disk/*" element={<DiskSchedulingPage />} />
             <Route path="/os/sync/*" element={<ProcessSync />} />
             
             {/* Process Management Module & Simulator Sandbox Routes */}

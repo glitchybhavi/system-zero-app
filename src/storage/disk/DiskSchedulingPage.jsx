@@ -1,27 +1,45 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import Navbar from '../../landingPage/Navbar';
 import Footer from '../../landingPage/Footer';
 import DiskControlsCard from './DiskControlsCard';
 import DiskPlatter3D from './DiskPlatter3D';
 import DiskSeekChart from './DiskSeekChart';
-import { solveDiskScheduling, MAX_TRACK } from './diskAlgorithms';
-import { HardDrive, Disc, Activity, Layers, Zap, CheckCircle2 } from 'lucide-react';
+import { solveDiskScheduling } from './diskAlgorithms';
+import {
+  setAlgorithm,
+  stepSeek,
+  resetSeek,
+  setAutoPlaying,
+  setIsSeeking,
+} from './store/diskSlice';
+import { DiskUIProvider, useDiskUI } from './context/DiskUIContext';
+import { HardDrive, Disc, Activity, Layers, Zap, Gauge, Timer } from 'lucide-react';
 
-const DEFAULT_QUEUE = [98, 183, 37, 122, 14, 124, 65, 67];
-const DEFAULT_HEAD = 53;
+function DiskSchedulingContent() {
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-export default function DiskSchedulingPage() {
-  const [algorithm, setAlgorithm] = useState('SSTF');
-  const [queue, setQueue] = useState(DEFAULT_QUEUE);
-  const [head, setHead] = useState(DEFAULT_HEAD);
-  const [direction, setDirection] = useState('inward');
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
-  const [isSeeking, setIsSeeking] = useState(false);
+  const {
+    algorithm,
+    queue,
+    head,
+    direction,
+    currentStepIndex,
+    isAutoPlaying,
+    isSeeking,
+  } = useSelector((state) => state.disk);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, []);
+  const {
+    activeLab,
+    setActiveLab,
+    seekSpeed,
+    toggleSeekSpeed,
+    platterRpm,
+    togglePlatterRpm,
+  } = useDiskUI();
 
   // Compute full schedule solution for current parameters
   const scheduleResult = useMemo(() => {
@@ -32,42 +50,69 @@ export default function DiskSchedulingPage() {
   const totalSteps = Math.max(0, steps.length - 1);
   const currentStep = steps[currentStepIndex] || steps[0] || { track: head };
 
-  // Step advancement
-  const handleStep = () => {
-    if (currentStepIndex < totalSteps) {
-      setIsSeeking(true);
-      setCurrentStepIndex((prev) => prev + 1);
-      setTimeout(() => setIsSeeking(false), 500);
+  // Sub-route handling (e.g. /os/disk/platter, /os/disk/trajectory, /os/disk/benchmark)
+  useEffect(() => {
+    const pathParts = location.pathname.split('/');
+    const subRoute = pathParts[pathParts.length - 1];
+    const validSections = ['platter', 'trajectory', 'benchmark'];
+
+    if (validSections.includes(subRoute)) {
+      setActiveLab(subRoute);
+      const element = document.getElementById(subRoute);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  }, [location.pathname, setActiveLab]);
+
+  // Scroll spy: Update active lab as user scrolls
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveLab(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    ['platter', 'trajectory', 'benchmark'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [setActiveLab]);
+
+  const handleNavClick = (sectionId) => {
+    setActiveLab(sectionId);
+    navigate(`/os/disk/${sectionId}`);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  const handleReset = () => {
-    setIsAutoPlaying(false);
-    setIsSeeking(false);
-    setCurrentStepIndex(0);
-  };
-
-  // Auto-play timer
+  // Auto-play timer using pacing from Context
   useEffect(() => {
     let timer;
     if (isAutoPlaying) {
       if (currentStepIndex < totalSteps) {
         timer = setInterval(() => {
-          setIsSeeking(true);
-          setCurrentStepIndex((prev) => {
-            if (prev + 1 >= totalSteps) {
-              setIsAutoPlaying(false);
-            }
-            return prev + 1;
-          });
-          setTimeout(() => setIsSeeking(false), 500);
-        }, 1300);
+          dispatch(setIsSeeking(true));
+          dispatch(stepSeek(totalSteps));
+          setTimeout(() => dispatch(setIsSeeking(false)), 500);
+        }, seekSpeed);
       } else {
-        setIsAutoPlaying(false);
+        dispatch(setAutoPlaying(false));
       }
     }
     return () => clearInterval(timer);
-  }, [isAutoPlaying, currentStepIndex, totalSteps]);
+  }, [isAutoPlaying, currentStepIndex, totalSteps, seekSpeed, dispatch]);
 
   // Compute all algorithms for comparative benchmark summary
   const comparisonResults = useMemo(() => {
@@ -96,9 +141,29 @@ export default function DiskSchedulingPage() {
               <span className="font-mono text-primary font-bold text-xs uppercase tracking-widest px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
                 [ PHASE 04 : STORAGE SYSTEMS & DISK SCHEDULING ]
               </span>
-              <span className="text-xs font-mono text-textMuted">
-                ACTUATOR ENGINE: OPTIMIZED
-              </span>
+              
+              {/* Context API Display Controls */}
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <button
+                  type="button"
+                  onClick={toggleSeekSpeed}
+                  className="px-2.5 py-1 rounded-lg border border-borderLine bg-background/60 hover:bg-card text-textMuted hover:text-textMain transition-all flex items-center gap-1.5"
+                  title="Toggle Seek Step Speed"
+                >
+                  <Timer size={12} className="text-primary" />
+                  <span>SPEED: <strong className="text-primary">{seekSpeed / 1000}s</strong></span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={togglePlatterRpm}
+                  className="px-2.5 py-1 rounded-lg border border-borderLine bg-background/60 hover:bg-card text-textMuted hover:text-textMain transition-all flex items-center gap-1.5"
+                  title="Toggle Platter RPM (Visual Spin Speed)"
+                >
+                  <Gauge size={12} className="text-secondary" />
+                  <span>RPM: <strong className="text-secondary">{platterRpm === '10000' ? '10K' : '7.2K'}</strong></span>
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -134,34 +199,61 @@ export default function DiskSchedulingPage() {
               </div>
             </div>
 
-            {/* Interactive Module Roadmap */}
+            {/* Interactive Module Navigation Roadmap (Criterion 1: React Router Navigation) */}
             <div className="pt-2">
               <div className="text-xs font-mono text-textMuted mb-2">CURRICULUM LABS:</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-center font-mono text-xs">
-                <a
-                  href="#platter"
-                  className="p-3.5 rounded-xl bg-[#00f2fe]/10 border border-[#00f2fe]/30 text-[#00f2fe] hover:scale-[1.01] transition-all flex items-center justify-between px-5 shadow-sm"
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center font-mono text-xs">
+                
+                <button
+                  type="button"
+                  onClick={() => handleNavClick('platter')}
+                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                    activeLab === 'platter'
+                      ? 'bg-[#00f2fe]/25 border-[#00f2fe] text-[#00f2fe] font-bold shadow-[0_0_15px_rgba(0,242,254,0.3)] scale-[1.02]'
+                      : 'bg-[#00f2fe]/10 border-[#00f2fe]/30 text-[#00f2fe] hover:scale-[1.01]'
+                  }`}
                 >
-                  <span className="font-bold flex items-center gap-2">
-                    <Disc size={14} /> LAB 1: 3D ACTUATOR & PLATTER ASSEMBLY
-                  </span>
-                  <span className="text-[11px] opacity-80 uppercase tracking-wider">Seek Mechanics &darr;</span>
-                </a>
+                  <div className="font-bold flex items-center justify-center gap-1.5">
+                    <Disc size={13} /> 1. PLATTER & ARM
+                  </div>
+                  <div className="text-[10px] opacity-80 mt-0.5">3D Actuator Assembly</div>
+                </button>
 
-                <a
-                  href="#trajectory"
-                  className="p-3.5 rounded-xl bg-[#1fd655]/10 border border-[#1fd655]/30 text-[#1fd655] hover:scale-[1.01] transition-all flex items-center justify-between px-5 shadow-sm"
+                <button
+                  type="button"
+                  onClick={() => handleNavClick('trajectory')}
+                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                    activeLab === 'trajectory'
+                      ? 'bg-[#1fd655]/25 border-[#1fd655] text-[#1fd655] font-bold shadow-[0_0_15px_rgba(31,214,85,0.3)] scale-[1.02]'
+                      : 'bg-[#1fd655]/10 border-[#1fd655]/30 text-[#1fd655] hover:scale-[1.01]'
+                  }`}
                 >
-                  <span className="font-bold flex items-center gap-2">
-                    <Activity size={14} /> LAB 2: TRAVERSAL TRAJECTORY CHART
-                  </span>
-                  <span className="text-[11px] opacity-80 uppercase tracking-wider">Cylinder Zigzag &darr;</span>
-                </a>
+                  <div className="font-bold flex items-center justify-center gap-1.5">
+                    <Activity size={13} /> 2. TRAJECTORY
+                  </div>
+                  <div className="text-[10px] opacity-80 mt-0.5">Zigzag Seek Chart</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleNavClick('benchmark')}
+                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                    activeLab === 'benchmark'
+                      ? 'bg-[#ffcc00]/25 border-[#ffcc00] text-[#ffcc00] font-bold shadow-[0_0_15px_rgba(255,204,0,0.3)] scale-[1.02]'
+                      : 'bg-[#ffcc00]/10 border-[#ffcc00]/30 text-[#ffcc00] hover:scale-[1.01]'
+                  }`}
+                >
+                  <div className="font-bold flex items-center justify-center gap-1.5">
+                    <Layers size={13} /> 3. BENCHMARK
+                  </div>
+                  <div className="text-[10px] opacity-80 mt-0.5">Algorithm Comparison</div>
+                </button>
+
               </div>
             </div>
 
             <div className="pt-2 text-center text-xs font-mono text-textMuted flex items-center justify-center gap-1.5">
-              <span>Scroll down to simulate actuator arm seeks in pure React</span>
+              <span>Click a lab or scroll to simulate actuator arm seeks in pure React</span>
               <span className="text-primary">&darr;</span>
             </div>
 
@@ -173,22 +265,7 @@ export default function DiskSchedulingPage() {
           <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
             
             <div className="w-full md:w-1/2 flex justify-center">
-              <DiskControlsCard
-                algorithm={algorithm}
-                setAlgorithm={setAlgorithm}
-                queue={queue}
-                setQueue={setQueue}
-                head={head}
-                setHead={setHead}
-                direction={direction}
-                setDirection={setDirection}
-                onStep={handleStep}
-                onReset={handleReset}
-                isAutoPlaying={isAutoPlaying}
-                setIsAutoPlaying={setIsAutoPlaying}
-                currentStepIndex={currentStepIndex}
-                totalSteps={totalSteps}
-              />
+              <DiskControlsCard totalSteps={totalSteps} />
             </div>
 
             <div className="w-full md:w-1/2 flex justify-center">
@@ -229,19 +306,23 @@ export default function DiskSchedulingPage() {
 
           <DiskSeekChart scheduleResult={scheduleResult} currentStepIndex={currentStepIndex} />
 
-          {/* Comparative Benchmark Matrix */}
-          <div className="w-full max-w-4xl mt-10">
-            <div className="text-xs font-mono text-textMuted mb-3 uppercase tracking-wider">
-              Comparative Benchmark for Current Queue:
+          {/* Comparative Benchmark Matrix Section */}
+          <div id="benchmark" className="w-full max-w-4xl mt-14 pt-8 border-t border-borderLine">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-xs font-mono text-textMuted uppercase tracking-wider">
+                Comparative Benchmark for Current Queue:
+              </div>
+              <span className="text-[10px] font-mono text-primary">
+                Click any card to switch algorithm
+              </span>
             </div>
+            
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center font-mono text-xs">
               {comparisonResults.map((item) => (
-                <div
+                <button
                   key={item.algo}
-                  onClick={() => {
-                    setAlgorithm(item.algo);
-                    handleReset();
-                  }}
+                  type="button"
+                  onClick={() => dispatch(setAlgorithm(item.algo))}
                   className={`p-3 rounded-xl border cursor-pointer transition-all ${
                     item.isCurrent
                       ? 'bg-[#00f2fe]/20 border-[#00f2fe] text-[#00f2fe] font-bold shadow-md scale-105'
@@ -251,15 +332,80 @@ export default function DiskSchedulingPage() {
                   <div className="font-bold text-sm">{item.algo}</div>
                   <div className="text-xs mt-1">{item.totalDistance} THM</div>
                   <div className="text-[10px] opacity-70 mt-0.5">{item.avgDistance} avg</div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
         </section>
 
+        {/* FLOATING QUICK CHAPTER NAVIGATOR & CONTEXT CONTROLS */}
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-card/90 backdrop-blur-xl border border-borderLine px-4 py-2 rounded-full shadow-[0_10px_35px_rgba(0,0,0,0.35)] flex items-center gap-1.5 md:gap-2.5 text-xs font-mono max-w-[95vw] overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => handleNavClick('platter')}
+            className={`px-2.5 py-1 rounded-full transition-all whitespace-nowrap ${
+              activeLab === 'platter'
+                ? 'bg-[#00f2fe]/20 text-[#00f2fe] font-bold border border-[#00f2fe]/40 shadow-sm'
+                : 'text-textMuted hover:text-textMain'
+            }`}
+          >
+            1. Platter 3D
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNavClick('trajectory')}
+            className={`px-2.5 py-1 rounded-full transition-all whitespace-nowrap ${
+              activeLab === 'trajectory'
+                ? 'bg-[#1fd655]/20 text-[#1fd655] font-bold border border-[#1fd655]/40 shadow-sm'
+                : 'text-textMuted hover:text-textMain'
+            }`}
+          >
+            2. Trajectory
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNavClick('benchmark')}
+            className={`px-2.5 py-1 rounded-full transition-all whitespace-nowrap ${
+              activeLab === 'benchmark'
+                ? 'bg-[#ffcc00]/20 text-[#ffcc00] font-bold border border-[#ffcc00]/40 shadow-sm'
+                : 'text-textMuted hover:text-textMain'
+            }`}
+          >
+            3. Benchmark
+          </button>
+
+          <span className="w-px h-4 bg-borderLine mx-0.5" />
+
+          {/* Context controls in floating pill */}
+          <button
+            type="button"
+            onClick={toggleSeekSpeed}
+            className="px-2 py-0.5 rounded border border-borderLine bg-background/50 hover:bg-card text-textMuted hover:text-primary transition-all text-[11px] whitespace-nowrap"
+            title="Toggle Stepping Speed (Context API)"
+          >
+            {seekSpeed / 1000}s
+          </button>
+          <button
+            type="button"
+            onClick={togglePlatterRpm}
+            className="px-2 py-0.5 rounded border border-borderLine bg-background/50 hover:bg-card text-textMuted hover:text-secondary transition-all text-[11px] whitespace-nowrap"
+            title="Toggle Platter RPM (Context API)"
+          >
+            {platterRpm === '10000' ? '10K RPM' : '7.2K RPM'}
+          </button>
+        </div>
+
       </main>
 
       <Footer />
     </div>
+  );
+}
+
+export default function DiskSchedulingPage() {
+  return (
+    <DiskUIProvider>
+      <DiskSchedulingContent />
+    </DiskUIProvider>
   );
 }
