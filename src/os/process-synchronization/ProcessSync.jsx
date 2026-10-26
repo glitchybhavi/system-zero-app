@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useLocation, Routes, Route } from 'react-router-dom';
 import Navbar from '../../landingPage/Navbar';
 import Sidebar from './base/Sidebar';
@@ -9,18 +10,25 @@ import PetersonPage from './pages/PetersonPage';
 import MutexPage from './pages/MutexPage';
 import SemaphorePage from './pages/SemaphorePage';
 import { SyncUIProvider } from './context/SyncUIContext';
+import { useTheme } from '../../context/ThemeContext';
 import './styles/theme.css';
 import './styles/Layout.css';
 import './styles/animations.css';
 
 export default function ProcessSync() {
   const location = useLocation();
+  const { theme } = useTheme();
   const isTheoryHub = location.pathname === '/os/sync' || location.pathname === '/os/sync/';
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   let rootClass = 'process-sync-root';
   if (!isTheoryHub) {
     rootClass = 'process-sync-root is-sim-page';
   }
+  rootClass = `${rootClass} ${theme}`;
 
   let footerComponent = null;
   if (isTheoryHub) {
@@ -29,7 +37,7 @@ export default function ProcessSync() {
 
   return (
     <SyncUIProvider>
-      <div className={rootClass}>
+      <div className={rootClass} data-theme={theme}>
         <Navbar />
         <div className="app-layout">
           <Sidebar />

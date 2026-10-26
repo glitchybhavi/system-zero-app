@@ -1,30 +1,32 @@
-import { useState } from 'react';
-import { Cpu, Zap, Radio, CheckCircle2 } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Cpu, Radio, CheckCircle2 } from 'lucide-react';
+import { setControlBit, setControlOpcodePreset } from './store/isaSlice';
 
 const DECODER_MAPPINGS = [
-  { bits: '000', out: 'D0', name: 'AND', target: 'ALU Bitwise AND Gate', desc: 'Performs AC \u2190 AC \u2227 M[AR]' },
-  { bits: '001', out: 'D1', name: 'ADD', target: 'ALU Binary Full Adder', desc: 'Performs AC \u2190 AC + M[AR]' },
-  { bits: '010', out: 'D2', name: 'LDA', target: 'AC Load Enable Line', desc: 'Performs AC \u2190 M[AR]' },
-  { bits: '011', out: 'D3', name: 'STA', target: 'RAM Memory Write Line', desc: 'Performs M[AR] \u2190 AC' },
-  { bits: '100', out: 'D4', name: 'BUN', target: 'PC Branch Load Gate', desc: 'Performs PC \u2190 AR (Unconditional jump)' },
-  { bits: '101', out: 'D5', name: 'BSA', target: 'Subroutine Return Latch', desc: 'Performs M[AR] \u2190 PC, PC \u2190 AR + 1' },
+  { bits: '000', out: 'D0', name: 'AND', target: 'ALU Bitwise AND Gate', desc: 'Performs AC ← AC ∧ M[AR]' },
+  { bits: '001', out: 'D1', name: 'ADD', target: 'ALU Binary Full Adder', desc: 'Performs AC ← AC + M[AR]' },
+  { bits: '010', out: 'D2', name: 'LDA', target: 'AC Load Enable Line', desc: 'Performs AC ← M[AR]' },
+  { bits: '011', out: 'D3', name: 'STA', target: 'RAM Memory Write Line', desc: 'Performs M[AR] ← AC' },
+  { bits: '100', out: 'D4', name: 'BUN', target: 'PC Branch Load Gate', desc: 'Performs PC ← AR (Unconditional jump)' },
+  { bits: '101', out: 'D5', name: 'BSA', target: 'Subroutine Return Latch', desc: 'Performs M[AR] ← PC, PC ← AR + 1' },
   { bits: '110', out: 'D6', name: 'ISZ', target: 'Increment & Skip Comparator', desc: 'Increments M[AR], skips next cycle if zero' },
   { bits: '111', out: 'D7', name: 'SYS', target: 'Register / I-O Control Block', desc: 'Directs register operations (CLA, CMA, HLT) or I/O' },
 ];
 
 export default function ControlUnitSection() {
-  const [b14, setB14] = useState(0);
-  const [b13, setB13] = useState(0);
-  const [b12, setB12] = useState(1); // default 001 (ADD)
+  const dispatch = useDispatch();
+  const { b14, b13, b12 } = useSelector((state) => state.isa.control);
 
   const bitString = `${b14}${b13}${b12}`;
   const activeIndex = parseInt(bitString, 2);
-  const activeOp = DECODER_MAPPINGS[activeIndex];
+  const activeOp = DECODER_MAPPINGS[activeIndex] || DECODER_MAPPINGS[1];
+
+  const handleToggleBit = (bit, currentVal) => {
+    dispatch(setControlBit({ bit, value: currentVal === 0 ? 1 : 0 }));
+  };
 
   const handleSelectOpcode = (bits) => {
-    setB14(parseInt(bits[0], 10));
-    setB13(parseInt(bits[1], 10));
-    setB12(parseInt(bits[2], 10));
+    dispatch(setControlOpcodePreset(bits));
   };
 
   return (
@@ -34,11 +36,16 @@ export default function ControlUnitSection() {
         {/* Left: Interactive Dialogue Card */}
         <div className="w-full md:w-1/2 flex justify-center">
           <div className="w-full max-w-md bg-card/60 backdrop-blur-xl border border-borderLine p-7 rounded-2xl shadow-xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-[#ffcc00]/20 text-[#ffcc00]">
-                <Cpu size={20} />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#ffcc00]/20 text-[#ffcc00]">
+                  <Cpu size={20} />
+                </div>
+                <h3 className="font-mono font-bold text-xl text-textMain">Control Unit & 3-to-8 Decoder</h3>
               </div>
-              <h3 className="font-mono font-bold text-xl text-textMain">Control Unit & 3-to-8 Decoder</h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#ffcc00]/10 text-[#ffcc00] border border-[#ffcc00]/20">
+                Redux Synchronized
+              </span>
             </div>
             
             <p className="text-sm text-textMuted leading-relaxed mb-5">
@@ -54,7 +61,8 @@ export default function ControlUnitSection() {
                   <div>
                     <span className="text-[10px] text-textMuted block mb-1">Bit 14</span>
                     <button
-                      onClick={() => setB14((prev) => (prev === 0 ? 1 : 0))}
+                      type="button"
+                      onClick={() => handleToggleBit(14, b14)}
                       className={`w-full py-2 rounded-lg border font-bold text-sm transition-all ${
                         b14 === 1
                           ? 'bg-[#ffcc00]/20 border-[#ffcc00] text-[#ffcc00]'
@@ -68,7 +76,8 @@ export default function ControlUnitSection() {
                   <div>
                     <span className="text-[10px] text-textMuted block mb-1">Bit 13</span>
                     <button
-                      onClick={() => setB13((prev) => (prev === 0 ? 1 : 0))}
+                      type="button"
+                      onClick={() => handleToggleBit(13, b13)}
                       className={`w-full py-2 rounded-lg border font-bold text-sm transition-all ${
                         b13 === 1
                           ? 'bg-[#ffcc00]/20 border-[#ffcc00] text-[#ffcc00]'
@@ -82,7 +91,8 @@ export default function ControlUnitSection() {
                   <div>
                     <span className="text-[10px] text-textMuted block mb-1">Bit 12</span>
                     <button
-                      onClick={() => setB12((prev) => (prev === 0 ? 1 : 0))}
+                      type="button"
+                      onClick={() => handleToggleBit(12, b12)}
                       className={`w-full py-2 rounded-lg border font-bold text-sm transition-all ${
                         b12 === 1
                           ? 'bg-[#ffcc00]/20 border-[#ffcc00] text-[#ffcc00]'
@@ -104,6 +114,7 @@ export default function ControlUnitSection() {
                     return (
                       <button
                         key={op.name}
+                        type="button"
                         onClick={() => handleSelectOpcode(op.bits)}
                         className={`py-1 px-1.5 rounded border text-[11px] transition-all flex flex-col items-center ${
                           isSelected

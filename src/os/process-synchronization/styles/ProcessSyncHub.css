@@ -237,11 +237,12 @@
   padding: 18px 22px;
   background: rgba(24, 28, 36, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: 4px solid var(--ok);
+  border-left: 4px solid var(--accent-purple, #6366f1);
   border-radius: 16px;
   color: #e2e8f0;
   font-size: 16.5px;
   line-height: 1.7;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.06);
 }
 
 .theory-empty-state {
@@ -307,178 +308,233 @@
   font-size: 15px;
 }
 
-/* ==========================================================================
-   LIGHT MODE OVERRIDES FOR THEORY HUB
-   ========================================================================== */
 html.light .theory-page-container,
 .light .theory-page-container,
-.theory-page-container.light {
-  color: #0A2540;
+.process-sync-root.light .theory-page-container,
+.process-sync-root[data-theme="light"] .theory-page-container {
+  color: #0F172A;
 }
 
 html.light .theory-article-header,
-.light .theory-article-header {
-  border-bottom-color: rgba(10, 37, 64, 0.1);
+html[data-theme="light"] .theory-article-header,
+.process-sync-root.light .theory-article-header,
+.process-sync-root[data-theme="light"] .theory-article-header {
+  border-bottom: 1px solid #E2E8F0;
 }
 
 html.light .theory-article-header h1,
-.light .theory-article-header h1 {
-  color: #0A2540;
+html[data-theme="light"] .theory-article-header h1,
+.process-sync-root.light .theory-article-header h1,
+.process-sync-root[data-theme="light"] .theory-article-header h1 {
+  color: #0F172A;
 }
 
 html.light .theory-subtitle,
-.light .theory-subtitle {
-  color: #4F566B;
+html[data-theme="light"] .theory-subtitle,
+.process-sync-root.light .theory-subtitle,
+.process-sync-root[data-theme="light"] .theory-subtitle {
+  color: #475569;
 }
 
 html.light .theory-toolbar,
-.light .theory-toolbar {
+html[data-theme="light"] .theory-toolbar,
+.process-sync-root.light .theory-toolbar,
+.process-sync-root[data-theme="light"] .theory-toolbar {
   background: #FFFFFF;
-  border-color: rgba(10, 37, 64, 0.1);
-  box-shadow: 0 4px 16px rgba(10, 37, 64, 0.06);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 }
 
 html.light .theory-search-input,
-.light .theory-search-input {
+html[data-theme="light"] .theory-search-input,
+.process-sync-root.light .theory-search-input,
+.process-sync-root[data-theme="light"] .theory-search-input {
   background: #F8FAFC;
-  border-color: rgba(10, 37, 64, 0.15);
-  color: #0A2540;
+  border: 1px solid #E2E8F0;
+  color: #0F172A;
 }
 
 html.light .theory-search-input:focus,
-.light .theory-search-input:focus {
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+html[data-theme="light"] .theory-search-input:focus,
+.process-sync-root.light .theory-search-input:focus,
+.process-sync-root[data-theme="light"] .theory-search-input:focus {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 html.light .clearSearch button,
-.light .clearSearch button {
-  background: rgba(10, 37, 64, 0.06);
-  border-color: rgba(10, 37, 64, 0.12);
-  color: #4F566B;
+html[data-theme="light"] .clearSearch button,
+.process-sync-root.light .clearSearch button,
+.process-sync-root[data-theme="light"] .clearSearch button {
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  color: #64748B;
 }
 
 html.light .clearSearch button:hover,
-.light .clearSearch button:hover {
-  background: rgba(10, 37, 64, 0.12);
-  color: #0A2540;
+html[data-theme="light"] .clearSearch button:hover,
+.process-sync-root.light .clearSearch button:hover,
+.process-sync-root[data-theme="light"] .clearSearch button:hover {
+  background: #E2E8F0;
+  color: #0F172A;
 }
 
 html.light .theory-filter-group,
-.light .theory-filter-group {
-  color: #4F566B;
+html[data-theme="light"] .theory-filter-group,
+.process-sync-root.light .theory-filter-group,
+.process-sync-root[data-theme="light"] .theory-filter-group {
+  color: #64748B;
 }
 
 html.light .theory-per-page-select,
-.light .theory-per-page-select {
+html[data-theme="light"] .theory-per-page-select,
+.process-sync-root.light .theory-per-page-select,
+.process-sync-root[data-theme="light"] .theory-per-page-select {
   background: #F8FAFC;
-  border-color: rgba(10, 37, 64, 0.15);
-  color: #0A2540;
+  border: 1px solid #E2E8F0;
+  color: #0F172A;
 }
 
 html.light .theory-section,
-.light .theory-section {
+html[data-theme="light"] .theory-section,
+.process-sync-root.light .theory-section,
+.process-sync-root[data-theme="light"] .theory-section {
   background: #FFFFFF;
-  border-color: rgba(10, 37, 64, 0.08);
-  box-shadow: 0 4px 20px rgba(10, 37, 64, 0.05);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
 html.light .theory-section h2,
-.light .theory-section h2 {
-  color: #0A2540;
-  border-bottom-color: rgba(10, 37, 64, 0.08);
+html[data-theme="light"] .theory-section h2,
+.process-sync-root.light .theory-section h2,
+.process-sync-root[data-theme="light"] .theory-section h2 {
+  color: #0F172A;
+  border-bottom: 1px solid #E2E8F0;
 }
 
 html.light .theory-section h3,
-.light .theory-section h3 {
-  color: #0A2540;
+html[data-theme="light"] .theory-section h3,
+.process-sync-root.light .theory-section h3,
+.process-sync-root[data-theme="light"] .theory-section h3 {
+  color: #1E293B;
 }
 
 html.light .theory-section p,
-.light .theory-section p {
+html[data-theme="light"] .theory-section p,
+.process-sync-root.light .theory-section p,
+.process-sync-root[data-theme="light"] .theory-section p {
   color: #334155;
 }
 
 html.light .theory-section strong,
-.light .theory-section strong {
-  color: #0A2540;
+html[data-theme="light"] .theory-section strong,
+.process-sync-root.light .theory-section strong,
+.process-sync-root[data-theme="light"] .theory-section strong {
+  color: #0F172A;
 }
 
 html.light .theory-section em,
-.light .theory-section em {
-  color: #334155;
+html[data-theme="light"] .theory-section em,
+.process-sync-root.light .theory-section em,
+.process-sync-root[data-theme="light"] .theory-section em {
+  color: #475569;
 }
 
 html.light .theory-section li,
-.light .theory-section li {
+html[data-theme="light"] .theory-section li,
+.process-sync-root.light .theory-section li,
+.process-sync-root[data-theme="light"] .theory-section li {
   color: #334155;
 }
 
 html.light .theory-section code,
-.light .theory-section code {
-  background: rgba(2, 132, 199, 0.08);
-  border-color: rgba(2, 132, 199, 0.2);
-  color: #0369a1;
+html[data-theme="light"] .theory-section code,
+.process-sync-root.light .theory-section code,
+.process-sync-root[data-theme="light"] .theory-section code {
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  color: #0F172A;
 }
 
 html.light .theory-visualize-btn,
-.light .theory-visualize-btn {
-  background: #F1F5F9;
-  border-color: rgba(10, 37, 64, 0.12);
-  color: #0A2540;
-  box-shadow: 0 2px 8px rgba(10, 37, 64, 0.06);
+html[data-theme="light"] .theory-visualize-btn,
+.process-sync-root.light .theory-visualize-btn,
+.process-sync-root[data-theme="light"] .theory-visualize-btn {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #0F172A;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
 }
 
 html.light .theory-visualize-btn:hover,
-.light .theory-visualize-btn:hover {
-  background: #E2E8F0;
-  border-color: rgba(10, 37, 64, 0.2);
+html[data-theme="light"] .theory-visualize-btn:hover,
+.process-sync-root.light .theory-visualize-btn:hover,
+.process-sync-root[data-theme="light"] .theory-visualize-btn:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #0F172A;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
 html.light .theory-conclusion,
-.light .theory-conclusion {
-  background: #F0FDF4;
-  border-color: rgba(16, 185, 129, 0.2);
-  border-left-color: #059669;
-  color: #166534;
+html[data-theme="light"] .theory-conclusion,
+.process-sync-root.light .theory-conclusion,
+.process-sync-root[data-theme="light"] .theory-conclusion {
+  background: #F8F7FF;
+  border: 1px solid #DDD6FE;
+  border-left: 4px solid var(--accent-purple, #6366f1);
+  color: #312E81;
 }
 
 html.light .theory-empty-state,
-.light .theory-empty-state {
+html[data-theme="light"] .theory-empty-state,
+.process-sync-root.light .theory-empty-state,
+.process-sync-root[data-theme="light"] .theory-empty-state {
   background: #FFFFFF;
-  border-color: rgba(10, 37, 64, 0.08);
+  border: 1px solid #E2E8F0;
   color: #64748B;
 }
 
 html.light .theory-pagination,
-.light .theory-pagination {
+html[data-theme="light"] .theory-pagination,
+.process-sync-root.light .theory-pagination,
+.process-sync-root[data-theme="light"] .theory-pagination {
   background: #FFFFFF;
-  border-color: rgba(10, 37, 64, 0.1);
-  box-shadow: 0 4px 16px rgba(10, 37, 64, 0.06);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 }
 
 html.light .theory-page-btn,
-.light .theory-page-btn {
-  background: #F8FAFC;
-  border-color: rgba(10, 37, 64, 0.12);
-  color: #334155;
+html[data-theme="light"] .theory-page-btn,
+.process-sync-root.light .theory-page-btn,
+.process-sync-root[data-theme="light"] .theory-page-btn {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #0F172A;
 }
 
 html.light .theory-page-btn:hover:not(:disabled),
-.light .theory-page-btn:hover:not(:disabled) {
-  background: #EDF2F7;
-  color: #0A2540;
-  border-color: rgba(10, 37, 64, 0.2);
+html[data-theme="light"] .theory-page-btn:hover:not(:disabled),
+.process-sync-root.light .theory-page-btn:hover:not(:disabled),
+.process-sync-root[data-theme="light"] .theory-page-btn:hover:not(:disabled) {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #0F172A;
 }
 
 html.light .theory-page-btn.active,
-.light .theory-page-btn.active {
-  background: #0284c7;
-  color: #FFFFFF;
-  border-color: #0284c7;
+html[data-theme="light"] .theory-page-btn.active,
+.process-sync-root.light .theory-page-btn.active,
+.process-sync-root[data-theme="light"] .theory-page-btn.active {
+  background: #EEF2FF;
+  border-color: #4F46E5;
+  color: #4338CA;
+  font-weight: 600;
 }
 
 html.light .theory-page-info,
-.light .theory-page-info {
+html[data-theme="light"] .theory-page-info,
+.process-sync-root.light .theory-page-info,
+.process-sync-root[data-theme="light"] .theory-page-info {
   color: #64748B;
 }

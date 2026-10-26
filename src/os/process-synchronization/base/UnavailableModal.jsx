@@ -38,7 +38,7 @@ export default function UnavailableModal(props) {
   return (
     <div className="sim-container">
       <div className="modal-backdrop" onClick={goBack}>
-        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-card modal-unavailable-card" onClick={(e) => e.stopPropagation()}>
           <div className="modal-icon-box">
             <AlertCircle className="modal-icon" size={26} />
           </div>

@@ -98,3 +98,66 @@
 .btn-icon {
   font-size: 18px;
 }
+
+/* ==========================================================================
+   LIGHT MODE STYLES
+   ========================================================================== */
+
+html.light .modal-backdrop,
+html[data-theme="light"] .modal-backdrop,
+.process-sync-root.light .modal-backdrop,
+.process-sync-root[data-theme="light"] .modal-backdrop {
+  background-color: rgba(15, 23, 42, 0.45);
+}
+
+html.light .modal-unavailable-card,
+html[data-theme="light"] .modal-unavailable-card,
+.process-sync-root.light .modal-unavailable-card,
+.process-sync-root[data-theme="light"] .modal-unavailable-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(226, 232, 240, 0.6) inset;
+}
+
+html.light .modal-unavailable-card .modal-icon-box,
+html[data-theme="light"] .modal-unavailable-card .modal-icon-box,
+.process-sync-root.light .modal-unavailable-card .modal-icon-box,
+.process-sync-root[data-theme="light"] .modal-unavailable-card .modal-icon-box {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+}
+
+html.light .modal-unavailable-card .modal-title,
+html[data-theme="light"] .modal-unavailable-card .modal-title,
+.process-sync-root.light .modal-unavailable-card .modal-title,
+.process-sync-root[data-theme="light"] .modal-unavailable-card .modal-title {
+  color: #0f172a;
+}
+
+html.light .modal-unavailable-card .modal-message,
+html[data-theme="light"] .modal-unavailable-card .modal-message,
+.process-sync-root.light .modal-unavailable-card .modal-message,
+.process-sync-root[data-theme="light"] .modal-unavailable-card .modal-message {
+  color: #64748b;
+}
+
+html.light .modal-unavailable-card .modal-btn,
+html[data-theme="light"] .modal-unavailable-card .modal-btn,
+.process-sync-root.light .modal-unavailable-card .modal-btn,
+.process-sync-root[data-theme="light"] .modal-unavailable-card .modal-btn {
+  background-color: #0f172a;
+  color: #ffffff;
+  border: 1px solid #0f172a;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+html.light .modal-unavailable-card .modal-btn:hover,
+html[data-theme="light"] .modal-unavailable-card .modal-btn:hover,
+.process-sync-root.light .modal-unavailable-card .modal-btn:hover,
+.process-sync-root[data-theme="light"] .modal-unavailable-card .modal-btn:hover {
+  background-color: #1e293b;
+  transform: scale(1.01);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.2);
+}

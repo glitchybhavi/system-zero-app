@@ -174,25 +174,28 @@ export default function RaceConditionSimulator({ children }) {
   }
 
   function getGuideText() {
-  if (lost > 0) {
-    return `Race condition detected! Lost ₹${lost} due to concurrent overwrite.`;
+    if (lost > 0) {
+      return `Race condition detected! Lost ₹${lost} due to an unsynchronized overwrite.`;
+    }
+    const p0 = processes[0];
+    const p1 = processes[1];
+    if (p0.line >= 2 && p0.line <= 4 && p1.line >= 2 && p1.line <= 4) {
+      return 'Critical section violation! Both processes are inside the critical section without a lock.';
+    }
+    const active = p0.line >= 2 && p0.line <= 4 ? p0 : (p1.line >= 2 && p1.line <= 4 ? p1 : null);
+    if (active) {
+      if (active.line === 2) {
+        return `P${active.id} is reading the shared vault balance into its local register.`;
+      }
+      if (active.line === 3) {
+        return `P${active.id} is incrementing the value inside its isolated local register.`;
+      }
+      if (active.line === 4) {
+        return `P${active.id} is committing its local register back to the shared vault.`;
+      }
+    }
+    return 'Ready. Step either process to begin the simulation.';
   }
-  const p0 = processes[0];
-  const p1 = processes[1];
-  if (p0.line >= 2 && p0.line <= 4 && p1.line >= 2 && p1.line <= 4) {
-    return 'Critical overlap! Both processes are executing simultaneously without a lock.';
-  }
-  if (p0.line === 2 || p1.line === 2) {
-    return 'A process read the vault balance into its local register.';
-  }
-  if (p0.line === 3 || p1.line === 3) {
-    return 'A process added increment amount to its local value.';
-  }
-  if (p0.line === 4 || p1.line === 4) {
-    return 'A process wrote its local value back to the shared vault.';
-  }
-  return 'Ready. Step either process to begin the simulation.';
-}
 
 
   return (

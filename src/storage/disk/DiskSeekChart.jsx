@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 import { MAX_TRACK } from './diskAlgorithms';
 import { Activity, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useDiskUI } from './context/DiskUIContext';
 
 export default function DiskSeekChart({ scheduleResult, currentStepIndex = 0 }) {
+  const { showGhostTrajectory } = useDiskUI();
   const steps = scheduleResult.steps || [];
   const currentStep = steps[currentStepIndex] || steps[0] || { track: 0, distance: 0, totalDistance: 0 };
 
@@ -65,7 +67,7 @@ export default function DiskSeekChart({ scheduleResult, currentStepIndex = 0 }) 
           })}
 
           {/* Planned Ghost Path (Dim dashed line showing entire journey) */}
-          {points.length > 1 && (
+          {showGhostTrajectory && points.length > 1 && (
             <polyline
               points={points.map((p) => `${p.x},${p.y}`).join(' ')}
               fill="none"
