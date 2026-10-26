@@ -1,6 +1,10 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import AuthModal from './auth/AuthModal';
+import AuthToast from './auth/AuthToast';
+import LoginPage from './auth/LoginPage';
 import LandingPage from './landingPage/LandingPage';
 import SimulationPage from './bootSystem/SimulationPage';
 import IsaDesignPage from './arch/isa/IsaDesignPage';
@@ -27,19 +31,24 @@ function App() {
     <ThemeProvider>
       <div className="relative min-h-screen transition-colors duration-500 bg-background text-textMain font-sans overflow-x-clip">
         <Router>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/simulation" element={<SimulationPage />} />
-            <Route path="/arch/isa/*" element={<IsaDesignPage />} />
-            <Route path="/os/disk/*" element={<DiskSchedulingPage />} />
-            <Route path="/os/sync/*" element={<ProcessSync />} />
-            
-            {/* Process Management Module & Simulator Sandbox Routes */}
-            <Route path="/learn/process-management/*" element={<ProcessManagement />} />
-            <Route path="/os/process-management/*" element={<ProcessManagement />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <ScrollToTop />
+            <AuthModal />
+            <AuthToast />
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/simulation" element={<SimulationPage />} />
+              <Route path="/arch/isa/*" element={<IsaDesignPage />} />
+              <Route path="/os/disk/*" element={<DiskSchedulingPage />} />
+              <Route path="/os/sync/*" element={<ProcessSync />} />
+              
+              {/* Process Management Module & Simulator Sandbox Routes */}
+              <Route path="/learn/process-management/*" element={<ProcessManagement />} />
+              <Route path="/os/process-management/*" element={<ProcessManagement />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </Router>
       </div>
     </ThemeProvider>

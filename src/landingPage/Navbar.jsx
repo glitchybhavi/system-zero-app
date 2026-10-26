@@ -6,9 +6,12 @@ import {
   TerminalSquare,
   Cpu,
   Layers,
-  ArrowRight
+  ArrowRight,
+  LogIn
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
+import UserMenu from "../auth/UserMenu";
 import { CURRICULUM_MODULES } from "./curriculumData";
 import "./styles/Navbar.css";
 import { Link } from "react-router-dom";
@@ -35,6 +38,7 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
+  const { isAuthenticated, openAuthModal } = useAuth();
   const [hoveredNav, setHoveredNav] = useState(null);
 
   const activeLink = NAV_LINKS.find((link) => link.name === hoveredNav);
@@ -83,9 +87,19 @@ export default function Navbar() {
             {theme === 'dark' ? <Sun size={nav_icon_size} /> : <Moon size={nav_icon_size} />}
           </button>
 
-          <Link to="/simulation" className="boot-system-btn">
-            Boot System
-          </Link>
+          {isAuthenticated ? (
+            <UserMenu />
+          ) : (
+            <button
+              type="button"
+              onClick={() => openAuthModal('login')}
+              className="nav-auth-btn"
+              aria-label="Sign in"
+            >
+              <LogIn size={15} />
+              <span>Sign In</span>
+            </button>
+          )}
         </div>
       </div>
 
