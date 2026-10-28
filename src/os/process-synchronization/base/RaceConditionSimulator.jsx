@@ -47,7 +47,7 @@ export default function RaceConditionSimulator({ children }) {
   const [packet1, setPacket1] = useState(NO_PACKET);
   const [isPulsing, setIsPulsing] = useState(false);
   const [isAlarm, setIsAlarm] = useState(false);
-  const [isPaused, setIsPaused] = useState(false); 
+  const [isPaused, setIsPaused] = useState(false);
 
   function showPacket(slot, type, color, value) {
     const packet = { type: type, id: Date.now(), color: color, value: value };
@@ -118,11 +118,11 @@ export default function RaceConditionSimulator({ children }) {
   }
 
   function handleTogglePause() {
-    setIsPaused(!isPaused);  
+    setIsPaused(!isPaused);
   }
 
   function handleStop() {
-    setIsPaused(false); 
+    setIsPaused(false);
     dispatch(setMode('manual'));
   }
 
@@ -202,10 +202,10 @@ export default function RaceConditionSimulator({ children }) {
     <section className="sim-container">
       <div className="sim-arena">
         {syncUI?.showGuide && (
-  <div className="sim-guide-panel">
-    <span className="sim-guide-text">{getGuideText()}</span>
-  </div>
-)}
+          <div className="sim-guide-panel">
+            <span className="sim-guide-text">{getGuideText()}</span>
+          </div>
+        )}
         <ArenaTrackLayer tracks={TRACKS} gate0Locked={false} gate1Locked={false} />
 
         {exitingCards}

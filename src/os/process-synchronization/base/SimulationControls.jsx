@@ -86,7 +86,7 @@ export default function SimulationControls(props) {
           style={{ left: `${percent}%` }}
           onClick={() => props.setSpeed(preset)}
         >
-          {preset === 1 ? '1' : `${preset}x`}
+          {`${preset}x`}
         </span>
       );
     });

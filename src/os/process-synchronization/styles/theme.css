@@ -1,10 +1,10 @@
 .process-sync-root {
-  --bg: #0a0a0c;
-  --panel: #12141a;
-  --raised: #181b22;
-  --border: rgba(255, 255, 255, 0.12);
-  --text: #f8fafc;
-  --muted: #aab4c2;
+  --bg: #09090b;
+  --panel: #121215;
+  --raised: #18181b;
+  --border: #222226;
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
   --ok: #34d399;
   --danger: #f87171;
   --info: #38bdf8;
@@ -14,6 +14,8 @@
   --space-24: 24px;
   --space-32: 32px;
   --radius: 12px;
+  --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   --font-ui: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
   --font-mono: var(--font-ui);
   min-height: 100%;
@@ -30,14 +32,14 @@
 html.light .process-sync-root,
 .light.process-sync-root,
 .light .process-sync-root {
-  --bg: #F6F9FC;
+  --bg: #F8FAFC;
   --panel: #FFFFFF;
-  --raised: #EDF2F7;
-  --border: rgba(10, 37, 64, 0.1);
-  --text: #0A2540;
-  --muted: #4F566B;
-  --ok: #059669;
-  --danger: #dc2626;
+  --raised: #FFFFFF;
+  --border: #CBD5E1;
+  --text: #0F172A;
+  --muted: #475569;
+  --ok: #047857;
+  --danger: #DC2626;
 }
 
 .process-sync-root.light,
@@ -47,9 +49,9 @@ html[data-theme="light"] .process-sync-root {
   --bg: #F8FAFC;
   --panel: #FFFFFF;
   --raised: #FFFFFF;
-  --border: #E2E8F0;
+  --border: #CBD5E1;
   --text: #0F172A;
-  --muted: #64748B;
+  --muted: #475569;
   --ok: #047857;
   --danger: #DC2626;
   --info: #1D4ED8;

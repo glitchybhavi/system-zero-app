@@ -1,541 +1,588 @@
 import "../styles/ProcessSyncHub.css";
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { ArrowRight, X, XCircle } from "lucide-react";
+import {
+  ArrowRight,
+  Search,
+  X,
+  Layers,
+  Cpu,
+  AlertTriangle,
+  ShieldCheck,
+  Zap,
+  RefreshCw,
+  Lock,
+  Activity,
+  Workflow,
+  Timer,
+} from "lucide-react";
 import CustomDropDown from "../base/CustomDropDown";
 
 const TOPICS = [
   {
     id: "concurrency",
+    index: "01",
+    title: "Concurrency",
     heading: "1. Concurrency",
     content: (
-      <section key="concurrency" className="theory-section">
-        <h2 id="concurrency">1. Concurrency</h2>
-        <p>
-          <strong>Concurrency</strong> is the execution of multiple instruction
-          sequences at the same time. In an operating system, this happens
-          whenever several process threads are running in parallel &mdash; the
-          CPU (or CPUs) interleaves or truly overlaps their execution instead of
-          finishing one task completely before starting the next.
-        </p>
-        <p>
-          It&apos;s easy to confuse concurrency with parallelism, but they
-          answer different questions. Concurrency is about <em>structure</em>:
-          can multiple tasks make progress during the same time window, even on
-          a single core, by rapidly switching between them? Parallelism is about
-          <em> hardware</em>: are tasks literally running at the same instant on
-          different cores. A single-core machine can still be concurrent
-          (juggling many threads) without ever being parallel.
-        </p>
-        <p>
-          Concurrency is what makes modern computing feel responsive &mdash;
-          your browser can download a file, render a page, and respond to your
-          clicks all &ldquo;at once,&rdquo; because the OS is rapidly switching
-          the CPU&apos;s attention between the threads doing each job. But this
-          power comes with a cost: whenever multiple threads touch the same
-          shared data, we open the door to
-          <strong> race conditions</strong>, which is exactly why process
-          synchronization exists as a field of study &mdash; explored in the
-          sections below.
-        </p>
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> Concurrency lets an OS make progress on
-          many things at once, but the moment those &ldquo;things&rdquo; share
-          data, correctness stops being automatic &mdash; it has to be
-          engineered.
-        </p>
+      <section key="concurrency" id="concurrency" className="theory-section">
+        <div className="theory-card-header-bar">
+          <div className="theory-card-title-row">
+            <span className="theory-card-pill">MODULE 01</span>
+            <h2 className="theory-card-title">Concurrency</h2>
+          </div>
+          <p className="theory-card-lead">
+            Multiple instruction sequences executing within the same time window,
+            interleaving execution on CPU cores to keep operating systems responsive while introducing shared-memory hazards.
+          </p>
+        </div>
+
+        <div className="theory-subcard-grid">
+          <div className="theory-subcard accent-cyan">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Layers size={14} /></span>
+              <span className="theory-subcard-label">Structure vs Hardware</span>
+            </div>
+            <p className="theory-subcard-body">
+              <strong>Concurrency is an architectural structure</strong>—allowing multiple tasks to make progress on a single core via rapid context switching. <span className="gradient-text-highlight">Parallelism is physical execution</span> across multiple hardware execution cores simultaneously.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-indigo">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Cpu size={14} /></span>
+              <span className="theory-subcard-label">Interleaved Execution</span>
+            </div>
+            <p className="theory-subcard-body">
+              The CPU scheduler alternates between threads at sub-millisecond intervals. This makes systems feel instant—downloading files, rendering pages, and responding to inputs concurrently.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-amber">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><AlertTriangle size={14} /></span>
+              <span className="theory-subcard-label">Shared State Hazard</span>
+            </div>
+            <p className="theory-subcard-body">
+              When concurrent threads read and write identical memory locations without coordination, overlapping read-modify-write sequences lead to non-deterministic race conditions.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-emerald">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><ShieldCheck size={14} /></span>
+              <span className="theory-subcard-label">Synchronization Mandate</span>
+            </div>
+            <p className="theory-subcard-body">
+              Process synchronization provides mathematical invariants and locking protocols that guarantee data consistency and determinism under arbitrary scheduling orders.
+            </p>
+          </div>
+        </div>
+
+        <div className="theory-conclusion">
+          <strong>Conclusion:</strong> Concurrency lets an OS make progress on many things at once, but the moment those tasks share data, correctness stops being automatic &mdash; it must be engineered.
+        </div>
       </section>
     ),
   },
   {
     id: "threads-and-thread-scheduling",
+    index: "02",
+    title: "Threads & Thread Scheduling",
     heading: "2. Threads & Thread Scheduling",
     content: (
-      <section key="threads-and-thread-scheduling" className="theory-section">
-        <h2 id="threads-and-thread-scheduling">
-          2. Threads &amp; Thread Scheduling
-        </h2>
-        <p>
-          A <strong>thread</strong> is a single sequence stream within a process
-          &mdash; an independent path of execution. Threads are often called{" "}
-          <em>light-weight processes</em> because, unlike full processes, they
-          share the same memory address space and resources of the parent
-          process, which makes them much cheaper to create and switch between.
-        </p>
-        <p>
-          Threads are used to achieve parallelism by dividing a process&apos;s
-          work into independent paths of execution. A classic example is your
-          web browser: each open tab can be its own thread (or group of
-          threads). Another everyday example is a text editor &mdash; while you
-          type, spell-checking, text formatting, and auto-saving are all
-          happening concurrently, each handled by a separate thread.
-        </p>
-        <h3>Thread Scheduling</h3>
-        <p>
-          Threads are scheduled for execution based on their priority. Even
-          though threads run within the same process, the operating system still
-          allocates each of them processor time slices, deciding which thread
-          gets the CPU and for how long.
-        </p>
-        <h3>Context Switching Between Threads</h3>
-        <ul>
-          <li>
-            The OS saves the current state of a thread and switches to another
-            thread of the same process.
-          </li>
-          <li>
-            Unlike a full process switch, this does <strong>not</strong> involve
-            switching the memory address space &mdash; but it does still
-            save/restore the program counter, registers, and stack.
-          </li>
-          <li>
-            Because less state needs to change, thread switching is noticeably
-            faster than process switching.
-          </li>
-          <li>
-            The CPU&apos;s cache state is preserved across the switch, since the
-            memory space doesn&apos;t change.
-          </li>
-        </ul>
-        <h3>How Does Each Thread Get Access to the CPU?</h3>
-        <p>
-          Every thread has its own program counter. Based on the thread
-          scheduling algorithm in use, the OS decides which thread runs next,
-          fetches the instructions corresponding to that thread&apos;s program
-          counter, and executes them. Context switches here can be triggered
-          either by I/O waits or by the expiry of a thread&apos;s time quantum
-          (TQ), just as with processes.
-        </p>
-        <p>
-          To manage all of this bookkeeping, the OS maintains a{" "}
-          <strong>Thread Control Block (TCB)</strong>
-          for each thread &mdash; the thread-level equivalent of a Process
-          Control Block (PCB) &mdash; which stores the state needed to pause and
-          resume that thread correctly.
-        </p>
-        <h3>Does Multi-threading Help on a Single-CPU System?</h3>
-        <p>
-          <strong>No &mdash; never.</strong> On a single CPU, only one thread
-          can ever truly execute at a time. Since two threads still have to
-          context switch for that one CPU, there is no genuine execution gain;
-          multi-threading&apos;s benefits (below) come from responsiveness and
-          structure, not from raw single-core speed-up.
-        </p>
-        <h3>Benefits of Multi-threading</h3>
-        <ul>
-          <li>
-            <strong>Responsiveness:</strong> an application can keep responding
-            to input even while other threads are busy with long-running work.
-          </li>
-          <li>
-            <strong>Resource sharing:</strong> threads of the same process share
-            memory and resources efficiently, with no need to duplicate them.
-          </li>
-          <li>
-            <strong>Economy:</strong> creating and context-switching threads is
-            far cheaper than doing the same for full processes, since allocating
-            memory and resources for a brand-new process is costly &mdash; it is
-            more economical to simply divide a task into threads within the same
-            process.
-          </li>
-          <li>
-            Threads allow an application to make far greater and more efficient
-            use of multiprocessor architectures.
-          </li>
-        </ul>
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> Threads give processes a cheap, fast way
-          to do many things &ldquo;at once,&rdquo; but that speed comes
-          precisely from sharing memory &mdash; the same sharing that creates
-          the critical section problem discussed next.
-        </p>
+      <section
+        key="threads-and-thread-scheduling"
+        id="threads-and-thread-scheduling"
+        className="theory-section"
+      >
+        <div className="theory-card-header-bar">
+          <div className="theory-card-title-row">
+            <span className="theory-card-pill">MODULE 02</span>
+            <h2 className="theory-card-title">Threads &amp; Thread Scheduling</h2>
+          </div>
+          <p className="theory-card-lead">
+            Lightweight execution streams that share the parent process address space, dramatically slashing creation and context-switch costs compared to heavy processes.
+          </p>
+        </div>
+
+        <div className="theory-subcard-grid">
+          <div className="theory-subcard accent-lime">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Zap size={14} /></span>
+              <span className="theory-subcard-label">Light-Weight Processes</span>
+            </div>
+            <p className="theory-subcard-body">
+              Threads share address space, open file descriptors, and global heap. Each thread maintains only its private Program Counter (PC), CPU registers, and stack memory.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-indigo">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><RefreshCw size={14} /></span>
+              <span className="theory-subcard-label">Fast Context Switching</span>
+            </div>
+            <p className="theory-subcard-body">
+              Unlike a full process switch, thread switching avoids invalidating virtual memory address translation tables (TLB). Cache lines remain warm, making switching exceptionally fast.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-cyan">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Layers size={14} /></span>
+              <span className="theory-subcard-label">Thread Control Block</span>
+            </div>
+            <p className="theory-subcard-body">
+              The OS kernel tracks each thread through a <strong>Thread Control Block (TCB)</strong>, storing state snapshots when context-switching across time-slice quanta or I/O blocks.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-pink">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Cpu size={14} /></span>
+              <span className="theory-subcard-label">Single vs Multi-CPU</span>
+            </div>
+            <p className="theory-subcard-body">
+              On a single CPU, multi-threading cannot increase raw computation speed since threads still time-share one core. Its true advantages are responsive UI and asynchronous I/O overlap.
+            </p>
+          </div>
+        </div>
+
+        <div className="theory-conclusion">
+          <strong>Conclusion:</strong> Threads provide a cheap, fast way to perform concurrent tasks, but that speed originates from shared memory &mdash; the exact vector for critical section conflicts.
+        </div>
       </section>
     ),
   },
   {
     id: "the-critical-section-problem-and-race-conditions",
+    index: "03",
+    title: "The Critical Section Problem & Race Conditions",
     heading: "3. The Critical Section Problem & Race Conditions",
     content: (
       <section
         key="the-critical-section-problem-and-race-conditions"
+        id="the-critical-section-problem-and-race-conditions"
         className="theory-section"
       >
-        <h2 id="the-critical-section-problem-and-race-conditions">
-          3. The Critical Section Problem &amp; Race Conditions
-        </h2>
-        <p>
-          Process synchronization techniques play a key role in maintaining the
-          consistency of shared data. Whenever multiple threads or processes are
-          allowed to run concurrently, we need a disciplined way to control how
-          they touch data that more than one of them can see.
-        </p>
-        <h3>What Is a Critical Section?</h3>
-        <p>
-          The <strong>critical section (C.S.)</strong> is the segment of code
-          where processes or threads access shared resources &mdash; such as
-          common variables or files &mdash; and perform write operations on
-          them. Because processes and threads execute concurrently, any process
-          can be interrupted mid-execution, potentially right in the middle of
-          updating shared data.
-        </p>
-        <h3>The Race Condition</h3>
-        <p>
-          The major scheduling issue this creates is the{" "}
-          <strong>race condition</strong>: it occurs when two or more threads
-          can access shared data and try to change it at the same time. Because
-          the thread scheduling algorithm can swap between threads at any
-          moment, you don&apos;t know in advance the exact order in which the
-          threads will access the shared data. The final result therefore
-          depends on the scheduling order &mdash; the threads are effectively
-          &ldquo;racing&rdquo; each other to read/modify the data, and whoever
-          the scheduler favors determines (unpredictably) the outcome.
-        </p>
-        <p>
-          A natural question is:{" "}
-          <em>can we just use a simple flag variable to prevent this?</em> The
-          answer is <strong>no</strong> &mdash; a plain flag check-then-set is
-          itself two separate operations, so a thread can be interrupted between
-          checking the flag and setting it, recreating the very race condition
-          it was meant to prevent.
-        </p>
-        <h3>Solutions to the Race Condition</h3>
-        <ul>
-          <li>
-            <strong>Atomic operations:</strong> make the critical section
-            execute as a single, uninterruptible step &mdash; ideally within one
-            CPU cycle &mdash; so no other thread can interleave with it.
-          </li>
-          <li>
-            <strong>Mutual exclusion using locks (mutexes):</strong> allow only
-            one thread into the critical section at a time.
-          </li>
-          <li>
-            <strong>Semaphores:</strong> a more general signalling mechanism
-            that can also control access to a resource with several available
-            instances.
-          </li>
-        </ul>
-        <p>
-          <strong>Peterson&apos;s solution</strong> is another classic approach
-          that can avoid the race condition purely in software, but it only
-          holds good for exactly two processes/threads &mdash; it is covered in
-          detail in the next section.
-        </p>
+        <div className="theory-card-header-bar">
+          <div className="theory-card-title-row">
+            <span className="theory-card-pill">MODULE 03</span>
+            <h2 className="theory-card-title">
+              The Critical Section Problem &amp; Race Conditions
+            </h2>
+          </div>
+          <p className="theory-card-lead">
+            Uncontrolled concurrent execution inside shared code blocks leads to timing anomalies, corrupted memory structures, and non-deterministic application crashes.
+          </p>
+        </div>
+
+        <div className="theory-subcard-grid">
+          <div className="theory-subcard accent-pink">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Lock size={14} /></span>
+              <span className="theory-subcard-label">Critical Section (C.S.)</span>
+            </div>
+            <p className="theory-subcard-body">
+              The code segment where threads manipulate shared resources (tables, variables, files). Preemption inside this window leaves shared state partially mutated and corrupted.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-cyan">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Activity size={14} /></span>
+              <span className="theory-subcard-label">Race Condition Anomaly</span>
+            </div>
+            <p className="theory-subcard-body">
+              Occurs when two threads race to modify shared data simultaneously. The final value depends unpredictably on scheduler timing slices, creating elusive, transient software bugs.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-amber">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><AlertTriangle size={14} /></span>
+              <span className="theory-subcard-label">Naive Flag Failure</span>
+            </div>
+            <p className="theory-subcard-body">
+              Simple software flags cannot prevent races. Testing a flag and setting it are two separate instructions; an interruption between them triggers the exact race condition being guarded.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-emerald">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><ShieldCheck size={14} /></span>
+              <span className="theory-subcard-label">Formal Solution Invariants</span>
+            </div>
+            <p className="theory-subcard-body">
+              A correct solution must satisfy: <strong>Mutual Exclusion</strong> (only one in C.S.), <strong>Progress</strong> (no deadlock among contending threads), and <strong>Bounded Waiting</strong> (no starvation).
+            </p>
+          </div>
+        </div>
+
         <div className="theory-action-box">
           <Link to="/os/sync/race-condition" className="theory-visualize-btn">
             <span>Visualize Race Condition Concept</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={15} />
           </Link>
         </div>
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> Any code that reads-then-writes shared
-          data is a critical section in disguise, and any interleaving of two
-          such sections is a potential race condition &mdash; the rest of this
-          page is about the tools (Peterson&apos;s solution, mutexes,
-          semaphores, and condition variables) used to make critical sections
-          safe.
-        </p>
+
+        <div className="theory-conclusion">
+          <strong>Conclusion:</strong> Any code that reads-then-writes shared data is a critical section in disguise, and any interleaving of two such sections is an impending race condition.
+        </div>
       </section>
     ),
   },
   {
     id: "petersons-solution",
+    index: "04",
+    title: "Peterson's Solution",
     heading: "4. Peterson's Solution",
     content: (
-      <section key="petersons-solution" className="theory-section">
-        <h2 id="petersons-solution">4. Peterson&apos;s Solution</h2>
-        <p>
-          Peterson&apos;s solution is a classic software-only algorithm for
-          achieving mutual exclusion between exactly two processes or threads,
-          without needing any special hardware instructions. It works by
-          combining two shared variables:
-        </p>
-        <ul>
-          <li>
-            <code>flag[2]</code> &mdash; a boolean per process, indicating
-            &ldquo;I want to enter the critical section.&rdquo;
-          </li>
-          <li>
-            <code>turn</code> &mdash; an integer that records whose turn it is
-            to enter when both processes want in.
-          </li>
-        </ul>
-        <p>
-          Before entering its critical section, a process sets its own{" "}
-          <code>flag</code> to true and then politely sets <code>turn</code> to
-          the <em>other</em> process, effectively saying &ldquo;I&apos;m ready,
-          but you can go first if you also want to.&rdquo; It then waits only
-          while the other process both wants in <em>and</em> it is currently the
-          other process&apos;s turn. This clever combination of
-          &ldquo;politeness&rdquo; and &ldquo;turn-taking&rdquo; guarantees
-          three properties simultaneously:
-        </p>
-        <ul>
-          <li>
-            <strong>Mutual exclusion:</strong> both processes can never be in
-            the critical section at the same time.
-          </li>
-          <li>
-            <strong>Progress:</strong> if only one process wants to enter, it
-            isn&apos;t blocked by the other.
-          </li>
-          <li>
-            <strong>Bounded waiting:</strong> a process never waits forever,
-            since <code>turn</code> alternates.
-          </li>
-        </ul>
-        <p>
-          The catch is that Peterson&apos;s solution holds good{" "}
-          <strong>only for two processes/threads</strong>. Extending it
-          correctly to more participants is possible but far more complex, which
-          is why real operating systems and applications typically reach for
-          hardware-assisted primitives like mutex locks and semaphores (covered
-          next) instead of scaling this approach up.
-        </p>
+      <section
+        key="petersons-solution"
+        id="petersons-solution"
+        className="theory-section"
+      >
+        <div className="theory-card-header-bar">
+          <div className="theory-card-title-row">
+            <span className="theory-card-pill">MODULE 04</span>
+            <h2 className="theory-card-title">Peterson&apos;s Solution</h2>
+          </div>
+          <p className="theory-card-lead">
+            An algorithmic milestone proving that mutual exclusion between two processes can be achieved purely in software using standard memory variables without hardware instructions.
+          </p>
+        </div>
+
+        <div className="theory-subcard-grid">
+          <div className="theory-subcard accent-cyan">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Workflow size={14} /></span>
+              <span className="theory-subcard-label">Dual Control Variables</span>
+            </div>
+            <p className="theory-subcard-body">
+              Combines boolean array <code>flag[2]</code> (indicating interest in entering the critical section) with an integer <code>turn</code> (indicating whose turn it is when both contend).
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-indigo">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><RefreshCw size={14} /></span>
+              <span className="theory-subcard-label">Polite Yielding Protocol</span>
+            </div>
+            <p className="theory-subcard-body">
+              Before entering, process <em>i</em> sets <code>flag[i] = true</code> and politely assigns <code>turn = j</code>. It waits only while process <em>j</em> is interested and holds the turn.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-emerald">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><ShieldCheck size={14} /></span>
+              <span className="theory-subcard-label">Invariants Satisfied</span>
+            </div>
+            <p className="theory-subcard-body">
+              Guarantees mutual exclusion (both processes cannot simultaneously enter), progress (an idle process cannot block an active one), and bounded waiting (turn strictly alternates).
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-amber">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><AlertTriangle size={14} /></span>
+              <span className="theory-subcard-label">Two-Process Limitation</span>
+            </div>
+            <p className="theory-subcard-body">
+              The algorithm holds strictly for 2 processes. Scaling to N processes (e.g., Lamport&apos;s Bakery) is complex and inefficient, driving modern systems to hardware atomic primitives.
+            </p>
+          </div>
+        </div>
+
         <div className="theory-action-box">
           <Link to="/os/sync/peterson" className="theory-visualize-btn">
             <span>Visualize Peterson&apos;s Solution Concept</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={15} />
           </Link>
         </div>
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> Peterson&apos;s solution proves mutual
-          exclusion is achievable with plain shared variables and no special
-          instructions &mdash; but its two-process limit is exactly why
-          practical systems generalize the idea into locks and semaphores.
-        </p>
+
+        <div className="theory-conclusion">
+          <strong>Conclusion:</strong> Peterson&apos;s solution proves mutual exclusion is possible with plain variables, but its 2-process limit is why production systems standardize on mutexes and semaphores.
+        </div>
       </section>
     ),
   },
   {
     id: "mutex-locks",
+    index: "05",
+    title: "Mutex Locks",
     heading: "5. Mutex Locks",
     content: (
-      <section key="mutex-locks" className="theory-section">
-        <h2 id="mutex-locks">5. Mutex Locks</h2>
-        <p>
-          A <strong>mutex</strong> (short for &ldquo;mutual exclusion&rdquo;) is
-          a lock that can be used to implement mutual exclusion and avoid race
-          conditions by allowing only one thread or process to access the
-          critical section at a time. A thread must <em>acquire</em> the lock
-          before entering the critical section, and must <em>release</em> it on
-          the way out, so that exactly one thread holds the lock at any moment.
-        </p>
-        <p>
-          Simple and effective as this sounds, mutex locks come with real
-          trade-offs that every systems programmer needs to be aware of:
-        </p>
-        <ul>
-          <li>
-            <strong>Contention:</strong> while one thread holds the lock, every
-            other thread wanting to enter is left <em>busy-waiting</em>. Worse,
-            if the thread that acquired the lock dies (or hangs) before
-            releasing it, every other waiting thread can be left in infinite
-            waiting.
-          </li>
-          <li>
-            <strong>Deadlocks:</strong> if two or more threads end up each
-            waiting on a lock the other holds, none of them can ever proceed.
-          </li>
-          <li>
-            <strong>Debugging difficulty:</strong> bugs caused by locking are
-            timing-dependent, making them notoriously hard to reproduce and fix.
-          </li>
-          <li>
-            <strong>Starvation:</strong> high-priority threads can end up
-            waiting indefinitely if lower-priority threads keep acquiring the
-            lock first.
-          </li>
-        </ul>
-        <p>
-          These downsides are exactly what motivate the next two primitives
-          &mdash; semaphores generalize locking to allow more than one thread in
-          at a time when there are multiple resource instances, and condition
-          variables solve the busy-waiting problem directly by letting a thread
-          sleep instead of spin.
-        </p>
+      <section key="mutex-locks" id="mutex-locks" className="theory-section">
+        <div className="theory-card-header-bar">
+          <div className="theory-card-title-row">
+            <span className="theory-card-pill">MODULE 05</span>
+            <h2 className="theory-card-title">Mutex Locks</h2>
+          </div>
+          <p className="theory-card-lead">
+            Hardware-supported binary locking primitives that enforce mutual exclusion across any number of concurrent threads via strict acquire and release semantics.
+          </p>
+        </div>
+
+        <div className="theory-subcard-grid">
+          <div className="theory-subcard accent-indigo">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Lock size={14} /></span>
+              <span className="theory-subcard-label">Acquire & Release</span>
+            </div>
+            <p className="theory-subcard-body">
+              A thread must acquire the lock before entering the critical section and release it upon exit. Exactly one thread holds ownership at any given moment.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-cyan">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Cpu size={14} /></span>
+              <span className="theory-subcard-label">Hardware Atomicity</span>
+            </div>
+            <p className="theory-subcard-body">
+              Built on CPU instructions like Test-and-Set or Compare-and-Swap, executing uninterruptibly within a single clock cycle to eliminate software race conditions.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-amber">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Timer size={14} /></span>
+              <span className="theory-subcard-label">Spinning Contention</span>
+            </div>
+            <p className="theory-subcard-body">
+              Spinlocks leave waiting threads busy-waiting in a loop, burning CPU cycles. If a thread dies while holding a lock, waiting threads enter indefinite hangs.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-pink">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><AlertTriangle size={14} /></span>
+              <span className="theory-subcard-label">Deadlocks & Starvation</span>
+            </div>
+            <p className="theory-subcard-body">
+              Acquiring multiple locks in inconsistent orders leads to circular wait deadlocks. Unfair scheduling can also starve lower-priority threads indefinitely.
+            </p>
+          </div>
+        </div>
+
         <div className="theory-action-box">
           <Link to="/os/sync/mutex" className="theory-visualize-btn">
             <span>Visualize Mutex Locks Concept</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={15} />
           </Link>
         </div>
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> A mutex is the simplest correct tool for
-          &ldquo;only one at a time,&rdquo; but its busy-waiting and
-          single-holder design are precisely the limitations semaphores and
-          condition variables are built to overcome.
-        </p>
+
+        <div className="theory-conclusion">
+          <strong>Conclusion:</strong> A mutex is the cleanest tool for &ldquo;one-at-a-time&rdquo; access, but its busy-waiting overhead motivated the creation of blocking semaphores.
+        </div>
       </section>
     ),
   },
   {
     id: "semaphores",
+    index: "06",
+    title: "Semaphores (Counting & Binary)",
     heading: "6. Semaphores (Counting & Binary)",
     content: (
-      <section key="semaphores" className="theory-section">
-        <h2 id="semaphores">6. Semaphores (Counting &amp; Binary)</h2>
-        <p>
-          A <strong>semaphore</strong> is a synchronization method built around
-          an integer that represents the number of available resource instances.
-          Unlike a mutex, which allows only one thread to access a single shared
-          resource at a time, a semaphore allows multiple program threads to
-          access a<em> finite pool</em> of resource instances &mdash; several
-          threads can be executing inside the critical section concurrently, as
-          long as the count allows it.
-        </p>
-        <h3>Binary vs. Counting Semaphores</h3>
-        <ul>
-          <li>
-            <strong>Binary semaphore:</strong> its value can only be 0 or 1,
-            making it functionally equivalent to a mutex lock.
-          </li>
-          <li>
-            <strong>Counting semaphore:</strong> its value can range over an
-            unrestricted domain, and it is used to control access to a resource
-            that has a finite number of interchangeable instances (for example,
-            a pool of database connections or printer ports).
-          </li>
-        </ul>
-        <h3>Avoiding Busy-Waiting: Blocking Instead of Spinning</h3>
-        <p>
-          A naive semaphore implementation would have a thread spin in a loop
-          checking the value &mdash; classic busy-waiting. To overcome this, the{" "}
-          <code>wait()</code> and <code>signal()</code>
-          operations are redefined so that when a process executes{" "}
-          <code>wait()</code> and finds the semaphore value is not positive, it
-          doesn&apos;t spin: instead it <strong>blocks</strong> itself. The{" "}
-          <code>block()</code> operation places the process into a waiting queue
-          associated with that semaphore and switches its state to{" "}
-          <em>Waiting</em>. Control then transfers to the CPU scheduler, which
-          picks another process to run &mdash; so the CPU is never wasted on a
-          thread that has nothing useful to do.
-        </p>
-        <p>
-          A process blocked on semaphore <code>S</code> is restarted only when
-          some other process executes a<code>signal()</code> operation on that
-          same semaphore. This triggers a <code>wakeup()</code>
-          operation, which moves the blocked process from the <em>
-            Waiting
-          </em>{" "}
-          state to the <em>Ready</em>
-          state and places it back in the ready queue, where it can be scheduled
-          to run again.
-        </p>
+      <section key="semaphores" id="semaphores" className="theory-section">
+        <div className="theory-card-header-bar">
+          <div className="theory-card-title-row">
+            <span className="theory-card-pill">MODULE 06</span>
+            <h2 className="theory-card-title">Semaphores (Counting &amp; Binary)</h2>
+          </div>
+          <p className="theory-card-lead">
+            Integer-based signaling mechanisms that control access to finite resource pools and eliminate CPU spin-waste by transitioning blocked threads into kernel sleep queues.
+          </p>
+        </div>
+
+        <div className="theory-subcard-grid">
+          <div className="theory-subcard accent-cyan">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Lock size={14} /></span>
+              <span className="theory-subcard-label">Binary Semaphore</span>
+            </div>
+            <p className="theory-subcard-body">
+              Restricted to values 0 and 1, functioning identically to a mutual exclusion lock to guarantee single-thread access to a critical section.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-indigo">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Layers size={14} /></span>
+              <span className="theory-subcard-label">Counting Semaphore</span>
+            </div>
+            <p className="theory-subcard-body">
+              Spans an unrestricted integer domain, coordinating access across a pool of N interchangeable resource instances (e.g., database connections or memory buffers).
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-amber">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Timer size={14} /></span>
+              <span className="theory-subcard-label">Kernel Block Protocol</span>
+            </div>
+            <p className="theory-subcard-body">
+              When <code>wait()</code> finds count &le; 0, the thread does not spin: it calls <code>block()</code>, suspending itself into a sleep queue so the CPU runs other ready work.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-lime">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Zap size={14} /></span>
+              <span className="theory-subcard-label">Wakeup Signaling</span>
+            </div>
+            <p className="theory-subcard-body">
+              When a thread releases resources via <code>signal()</code>, the kernel increments the counter and triggers <code>wakeup()</code>, moving a sleeping thread back to the CPU Ready queue.
+            </p>
+          </div>
+        </div>
+
         <div className="theory-action-box">
           <Link to="/os/sync/semaphore" className="theory-visualize-btn">
             <span>Visualize Semaphores Concept</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={15} />
           </Link>
         </div>
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> Semaphores generalize the mutex from
-          &ldquo;one thread at a time&rdquo; to &ldquo;N threads at a
-          time,&rdquo; and their block/wakeup design solves the wasted-CPU
-          problem of busy-waiting &mdash; the same underlying idea that
-          condition variables build on next.
-        </p>
+
+        <div className="theory-conclusion">
+          <strong>Conclusion:</strong> Semaphores generalize mutexes to N-resource pools and eliminate wasted CPU cycles through kernel-level block and wakeup coordination.
+        </div>
       </section>
     ),
   },
   {
     id: "conditional-variables",
+    index: "07",
+    title: "Conditional Variables",
     heading: "7. Conditional Variables",
     content: (
-      <section key="conditional-variables" className="theory-section">
-        <h2 id="conditional-variables">7. Conditional Variables</h2>
-        <p>
-          A <strong>condition variable</strong> is a synchronization primitive
-          that lets a thread wait until a certain condition occurs, without
-          wasting CPU cycles checking it repeatedly. It is never used on its own
-          &mdash; it always works together with a lock.
-        </p>
-        <p>
-          A thread can enter the wait state only after it has already acquired
-          the associated lock. When the thread enters the wait state, it{" "}
-          <strong>releases the lock</strong> and waits until another thread
-          notifies it that the event it&apos;s waiting for has occurred. Once
-          the waiting thread is woken up and re-enters the running state, it
-          immediately re-acquires the lock and resumes execution from where it
-          left off &mdash; all of this handled safely by the condition variable
-          itself, so the programmer never has to manually juggle
-          release/re-acquire timing.
-        </p>
-        <p>
-          Why use a condition variable at all? The core reason is exactly the
-          same motivation behind semaphore blocking:{" "}
-          <strong>to avoid busy waiting.</strong> Instead of a thread looping
-          and constantly re-checking &ldquo;is the condition true yet?&rdquo;,
-          it simply sleeps until it is explicitly woken up. A useful side effect
-          of this design is that{" "}
-          <strong>contention isn&apos;t an issue here</strong> &mdash; because
-          the waiting thread has released the lock while sleeping, it isn&apos;t
-          competing for that lock with the very thread that needs to make
-          progress and eventually wake it.
-        </p>
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> Condition variables complete the toolkit:
-          mutexes give you exclusive access, semaphores extend that to a
-          countable pool of resources, and condition variables let threads wait
-          efficiently for a specific event instead of spinning &mdash; together,
-          they are how real operating systems and multi-threaded applications
-          keep concurrent code both fast and correct.
-        </p>
+      <section
+        key="conditional-variables"
+        id="conditional-variables"
+        className="theory-section"
+      >
+        <div className="theory-card-header-bar">
+          <div className="theory-card-title-row">
+            <span className="theory-card-pill">MODULE 07</span>
+            <h2 className="theory-card-title">Conditional Variables</h2>
+          </div>
+          <p className="theory-card-lead">
+            Synchronization constructs enabling threads to sleep safely until application state predicates become true, eliminating polling loops and lock contention.
+          </p>
+        </div>
+
+        <div className="theory-subcard-grid">
+          <div className="theory-subcard accent-indigo">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Lock size={14} /></span>
+              <span className="theory-subcard-label">Lock Pairing</span>
+            </div>
+            <p className="theory-subcard-body">
+              Condition variables never act alone; they are always coupled with an associated mutex lock protecting the shared boolean state condition.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-cyan">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Workflow size={14} /></span>
+              <span className="theory-subcard-label">Atomic Release & Wait</span>
+            </div>
+            <p className="theory-subcard-body">
+              Calling <code>wait()</code> atomically releases the mutex and places the thread into sleep, preventing deadlocks that would occur if the thread held the lock while sleeping.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-emerald">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><RefreshCw size={14} /></span>
+              <span className="theory-subcard-label">Wakeup Re-Acquisition</span>
+            </div>
+            <p className="theory-subcard-body">
+              Upon notification via <code>signal()</code>, the sleeping thread wakes up and automatically re-acquires the mutex lock before continuing execution in its critical section.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-pink">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><ShieldCheck size={14} /></span>
+              <span className="theory-subcard-label">Zero-Contention Sleep</span>
+            </div>
+            <p className="theory-subcard-body">
+              Because sleeping threads release their lock, producer threads can acquire the mutex, update state, and emit notifications without fighting for lock ownership.
+            </p>
+          </div>
+        </div>
+
+        <div className="theory-conclusion">
+          <strong>Conclusion:</strong> Condition variables complete the toolkit: mutexes grant exclusive ownership, semaphores meter resource pools, and condition variables permit efficient predicate waits.
+        </div>
       </section>
     ),
   },
   {
     id: "conclusion",
+    index: "08",
+    title: "Putting It All Together",
     heading: "8. Putting It All Together",
     content: (
-      <section key="conclusion" className="theory-section">
-        <h2 id="conclusion">8. Putting It All Together</h2>
-        <p>
-          Concurrency gives an operating system the ability to make progress on
-          many threads at once, and threads give processes a cheap, fast way to
-          share that work. But every piece of data those threads share is a
-          potential critical section, and every unguarded critical section is a
-          potential race condition.
-        </p>
-        <p>
-          The tools on this page form a natural progression for solving that
-          problem:
-        </p>
-        <ul>
-          <li>
-            <strong>Peterson&apos;s solution</strong> shows mutual exclusion is
-            achievable in pure software, for two processes.
-          </li>
-          <li>
-            <strong>Mutex locks</strong> generalize that to any number of
-            threads, at the cost of busy-waiting and single-holder access.
-          </li>
-          <li>
-            <strong>Semaphores</strong> generalize the mutex further, allowing N
-            threads into a resource pool and replacing busy-waiting with
-            block/wakeup.
-          </li>
-          <li>
-            <strong>Condition variables</strong> let a thread sleep efficiently
-            until a specific event happens, working hand-in-hand with a lock.
-          </li>
-        </ul>
-        <p>
-          Choosing between them in practice comes down to the problem shape:
-          reach for a mutex when exactly one thread may touch a resource at a
-          time, a semaphore when a fixed number of interchangeable resource
-          instances exist, and a condition variable whenever a thread needs to
-          wait on a specific condition &mdash; such as &ldquo;the queue is no
-          longer empty&rdquo; &mdash; rather than on a raw count.
-        </p>
-        <p className="theory-conclusion">
-          <strong>Key takeaway:</strong> Every synchronization primitive on this
-          page exists to answer the same question &mdash; how do we let threads
-          share data and resources without letting the unpredictability of
-          scheduling corrupt the result? Understanding the critical section
-          problem is the foundation; everything else is a technique for solving
-          it safely and efficiently.
-        </p>
+      <section key="conclusion" id="conclusion" className="theory-section">
+        <div className="theory-card-header-bar">
+          <div className="theory-card-title-row">
+            <span className="theory-card-pill">MODULE 08</span>
+            <h2 className="theory-card-title">Putting It All Together</h2>
+          </div>
+          <p className="theory-card-lead">
+            An architectural taxonomy for selecting synchronization primitives based on resource pool size, contention profile, and notification semantics.
+          </p>
+        </div>
+
+        <div className="theory-subcard-grid">
+          <div className="theory-subcard accent-cyan">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Workflow size={14} /></span>
+              <span className="theory-subcard-label">Peterson&apos;s Solution</span>
+            </div>
+            <p className="theory-subcard-body">
+              Pure software mutual exclusion benchmark for exactly 2 processes. Demonstrates turn-taking and intent-signaling theory without hardware instructions.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-indigo">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Lock size={14} /></span>
+              <span className="theory-subcard-label">Mutex Locks</span>
+            </div>
+            <p className="theory-subcard-body">
+              Fast, hardware-backed exclusive single-thread access. Optimal for protecting brief, non-blocking critical sections where contention is low.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-amber">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Layers size={14} /></span>
+              <span className="theory-subcard-label">Semaphores</span>
+            </div>
+            <p className="theory-subcard-body">
+              Multi-instance resource pool coordinator with kernel block/wakeup queues. Optimal for database connection pools and bounded-buffer producer-consumers.
+            </p>
+          </div>
+
+          <div className="theory-subcard accent-lime">
+            <div className="theory-subcard-header">
+              <span className="theory-subcard-icon"><Timer size={14} /></span>
+              <span className="theory-subcard-label">Condition Variables</span>
+            </div>
+            <p className="theory-subcard-body">
+              Event-driven notification construct paired with a lock. Optimal when threads must wait for arbitrary boolean predicates rather than simple counters.
+            </p>
+          </div>
+        </div>
+
+        <div className="theory-conclusion">
+          <strong>Key takeaway:</strong> Every synchronization primitive exists to answer the same question &mdash; how do we let threads share resources without letting scheduling unpredictability corrupt data?
+        </div>
       </section>
     ),
   },
@@ -546,6 +593,27 @@ export default function ProcessSyncHub() {
   const [search, setSearch] = useState("");
   const [perPage, setPerPage] = useState("all");
   const [page, setPage] = useState(1);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const y = window.scrollY || document.documentElement.scrollTop || 0;
+          const maxScroll = 120;
+          const progress = Math.min(1, Math.max(0, y / maxScroll));
+          setScrollProgress(progress);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const PER_PAGE_OPTIONS = [
     { value: "all", label: "Show All" },
@@ -558,8 +626,8 @@ export default function ProcessSyncHub() {
     setPage(1);
   }
 
-  function handleClearSearch(event) {
-    setSearch(""); 
+  function handleClearSearch() {
+    setSearch("");
     setPage(1);
   }
 
@@ -577,7 +645,10 @@ export default function ProcessSyncHub() {
   const filteredTopics = [];
   const query = search.toLowerCase();
   for (let i = 0; i < TOPICS.length; i++) {
-    if (TOPICS[i].heading.toLowerCase().includes(query)) {
+    const matchesHeading = TOPICS[i].heading.toLowerCase().includes(query);
+    const matchesTitle = TOPICS[i].title.toLowerCase().includes(query);
+    const matchesIndex = TOPICS[i].index.toLowerCase().includes(query);
+    if (matchesHeading || matchesTitle || matchesIndex) {
       filteredTopics.push(TOPICS[i]);
     }
   }
@@ -626,7 +697,7 @@ export default function ProcessSyncHub() {
         element.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
-  }, [location.hash, location.key, page, perPage]);
+  }, [location.hash, location.key, page, perPage, pageSize, filteredTopics]);
 
   const pageButtons = [];
   for (let i = 1; i <= totalPages; i++) {
@@ -642,7 +713,7 @@ export default function ProcessSyncHub() {
         onClick={() => goToPage(i)}
       >
         {i}
-      </button>,
+      </button>
     );
   }
 
@@ -685,49 +756,90 @@ export default function ProcessSyncHub() {
     );
   }
 
-  return (
-    <div className="theory-page-container">
-      <article className="theory-article">
-        <header className="theory-article-header">
-          <h1>Process Synchronization &amp; Concurrency</h1>
-          <p className="theory-subtitle">
-            An overview of concurrent execution, race conditions,
-            synchronization primitives, and mutual exclusion mechanisms.
-          </p>
-        </header>
+  const titleScale = 1 - scrollProgress * 0.18;
+  const titleTranslateY = -scrollProgress * 2;
+  const subtitleOpacity = Math.max(0, 1 - scrollProgress * 1.5);
+  const subtitleMaxHeight = `${Math.round((1 - scrollProgress) * 56)}px`;
+  const subtitleTranslateY = -scrollProgress * 6;
+  const headerPaddingBottom = `${Math.round(14 - scrollProgress * 14)}px`;
+  const headerMarginBottom = `${Math.round(14 - scrollProgress * 14)}px`;
+  const stickyGap = `${Math.round(16 - scrollProgress * 8)}px`;
+  const stickyPaddingTop = `${Math.round(18 - scrollProgress * 8)}px`;
+  const stickyPaddingBottom = `${Math.round(22 - scrollProgress * 6)}px`;
 
-        <div className="theory-toolbar">
-          <div className="theory-search-wrapper">
-            <input
-              type="text"
-              className="theory-search-input"
-              placeholder="Search topic..."
-              value={search}
-              onChange={handleSearchChange}
-            />
-            {search && (
-              <div className="clearSearch">
-                <button
-                  type="button"
-                  onClick={handleClearSearch}
-                  title="Clear search"
-                  aria-label="Clear search"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="theory-filter-group">
-            <label htmlFor="topics-per-page">Topics per page:</label>
-            <CustomDropDown
-              value={perPage}
-              onChange={(val) => {
-                setPerPage(val);
-                setPage(1);
+  return (
+    <div className="theory-page-container psync-hub">
+      <article className="theory-article">
+        <div
+          className={`theory-sticky-header ${scrollProgress > 0.05 ? "is-stuck" : ""}`}
+          style={{
+            paddingTop: stickyPaddingTop,
+            paddingBottom: stickyPaddingBottom,
+            gap: stickyGap,
+          }}
+        >
+          <header
+            className="theory-article-header"
+            style={{
+              paddingBottom: headerPaddingBottom,
+              marginBottom: headerMarginBottom,
+            }}
+          >
+            <h1
+              style={{
+                transform: `scale(${titleScale}) translateY(${titleTranslateY}px)`,
               }}
-              options={PER_PAGE_OPTIONS}
-            />
+            >
+              Process Synchronization &amp; Concurrency
+            </h1>
+            <p
+              className="theory-subtitle"
+              style={{
+                opacity: subtitleOpacity,
+                maxHeight: subtitleMaxHeight,
+                transform: `translateY(${subtitleTranslateY}px)`,
+                pointerEvents: scrollProgress > 0.8 ? "none" : "auto",
+              }}
+            >
+              An overview of concurrent execution, race conditions,
+              synchronization primitives, and mutual exclusion mechanisms.
+            </p>
+          </header>
+
+          <div className="theory-toolbar">
+            <div className="theory-search-wrapper">
+              <Search size={16} className="theory-search-icon" />
+              <input
+                type="text"
+                className="theory-search-input"
+                placeholder="Search topic..."
+                value={search}
+                onChange={handleSearchChange}
+              />
+              {search && (
+                <div className="clearSearch">
+                  <button
+                    type="button"
+                    onClick={handleClearSearch}
+                    title="Clear search"
+                    aria-label="Clear search"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className="theory-filter-group">
+              <label htmlFor="topics-per-page">Topics per page:</label>
+              <CustomDropDown
+                value={perPage}
+                onChange={(val) => {
+                  setPerPage(val);
+                  setPage(1);
+                }}
+                options={PER_PAGE_OPTIONS}
+              />
+            </div>
           </div>
         </div>
 
