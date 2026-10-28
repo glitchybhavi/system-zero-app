@@ -1,8 +1,18 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import RaceConditionSimulator from '../base/RaceConditionSimulator';
+import { useEffect } from 'react';
 
 export default function RaceConditionPage() {
+
+  useEffect(() => {
+    document.title = "System Zero | Race Condition"; 
+
+    return () => {
+      document.title = "System Zero | Interactive Computer Architecture and OS Simulator";
+    }
+  }, []);
+
   return (
     <RaceConditionSimulator>
       <Link

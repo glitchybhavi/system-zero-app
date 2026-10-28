@@ -49,6 +49,15 @@ function makeProcess(id, track) {
 const START_PROCESSES = [makeProcess(0, 0), makeProcess(1, 1)];
 
 export default function PetersonPage() {
+    useEffect(() => {
+    document.title = "System Zero | Peterson's Solution"; 
+
+    return () => {
+      document.title = "System Zero | Interactive Computer Architecture and OS Simulator";
+    }
+  }, []);
+
+
   const syncUI = useContext(SyncUIContext);
   const initialBalance = useSelector((state) => state.config?.initialBalance ?? state.raceCondition?.initialBalance ?? INITIAL_BALANCE);
   const incrementValue = useSelector((state) => state.config?.incrementValue ?? state.raceCondition?.incrementValue ?? INCREMENT_VALUE);

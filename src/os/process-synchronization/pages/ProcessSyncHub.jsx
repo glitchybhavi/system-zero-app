@@ -589,6 +589,15 @@ const TOPICS = [
 ];
 
 export default function ProcessSyncHub() {
+
+    useEffect(() => {
+    document.title = "System Zero | Process Synchronization Hub"; 
+
+    return () => {
+      document.title = "System Zero | Interactive Computer Architecture and OS Simulator";
+    }
+  }, []);
+
   const location = useLocation();
   const [search, setSearch] = useState("");
   const [perPage, setPerPage] = useState("all");
