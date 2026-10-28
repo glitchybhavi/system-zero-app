@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeContext';
-import Navbar from '../../../landingPage/Navbar';
-import Footer from '../../../landingPage/Footer';
 import ProcessSandbox from '../sandbox/ProcessSandbox';
 import './ProcessManagementPage.css';
 
@@ -98,8 +96,6 @@ export default function ProcessManagementPage() {
           {toastMessage}
         </div>
       )}
-
-      <Footer />
     </div>
   );
 }

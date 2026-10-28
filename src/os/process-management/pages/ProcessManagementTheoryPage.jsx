@@ -1,592 +1,804 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { ArrowRight, X } from 'lucide-react';
+import {
+  Cpu,
+  Layers,
+  Activity,
+  Zap,
+  FileCode,
+  AlertCircle,
+  Clock,
+  Sparkles,
+  CheckCircle2,
+  ArrowRight,
+  X,
+  Search,
+  BookOpen,
+  Terminal,
+  HelpCircle,
+  HardDrive,
+} from 'lucide-react';
 import { useTheme } from '../../../context/ThemeContext';
 import CustomDropDown from '../../process-synchronization/base/CustomDropDown';
 import StateTransitionDiagram from '../components/StateTransitionDiagram';
 import SubtopicQuizForm from '../components/SubtopicQuizForm';
 import { SUBTOPIC_QUIZZES } from '../data/processManagementQuizData';
-import '../../process-synchronization/styles/ProcessSyncHub.css';
 import './ProcessManagementTheoryPage.css';
 
 const TOPICS = [
   {
     id: 'process-definition',
+    number: '01',
     heading: '1. Process Definition (Program vs. Process)',
-    keywords: ['program', 'process', 'ram', 'stack', 'heap', 'text', 'binary', 'elf'],
-    content: (
-      <section key="process-definition" className="theory-section">
-        <h2 id="process-definition">1. Process Definition (Program vs. Process)</h2>
-
-        <div className="pm-tier-box tier-basics">
-          <div className="tier-header">
-            <span className="tier-icon">💡</span>
-            <span className="tier-label font-mono">THE BASICS</span>
+    shortTitle: 'Program vs. Process',
+    phase: 'FOUNDATIONS',
+    readTime: '3 min read',
+    tags: ['#ELF', '#VirtualMemory', '#StackHeap', '#BinaryCode'],
+    accentColor: '#00f2fe',
+    icon: <Cpu size={22} className="text-[#00f2fe]" />,
+    renderContent: () => (
+      <>
+        <div className="pm-topic-cards-grid">
+          {/* Card 1: Core Concept */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#00f2fe]">
+              <Cpu size={14} /> 1. STATIC CODE VS. LIVING INSTANCE
+            </div>
+            <p className="pm-insight-card-text">
+              A <strong>program</strong> is passive machine code resting on disk. A <strong>process</strong> is an active instance in RAM with allocated CPU cycles, registers, stack, and heap pointers.
+            </p>
           </div>
-          <p className="tier-text">
-            A <strong>program</strong> is a passive collection of binary files resting on your hard drive, whereas a <strong>process</strong> is an active entity executing inside RAM with assigned CPU cycles, stack space, and memory pointers.
-          </p>
-          <div className="analogy-callout">
-            <span className="analogy-badge">Analogy:</span>
-            Think of a program as a printed recipe sheet sitting inside a cookbook on a shelf. A process is the kitchen chef actively boiling water, measuring ingredients, and cooking the dish in real time.
-          </div>
-        </div>
 
-        <div className="pm-tier-box tier-mechanism">
-          <div className="tier-header">
-            <span className="tier-icon">⚙️</span>
-            <span className="tier-label font-mono">HOW IT ACTUALLY WORKS</span>
+          {/* Card 2: Analogy */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#1fd655]">
+              <BookOpen size={14} /> 2. THE KITCHEN RECIPE ANALOGY
+            </div>
+            <p className="pm-insight-card-text">
+              A program is a printed recipe sheet sitting in a cookbook. A process is the kitchen chef actively boiling water, measuring ingredients, and cooking the meal in real time.
+            </p>
           </div>
-          <p className="tier-text">
-            When you execute a binary file, the OS performs three sequential initialization steps:
-          </p>
-          <ol className="mechanism-steps">
-            <li><strong>Memory Allocation:</strong> The loader reads the ELF binary file header and allocates distinct memory segments in RAM: <em>Text/Code</em> (instructions), <em>Data</em> (global variables), <em>Heap</em> (dynamically allocated memory), and <em>Stack</em> (local variables & function call frames).</li>
-            <li><strong>Register Context Setup:</strong> The OS initializes internal CPU registers, setting the <code>Instruction Pointer (IP)</code> or <code>Program Counter (PC)</code> to point to the entry point address of the executable.</li>
-            <li><strong>PCB Registration:</strong> The kernel generates a unique Process Identifier (PID) and registers a Process Control Block (PCB) into the kernel process table.</li>
-          </ol>
 
-          <div className="worked-example">
-            <div className="worked-example-title font-mono">CONCRETE WORKED EXAMPLE:</div>
-            <p>
-              Consider your web browser executable stored at <code>/usr/bin/google-chrome</code> on disk (a static 180MB program file). When clicked, the Linux kernel creates an active process assigned <code>PID 4092</code>. The OS allocates 850MB of RAM across Heap and Stack, opens 12 network socket file descriptors, and sets the Program Counter to memory address <code>0x7fff5fbff000</code>. Multiple separate windows spawn distinct child processes (e.g. <code>PID 4098</code>, <code>PID 4105</code>) running identical program binary code, but isolated within independent memory address spaces.
+          {/* Card 3: Kernel Loader */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#38bdf8]">
+              <Layers size={14} /> 3. THREE-STEP LOADER PROTOCOL
+            </div>
+            <p className="pm-insight-card-text">
+              On launch, the OS: (1) Allocates virtual memory (Text, Data, Heap, Stack), (2) Sets Program Counter (PC) to the entry point, and (3) Registers a unique PID in the process table.
+            </p>
+          </div>
+
+          {/* Card 4: Worked Trace */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#c084fc]">
+              <Terminal size={14} /> 4. WORKED TRACE: GOOGLE CHROME
+            </div>
+            <p className="pm-insight-card-text">
+              Static <code>/usr/bin/google-chrome</code> (180MB binary) spawns active <code>PID 4092</code> with 850MB RAM and PC at <code>0x7fff5fbff000</code>. Browser tabs spawn isolated children (PID 4098, 4105).
+            </p>
+          </div>
+
+          {/* Card 5: Memory Isolation Gotcha */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#f59e0b]">
+              <AlertCircle size={14} /> 5. VIRTUAL MEMORY ISOLATION
+            </div>
+            <p className="pm-insight-card-text">
+              Multiple processes execute the identical binary simultaneously without collision. The hardware MMU ensures each process safely believes it owns the entire CPU address space.
+            </p>
+          </div>
+
+          {/* Card 6: Key Takeaway */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#10b981]">
+              <CheckCircle2 size={14} /> 6. ARCHITECTURAL TAKEAWAY
+            </div>
+            <p className="pm-insight-card-text">
+              Programs are dead bytes on persistent storage; processes are living execution environments in RAM with active hardware registers and kernel oversight.
             </p>
           </div>
         </div>
 
-        <div className="pm-tier-box tier-goodtoknow">
-          <div className="tier-header">
-            <span className="tier-icon">📌</span>
-            <span className="tier-label font-mono">GOOD TO KNOW</span>
-          </div>
-          <p className="tier-text">
-            Two separate processes can execute the exact same program binary simultaneously without interfering with each other. The OS uses Virtual Memory addressing so both processes believe they own the entire CPU memory address space, while physical RAM is safely partitioned by hardware.
-          </p>
+        {/* Bottom Takeaway Bar */}
+        <div className="pm-card-takeaway-bar">
+          <CheckCircle2 size={16} className="text-[#1fd655] shrink-0" />
+          <span>
+            <strong>Summary:</strong> Programs exist on storage; processes execute in RAM with allocated address spaces, registers, and kernel tracking.
+          </span>
         </div>
-
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> A program is merely inert binary code stored on non-volatile disk, while a process is an active, living instance in RAM with dedicated CPU execution state and kernel tracking.
-        </p>
-      </section>
+      </>
     ),
   },
   {
     id: 'pcb',
+    number: '02',
     heading: '2. The Process Control Block (PCB)',
-    keywords: ['pcb', 'registers', 'task_struct', 'pid', 'program counter', 'state'],
-    content: (
-      <section key="pcb" className="theory-section">
-        <h2 id="pcb">2. The Process Control Block (PCB)</h2>
-
-        <div className="pm-tier-box tier-basics">
-          <div className="tier-header">
-            <span className="tier-icon">💡</span>
-            <span className="tier-label font-mono">THE BASICS</span>
-          </div>
-          <p className="tier-text">
-            The <strong>Process Control Block (PCB)</strong> is a critical kernel data structure that serves as the official passport and state record for a single process inside the operating system.
-          </p>
-          <div className="analogy-callout">
-            <span className="analogy-badge">Analogy:</span>
-            Imagine a hospital medical chart pinned to a patient’s bed. It tracks the patient's ID, vital signs, current status (sleeping, in surgery), assigned doctor, and treatment history so any nurse taking over a shift knows the exact current condition.
-          </div>
-        </div>
-
-        <div className="pm-tier-box tier-mechanism">
-          <div className="tier-header">
-            <span className="tier-icon">⚙️</span>
-            <span className="tier-label font-mono">HOW IT ACTUALLY WORKS</span>
-          </div>
-          <p className="tier-text">
-            In kernel space (e.g., Linux's <code>struct task_struct</code>), every PCB stores six vital data categories:
-          </p>
-          <div className="pcb-fields-grid">
-            <div className="pcb-field-item">
-              <span className="field-name font-mono">1. Identifier (PID)</span>
-              <span className="field-desc">Unique integer (e.g., PID 1042) identifying the process to system calls.</span>
+    shortTitle: 'PCB Passport',
+    phase: 'DATA STRUCTURES',
+    readTime: '4 min read',
+    tags: ['#task_struct', '#Registers', '#ProgramCounter', '#PID'],
+    accentColor: '#1fd655',
+    icon: <Layers size={22} className="text-[#1fd655]" />,
+    renderContent: () => (
+      <>
+        <div className="pm-topic-cards-grid">
+          {/* Card 1: Core Concept */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#1fd655]">
+              <Layers size={14} /> 1. THE PROCESS PASSPORT
             </div>
-            <div className="pcb-field-item">
-              <span className="field-name font-mono">2. Process State</span>
-              <span className="field-desc">Current state flag: READY, RUNNING, WAITING, ZOMBIE, etc.</span>
-            </div>
-            <div className="pcb-field-item">
-              <span className="field-name font-mono">3. Program Counter (PC)</span>
-              <span className="field-desc">Memory address of the very next machine instruction to be executed.</span>
-            </div>
-            <div className="pcb-field-item">
-              <span className="field-name font-mono">4. CPU Registers</span>
-              <span className="field-desc">Snapshot of accumulators, stack pointers (SP), and general-purpose registers (EAX, EBX).</span>
-            </div>
-            <div className="pcb-field-item">
-              <span className="field-name font-mono">5. Memory Management Info</span>
-              <span className="field-desc">Page table pointers, base/limit registers, and virtual address mapping boundaries.</span>
-            </div>
-            <div className="pcb-field-item">
-              <span className="field-name font-mono">6. I/O & Accounting Info</span>
-              <span className="field-desc">Open file descriptor array (FD table), CPU time consumed, priority weight.</span>
-            </div>
+            <p className="pm-insight-card-text">
+              The <strong>Process Control Block (PCB)</strong> (Linux <code>struct task_struct</code>) is the kernel data structure serving as the official passport and state record for every active process.
+            </p>
           </div>
 
-          <div className="worked-example">
-            <div className="worked-example-title font-mono">CONCRETE WORKED EXAMPLE:</div>
-            <p>
-              When a backend web server script <code>node server.js</code> (PID 1042) is running, its PCB resides in protected kernel RAM at <code>task_struct</code> memory offset. When the OS temporarily pauses <code>node server.js</code> to run a security update, the CPU saves its register values (<code>RAX=0x05</code>, <code>RSP=0x7ffe4200</code>, <code>PC=0x004011a0</code>) directly into PID 1042's PCB. When PID 1042 is rescheduled onto CPU Core 2, the kernel reads PID 1042's PCB and restores those exact registers onto Core 2, resuming execution seamlessly.
+          {/* Card 2: Analogy */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#00f2fe]">
+              <BookOpen size={14} /> 2. HOSPITAL MEDICAL CHART ANALOGY
+            </div>
+            <p className="pm-insight-card-text">
+              Like a patient's chart pinned to a hospital bed tracking vitals, doctor, and history so any nurse taking over a shift immediately knows the exact current condition.
+            </p>
+          </div>
+
+          {/* Card 3: Six Vital Records */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#38bdf8]">
+              <Cpu size={14} /> 3. SIX VITAL KERNEL RECORDS
+            </div>
+            <p className="pm-insight-card-text">
+              Every PCB tracks: (1) PID, (2) State flag, (3) Program Counter, (4) CPU Registers (RAX, RSP), (5) Memory Page Tables (CR3), and (6) Open I/O File Descriptors.
+            </p>
+          </div>
+
+          {/* Card 4: Worked Trace */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#c084fc]">
+              <Terminal size={14} /> 4. WORKED TRACE: NODE SERVER PAUSE
+            </div>
+            <p className="pm-insight-card-text">
+              When <code>node server.js</code> (PID 1042) is paused for updates, registers (<code>RAX=0x05</code>, <code>PC=0x004011a0</code>) save to its PCB. Later restored on CPU Core 2 seamlessly.
+            </p>
+          </div>
+
+          {/* Card 5: Ring 0 Security */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#f59e0b]">
+              <AlertCircle size={14} /> 5. RING 0 PROTECTED MEMORY
+            </div>
+            <p className="pm-insight-card-text">
+              PCBs reside strictly in kernel space. User code cannot modify its own PCB fields directly; all priority or descriptor changes require validated system calls (<code>nice()</code>, <code>dup2()</code>).
+            </p>
+          </div>
+
+          {/* Card 6: Key Takeaway */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#10b981]">
+              <CheckCircle2 size={14} /> 6. ARCHITECTURAL TAKEAWAY
+            </div>
+            <p className="pm-insight-card-text">
+              The PCB is the central nervous system of OS bookkeeping. Without it, the kernel could never pause, reschedule, and resume tasks without corrupting state.
             </p>
           </div>
         </div>
 
-        <div className="pm-tier-box tier-goodtoknow">
-          <div className="tier-header">
-            <span className="tier-icon">📌</span>
-            <span className="tier-label font-mono">GOOD TO KNOW</span>
+        {/* Checkpoint 1: In-line Question Form */}
+        <div className="pm-interactive-frame">
+          <div className="pm-interactive-frame-header">
+            <span className="pm-frame-title text-[#1fd655]">
+              <Sparkles size={16} /> CHECKPOINT 01 : PROCESS CONCEPT &amp; PCB EVALUATION
+            </span>
+            <span className="text-xs font-mono text-textMuted">Form Validation Active</span>
           </div>
-          <p className="tier-text">
-            Because PCBs are stored strictly inside protected kernel space, user programs cannot modify their own PCB fields directly. Any change to process priority or file allocations must go through validated system calls (like <code>nice()</code> or <code>dup2()</code>).
-          </p>
+          <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.concept_pcb} />
         </div>
 
-        {/* Checkpoint 1: In-line Question Form for Process Concept & PCB */}
-        <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.concept_pcb} />
-
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> The PCB is the central nervous system of process bookkeeping &mdash; without it, the operating system could never pause, reschedule, and resume processes without state corruption.
-        </p>
-      </section>
+        {/* Bottom Takeaway Bar */}
+        <div className="pm-card-takeaway-bar">
+          <CheckCircle2 size={16} className="text-[#1fd655] shrink-0" />
+          <span>
+            <strong>Summary:</strong> The PCB preserves the complete hardware context (PC, registers, page tables) so processes can be transparently suspended and resumed.
+          </span>
+        </div>
+      </>
     ),
   },
   {
     id: 'process-states',
+    number: '03',
     heading: '3. Process States (5-State Model)',
-    keywords: ['states', 'new', 'ready', 'running', 'waiting', 'blocked', 'terminated'],
-    content: (
-      <section key="process-states" className="theory-section">
-        <h2 id="process-states">3. Process States (5-State Model)</h2>
-
-        <div className="pm-tier-box tier-basics">
-          <div className="tier-header">
-            <span className="tier-icon">💡</span>
-            <span className="tier-label font-mono">THE BASICS</span>
+    shortTitle: '5-State Model',
+    phase: 'LIFECYCLE QUEUES',
+    readTime: '3 min read',
+    tags: ['#ReadyQueue', '#BlockedIO', '#CPUDispatch', '#Terminated'],
+    accentColor: '#ffcc00',
+    icon: <Activity size={22} className="text-[#ffcc00]" />,
+    renderContent: () => (
+      <>
+        <div className="pm-topic-cards-grid">
+          {/* Card 1: Core Concept */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#ffcc00]">
+              <Activity size={14} /> 1. THE 5-STATE LIFECYCLE
+            </div>
+            <p className="pm-insight-card-text">
+              Processes cycle through five fundamental states depending on whether they possess a CPU core, are waiting in RAM for a turn, or are blocked on slow I/O hardware.
+            </p>
           </div>
-          <p className="tier-text">
-            During its lifecycle, a process transitions through five fundamental states depending on whether it has CPU execution time, is queued waiting for its turn, or is blocked waiting for slow I/O hardware.
-          </p>
-          <div className="analogy-callout">
-            <span className="analogy-badge">Analogy:</span>
-            Consider a customer visiting a bank: Entering through the front door (<strong>New</strong>), standing in line behind the velvet rope (<strong>Ready</strong>), speaking directly with the teller (<strong>Running</strong>), stepping aside to fill out a paper loan form (<strong>Waiting/Blocked</strong>), and leaving through the exit door (<strong>Terminated</strong>).
-          </div>
-        </div>
 
-        <div className="pm-tier-box tier-mechanism">
-          <div className="tier-header">
-            <span className="tier-icon">⚙️</span>
-            <span className="tier-label font-mono">HOW IT ACTUALLY WORKS</span>
+          {/* Card 2: Analogy */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#38bdf8]">
+              <BookOpen size={14} /> 2. BANK CUSTOMER ANALOGY
+            </div>
+            <p className="pm-insight-card-text">
+              Entering the door (<strong>New</strong>), waiting in the velvet line (<strong>Ready</strong>), speaking with the teller (<strong>Running</strong>), filling out forms (<strong>Waiting</strong>), and exiting (<strong>Terminated</strong>).
+            </p>
           </div>
-          <p className="tier-text">
-            The operating system maintains processes in distinct state queues managed by kernel schedulers:
-          </p>
-          <ul className="states-bullet-list">
-            <li><strong style={{ color: '#a855f7' }}>NEW:</strong> The process is currently being created and initialized by system calls, but has not yet been admitted to the main executable Ready queue.</li>
-            <li><strong style={{ color: '#38bdf8' }}>READY:</strong> The process has all necessary memory and resources allocated, residing in RAM waiting for the OS scheduler to assign it a CPU core.</li>
-            <li><strong style={{ color: '#22c55e' }}>RUNNING:</strong> Machine instructions are actively executing on an actual physical CPU core. (On a 4-core system, at most 4 processes can be Running simultaneously).</li>
-            <li><strong style={{ color: '#f59e0b' }}>WAITING (BLOCKED):</strong> The process cannot execute even if CPU cores are completely free, because it is waiting for an external event (e.g. disk read, socket packet arrival, timer).</li>
-            <li><strong style={{ color: '#ef4444' }}>TERMINATED:</strong> The process has finished execution or was killed; its allocated RAM is freed, leaving only exit status metadata for parent inspection.</li>
-          </ul>
 
-          <div className="worked-example">
-            <div className="worked-example-title font-mono">CONCRETE WORKED EXAMPLE:</div>
-            <p>
-              A Python script <code>python analyze.py</code> (PID 8120) opens a 2GB log file on disk. While executing calculations, PID 8120 is in the <strong>RUNNING</strong> state. When it calls <code>file.read()</code>, the kernel issues a hard disk controller command and transitions PID 8120 to <strong>WAITING</strong>. The CPU immediately switches to run another thread. 40ms later, the disk controller raises a hardware interrupt; the kernel moves PID 8120 to the <strong>READY</strong> queue. When the scheduler picks PID 8120, it returns to <strong>RUNNING</strong> to process the data buffer.
+          {/* Card 3: Five Queues */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#1fd655]">
+              <Layers size={14} /> 3. THE FIVE STATE QUEUES
+            </div>
+            <p className="pm-insight-card-text">
+              <strong>NEW:</strong> initializing &bull; <strong>READY:</strong> in RAM awaiting CPU &bull; <strong>RUNNING:</strong> on CPU core &bull; <strong>WAITING:</strong> blocked on I/O &bull; <strong>TERMINATED:</strong> exited, memory freed.
+            </p>
+          </div>
+
+          {/* Card 4: Worked Trace */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#c084fc]">
+              <Terminal size={14} /> 4. WORKED TRACE: DISK READ BLOCK
+            </div>
+            <p className="pm-insight-card-text">
+              Python <code>PID 8120</code> executes calculations (RUNNING), then calls <code>file.read()</code>. OS moves it to WAITING. 40ms later, disk interrupt fires; OS moves it to READY, then RUNNING.
+            </p>
+          </div>
+
+          {/* Card 5: Zero CPU Gotcha */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#f43f5e]">
+              <AlertCircle size={14} /> 5. ZERO CPU IN WAITING STATE
+            </div>
+            <p className="pm-insight-card-text">
+              Common novice misconception: blocked tasks do NOT consume CPU. The kernel completely removes WAITING tasks from CPU dispatch until an explicit hardware interrupt arrives.
+            </p>
+          </div>
+
+          {/* Card 6: Key Takeaway */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#10b981]">
+              <CheckCircle2 size={14} /> 6. ARCHITECTURAL TAKEAWAY
+            </div>
+            <p className="pm-insight-card-text">
+              State queues ensure that expensive physical CPU cores never stall idling on millisecond-latency disk and network operations when other computational work is ready.
             </p>
           </div>
         </div>
 
-        <div className="pm-tier-box tier-goodtoknow">
-          <div className="tier-header">
-            <span className="tier-icon">📌</span>
-            <span className="tier-label font-mono">GOOD TO KNOW</span>
-          </div>
-          <p className="tier-text">
-            A common novice mistake is assuming a blocked process consumes CPU while waiting for disk or network. In reality, a process in the <strong>WAITING</strong> state consumes zero CPU cycles — the OS completely removes it from CPU scheduling queues until an explicit hardware interrupt wakes it up.
-          </p>
+        {/* Bottom Takeaway Bar */}
+        <div className="pm-card-takeaway-bar">
+          <CheckCircle2 size={16} className="text-[#1fd655] shrink-0" />
+          <span>
+            <strong>Summary:</strong> By segregating ready computation from blocked I/O tasks, the OS achieves maximum CPU utilization and responsiveness.
+          </span>
         </div>
-
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> State queues guarantee that CPU cores are never stalled idling on high-latency I/O operations when other computational work is ready to proceed.
-        </p>
-      </section>
+      </>
     ),
   },
   {
     id: 'state-diagram',
+    number: '04',
     heading: '4. State Transition Diagram',
-    keywords: ['transition', 'diagram', 'preemption', 'interrupt', 'dispatch', 'lifecycle'],
-    content: (
-      <section key="state-diagram" className="theory-section">
-        <h2 id="state-diagram">4. State Transition Diagram</h2>
-
-        <div className="pm-tier-box tier-basics">
-          <div className="tier-header">
-            <span className="tier-icon">💡</span>
-            <span className="tier-label font-mono">THE BASICS</span>
+    shortTitle: 'State Machine',
+    phase: 'INTERACTIVE LAB',
+    readTime: '3 min read',
+    tags: ['#StateTransitions', '#Interrupts', '#TimeQuantum', '#Preemption'],
+    accentColor: '#a855f7',
+    icon: <Sparkles size={22} className="text-[#a855f7]" />,
+    renderContent: () => (
+      <>
+        <div className="pm-topic-cards-grid">
+          {/* Card 1: Event-Driven Nature */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#a855f7]">
+              <Sparkles size={14} /> 1. EVENT-DRIVEN TRANSITIONS
+            </div>
+            <p className="pm-insight-card-text">
+              Processes never change state spontaneously. Transitions are strictly event-driven: scheduler dispatch, clock interrupt, blocking system call, or hardware I/O completion.
+            </p>
           </div>
-          <p className="tier-text">
-            The State Transition Diagram maps out every valid path a process can take between the five kernel states, driven by explicit triggers such as scheduler dispatches, hardware timer interrupts, and I/O system calls.
-          </p>
+
+          {/* Card 2: Preemption & Dispatches */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#00f2fe]">
+              <Clock size={14} /> 2. TIMER PREEMPTION &amp; DISPATCH
+            </div>
+            <p className="pm-insight-card-text">
+              The scheduler <em>dispatches</em> a Ready process to Running. When its Round-Robin time slice expires, a hardware timer interrupt <em>preempts</em> it back to the Ready queue.
+            </p>
+          </div>
+
+          {/* Card 3: Transition Invariant */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#f59e0b]">
+              <AlertCircle size={14} /> 3. NO DIRECT WAITING &rarr; RUNNING
+            </div>
+            <p className="pm-insight-card-text">
+              A process can <strong>never</strong> jump directly from WAITING to RUNNING. On I/O completion, it must re-enter READY so the CPU scheduler can evaluate its priority fairly.
+            </p>
+          </div>
+
+          {/* Card 4: Key Takeaway */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#10b981]">
+              <CheckCircle2 size={14} /> 4. ARCHITECTURAL TAKEAWAY
+            </div>
+            <p className="pm-insight-card-text">
+              Strict state transitions enforce fairness, prevent race conditions, and decouple slow external peripherals from high-speed CPU instruction cycles.
+            </p>
+          </div>
         </div>
 
         {/* Embedded Interactive State Diagram */}
-        <StateTransitionDiagram />
-
-        <div className="pm-tier-box tier-goodtoknow">
-          <div className="tier-header">
-            <span className="tier-icon">📌</span>
-            <span className="tier-label font-mono">GOOD TO KNOW</span>
+        <div className="pm-interactive-frame">
+          <div className="pm-interactive-frame-header">
+            <span className="pm-frame-title text-[#a855f7]">
+              <Sparkles size={16} /> INTERACTIVE 5-STATE TRANSITION SIMULATOR
+            </span>
+            <span className="text-xs font-mono text-textMuted">Click state pills or events below</span>
           </div>
-          <p className="tier-text">
-            A process can <strong>never</strong> move directly from <em>WAITING</em> to <em>RUNNING</em>. When an I/O event completes, the process must first re-enter the <em>READY</em> queue so the CPU scheduler can evaluate its priority against other active tasks.
-          </p>
+          <StateTransitionDiagram />
         </div>
 
-        {/* Checkpoint 2: In-line Question Form for Process States & Lifecycle */}
-        <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.states_lifecycle} />
+        {/* Checkpoint 2: In-line Question Form */}
+        <div className="pm-interactive-frame">
+          <div className="pm-interactive-frame-header">
+            <span className="pm-frame-title text-[#a855f7]">
+              <Sparkles size={16} /> CHECKPOINT 02 : STATE LIFECYCLE EVALUATION
+            </span>
+            <span className="text-xs font-mono text-textMuted">Form Validation Active</span>
+          </div>
+          <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.states_lifecycle} />
+        </div>
 
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> State transitions are strictly event-driven &mdash; triggered by scheduler dispatches, clock interrupts, and hardware I/O completions.
-        </p>
-      </section>
+        {/* Bottom Takeaway Bar */}
+        <div className="pm-card-takeaway-bar">
+          <CheckCircle2 size={16} className="text-[#1fd655] shrink-0" />
+          <span>
+            <strong>Summary:</strong> Transitions are deterministic and triggered by interrupts, system calls, and scheduler arbitration.
+          </span>
+        </div>
+      </>
     ),
   },
   {
     id: 'fork-exec',
+    number: '05',
     heading: '5. Process Creation (fork & exec)',
-    keywords: ['fork', 'exec', 'cow', 'copy on write', 'clone', 'createprocess'],
-    content: (
-      <section key="fork-exec" className="theory-section">
-        <h2 id="fork-exec">5. Process Creation (fork & exec)</h2>
-
-        <div className="pm-tier-box tier-basics">
-          <div className="tier-header">
-            <span className="tier-icon">💡</span>
-            <span className="tier-label font-mono">THE BASICS</span>
+    shortTitle: 'fork & exec',
+    phase: 'SYSTEM CALL PROTOCOL',
+    readTime: '3 min read',
+    tags: ['#fork', '#exec', '#CopyOnWrite', '#POSIX', '#MemoryClone'],
+    accentColor: '#38bdf8',
+    icon: <FileCode size={22} className="text-[#38bdf8]" />,
+    renderContent: () => (
+      <>
+        <div className="pm-topic-cards-grid">
+          {/* Card 1: Two-Step Creation */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#38bdf8]">
+              <FileCode size={14} /> 1. TWO-STEP PROTOCOL: FORK &amp; EXEC
+            </div>
+            <p className="pm-insight-card-text">
+              POSIX splits process creation: <code>fork()</code> clones the calling process, while <code>exec()</code> overwrites that child process with a brand new program binary.
+            </p>
           </div>
-          <p className="tier-text">
-            In POSIX operating systems (Linux/macOS), new processes are created through a two-step mechanism: <code>fork()</code> duplicates the current calling process, while <code>exec()</code> overwrites that child process with a brand new program binary.
-          </p>
-          <div className="analogy-callout">
-            <span className="analogy-badge">Analogy:</span>
-            <code>fork()</code> is like cloning a worker along with their current notepad and office key. <code>exec()</code> is like handing that cloned worker a completely new set of blueprints and instructions, replacing their old memory entirely.
-          </div>
-        </div>
 
-        <div className="pm-tier-box tier-mechanism">
-          <div className="tier-header">
-            <span className="tier-icon">⚙️</span>
-            <span className="tier-label font-mono">HOW IT ACTUALLY WORKS</span>
+          {/* Card 2: Worker Analogy */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#1fd655]">
+              <BookOpen size={14} /> 2. WORKER CLONING ANALOGY
+            </div>
+            <p className="pm-insight-card-text">
+              <code>fork()</code> clones a worker with their exact notepad and office keys. <code>exec()</code> replaces their notepad with new blueprints, wiping old memory completely.
+            </p>
           </div>
-          <p className="tier-text">
-            The mechanics of process creation follow an exact system call protocol:
-          </p>
-          <ol className="mechanism-steps">
-            <li>
-              <strong><code>fork()</code> System Call:</strong> The kernel allocates a new PCB and duplicate memory page tables for the child. <code>fork()</code> returns twice: returning <code>0</code> inside the new child process, and returning the new child's <code>PID</code> inside the parent process.
-            </li>
-            <li>
-              <strong>Copy-On-Write (COW) Optimization:</strong> To keep <code>fork()</code> blazingly fast, physical memory pages are not immediately copied. Both parent and child share identical read-only physical RAM pages until either process attempts to write data, at which point only that specific 4KB page is copied.
-            </li>
-            <li>
-              <strong><code>execvp()</code> System Call:</strong> The child process invokes <code>execvp("/bin/ls", args)</code>. The kernel wipes the child's old address space (code/stack) and loads the new <code>ls</code> binary into memory, preserving the existing PID and open file descriptors.
-            </li>
-          </ol>
 
-          <div className="worked-example">
-            <div className="worked-example-title font-mono">CONCRETE WORKED EXAMPLE:</div>
-            <p>
-              When you type <code>ls -l</code> inside a Bash terminal (PID 1200), Bash calls <code>fork()</code>. The kernel creates child PID 1201 (an exact copy of Bash). Child PID 1201 checks the <code>fork()</code> return value (0) and immediately calls <code>execvp("/bin/ls")</code>. The kernel replaces PID 1201's code segment with the <code>ls</code> binary. Parent Bash (PID 1200) calls <code>waitpid(1201)</code> to sleep until the child finishes listing directory files.
+          {/* Card 3: Copy-On-Write */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#ffcc00]">
+              <Zap size={14} /> 3. COPY-ON-WRITE (COW) OPTIMIZATION
+            </div>
+            <p className="pm-insight-card-text">
+              To keep <code>fork()</code> instant, RAM pages are shared read-only between parent and child. Only when either process modifies data does the OS copy that specific 4KB page.
+            </p>
+          </div>
+
+          {/* Card 4: Worked Trace */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#c084fc]">
+              <Terminal size={14} /> 4. WORKED TRACE: BASH SHELL SPAWN
+            </div>
+            <p className="pm-insight-card-text">
+              Typing <code>ls</code> in Bash (PID 1200) calls <code>fork()</code> &rarr; child PID 1201 created. Child calls <code>execvp("/bin/ls")</code>. Bash calls <code>waitpid(1201)</code> to wait.
+            </p>
+          </div>
+
+          {/* Card 5: Unix vs Windows */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#00f2fe]">
+              <Layers size={14} /> 5. UNIX VS. WINDOWS ARCHITECTURE
+            </div>
+            <p className="pm-insight-card-text">
+              Windows uses single <code>CreateProcess()</code>. Unix split <code>fork()</code> and <code>exec()</code> so parent shells can configure pipes (<code>&gt; out.txt</code>) between the two calls.
+            </p>
+          </div>
+
+          {/* Card 6: Key Takeaway */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#10b981]">
+              <CheckCircle2 size={14} /> 6. ARCHITECTURAL TAKEAWAY
+            </div>
+            <p className="pm-insight-card-text">
+              Splitting creation into cloning (fork) and loading (exec) gives Unix unmatched composability for terminal pipelines and descriptor manipulation.
             </p>
           </div>
         </div>
 
-        <div className="pm-tier-box tier-goodtoknow">
-          <div className="tier-header">
-            <span className="tier-icon">📌</span>
-            <span className="tier-label font-mono">GOOD TO KNOW</span>
-          </div>
-          <p className="tier-text">
-            Windows uses a single <code>CreateProcess()</code> system call that combines creation and program loading in one step, whereas Unix deliberately split it into <code>fork()</code> and <code>exec()</code> so parent processes can modify I/O redirection (like <code>&gt; output.txt</code> pipes) between the two calls!
-          </p>
+        {/* Bottom Takeaway Bar */}
+        <div className="pm-card-takeaway-bar">
+          <CheckCircle2 size={16} className="text-[#1fd655] shrink-0" />
+          <span>
+            <strong>Summary:</strong> fork() clones process state with zero-copy COW speed; exec() loads the new binary without changing PID.
+          </span>
         </div>
-
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> Splitting creation into fork() and exec() gives Unix systems the elegance to configure descriptors, pipes, and environment variables prior to running untrusted binaries.
-        </p>
-      </section>
+      </>
     ),
   },
   {
     id: 'termination',
+    number: '06',
     heading: '6. Process Termination (Zombie & Orphan Processes)',
-    keywords: ['zombie', 'orphan', 'exit', 'wait', 'init', 'systemd', 'defunct'],
-    content: (
-      <section key="termination" className="theory-section">
-        <h2 id="termination">6. Process Termination (Zombie & Orphan Processes)</h2>
-
-        <div className="pm-tier-box tier-basics">
-          <div className="tier-header">
-            <span className="tier-icon">💡</span>
-            <span className="tier-label font-mono">THE BASICS</span>
-          </div>
-          <p className="tier-text">
-            When a process completes its final statement or calls <code>exit()</code>, the kernel reclaims its physical memory, but keeps its PCB in an exit state until the parent process reads its exit status code.
-          </p>
-          <div className="analogy-callout">
-            <span className="analogy-badge">Analogy:</span>
-            A <strong>Zombie process</strong> is like an employee who left the company, but their name is still on HR's payroll ledger until the manager signs off on the exit paperwork. An <strong>Orphan process</strong> is a child whose parent manager left the company first; the company CEO (init/systemd PID 1) automatically steps in as their guardian manager.
-          </div>
-        </div>
-
-        <div className="pm-tier-box tier-mechanism">
-          <div className="tier-header">
-            <span className="tier-icon">⚙️</span>
-            <span className="tier-label font-mono">HOW IT ACTUALLY WORKS</span>
-          </div>
-          <p className="tier-text">
-            The termination sequence creates two distinct system conditions depending on timing:
-          </p>
-          <div className="term-types-grid">
-            <div className="term-type-card">
-              <h4 className="term-card-title font-mono" style={{ color: '#f59e0b' }}>🧟 ZOMBIE PROCESSES</h4>
-              <p>
-                When a child calls <code>exit(0)</code>, all its RAM, open files, and stack are freed immediately. However, its PCB entry remains in the kernel Process Table with state <code>ZOMBIE</code> (or <code>DEFUNCT</code>) holding its return status code. When the parent calls <code>wait()</code>, the status is harvested and the zombie PCB slot is finally removed. If a parent fails to call <code>wait()</code>, zombie entries accumulate in the OS table.
-              </p>
+    shortTitle: 'Zombies & Orphans',
+    phase: 'RESOURCE RECLAMATION',
+    readTime: '3 min read',
+    tags: ['#ZombieProcess', '#OrphanProcess', '#systemd', '#waitpid', '#Defunct'],
+    accentColor: '#f59e0b',
+    icon: <AlertCircle size={22} className="text-[#f59e0b]" />,
+    renderContent: () => (
+      <>
+        <div className="pm-topic-cards-grid">
+          {/* Card 1: Exit & Reclamation */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#f59e0b]">
+              <AlertCircle size={14} /> 1. EXIT &amp; RESOURCE HARVESTING
             </div>
-            <div className="term-type-card">
-              <h4 className="term-card-title font-mono" style={{ color: '#38bdf8' }}>👶 ORPHAN PROCESSES</h4>
-              <p>
-                If a parent process dies or terminates <em>before</em> its child process finishes, the child becomes an Orphan. The operating system kernel automatically re-parents all orphan processes to the root <code>systemd</code> or <code>init</code> process (PID 1). PID 1 periodically executes <code>wait()</code> to reap orphan children when they eventually exit, preventing long-term zombies.
-              </p>
-            </div>
+            <p className="pm-insight-card-text">
+              When a process calls <code>exit()</code>, the kernel frees its RAM and file descriptors immediately, but keeps its PCB entry until the parent harvests its exit code via <code>wait()</code>.
+            </p>
           </div>
 
-          <div className="worked-example">
-            <div className="worked-example-title font-mono">CONCRETE WORKED EXAMPLE:</div>
-            <p>
-              A custom Python script (PID 3000) spawns worker process (PID 3001) to download a file. Worker PID 3001 finishes and calls <code>exit(0)</code>. If script PID 3000 is stuck in an infinite loop without calling <code>wait()</code>, running <code>ps aux</code> shows PID 3001 as <code>&lt;defunct&gt;</code> (Zombie). If PID 3000 crashes, PID 3001 is immediately adopted by <code>systemd</code> (PID 1), which calls <code>wait()</code> and cleans up its PCB slot.
+          {/* Card 2: Zombie Processes */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#f43f5e]">
+              <Terminal size={14} /> 2. ZOMBIE PROCESSES (&lt;defunct&gt;)
+            </div>
+            <p className="pm-insight-card-text">
+              A terminated child whose parent failed to call <code>wait()</code>. It consumes zero RAM and zero CPU, but wastes a slot in the fixed-size OS kernel Process Table.
+            </p>
+          </div>
+
+          {/* Card 3: Orphan Processes */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#38bdf8]">
+              <Layers size={14} /> 3. ORPHAN PROCESSES &amp; PID 1
+            </div>
+            <p className="pm-insight-card-text">
+              A child whose parent dies before it finishes. The kernel automatically re-parents orphans to <code>systemd</code> (PID 1), which periodically calls <code>wait()</code> to reap them cleanly.
+            </p>
+          </div>
+
+          {/* Card 4: Worked Trace */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#c084fc]">
+              <Activity size={14} /> 4. WORKED TRACE: PYTHON PID 3001
+            </div>
+            <p className="pm-insight-card-text">
+              Script PID 3000 spawns worker PID 3001. Worker exits; if PID 3000 loops without <code>wait()</code>, PID 3001 shows as <code>&lt;defunct&gt;</code>. If PID 3000 dies, PID 1 adopts and reaps it.
+            </p>
+          </div>
+
+          {/* Card 5: PID Table Leak Gotcha */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#ffcc00]">
+              <Cpu size={14} /> 5. PROCESS TABLE EXHAUSTION
+            </div>
+            <p className="pm-insight-card-text">
+              While zombies consume no memory, the OS process table has a hard limit (e.g. 32,768 PIDs). Leaking thousands of zombies prevents any new programs from starting!
+            </p>
+          </div>
+
+          {/* Card 6: Key Takeaway */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#10b981]">
+              <CheckCircle2 size={14} /> 6. ARCHITECTURAL TAKEAWAY
+            </div>
+            <p className="pm-insight-card-text">
+              Always reap child processes with <code>wait()</code>. PID 1 adoption guarantees no process remains an unmanaged orphan in modern Linux kernels.
             </p>
           </div>
         </div>
 
-        <div className="pm-tier-box tier-goodtoknow">
-          <div className="tier-header">
-            <span className="tier-icon">📌</span>
-            <span className="tier-label font-mono">GOOD TO KNOW</span>
+        {/* Checkpoint 3: In-line Question Form */}
+        <div className="pm-interactive-frame">
+          <div className="pm-interactive-frame-header">
+            <span className="pm-frame-title text-amber-400">
+              <Sparkles size={16} /> CHECKPOINT 03 : FORK, EXEC &amp; TERMINATION EVALUATION
+            </span>
+            <span className="text-xs font-mono text-textMuted">Form Validation Active</span>
           </div>
-          <p className="tier-text">
-            Zombie processes consume <strong>zero CPU cycles and zero RAM memory</strong> (code/stack). However, because the OS Process Table has a fixed maximum size (e.g. 32,768 PIDs), thousands of un-reaped zombie processes can prevent new programs from starting!
-          </p>
+          <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.creation_termination} />
         </div>
 
-        {/* Checkpoint 3: In-line Question Form for fork/exec, Zombies & Orphans */}
-        <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.creation_termination} />
-
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> Failure to harvest return codes with wait() leaks kernel table slots, while init adoption shields modern kernels from stranded orphan tasks.
-        </p>
-      </section>
+        {/* Bottom Takeaway Bar */}
+        <div className="pm-card-takeaway-bar">
+          <CheckCircle2 size={16} className="text-[#1fd655] shrink-0" />
+          <span>
+            <strong>Summary:</strong> Zombie processes hold process table slots until reaped; orphan processes are adopted by systemd/init (PID 1).
+          </span>
+        </div>
+      </>
     ),
   },
   {
     id: 'context-switching',
+    number: '07',
     heading: '7. Context Switching Overhead',
-    keywords: ['context switch', 'registers', 'tlb', 'overhead', 'thrashing', 'quantum'],
-    content: (
-      <section key="context-switching" className="theory-section">
-        <h2 id="context-switching">7. Context Switching Overhead</h2>
-
-        <div className="pm-tier-box tier-basics">
-          <div className="tier-header">
-            <span className="tier-icon">💡</span>
-            <span className="tier-label font-mono">THE BASICS</span>
+    shortTitle: 'Context Switch',
+    phase: 'CPU ARCHITECTURE',
+    readTime: '3 min read',
+    tags: ['#ContextSwitch', '#TLBCache', '#Ring0', '#Thrashing', '#CR3'],
+    accentColor: '#ec4899',
+    icon: <Clock size={22} className="text-[#ec4899]" />,
+    renderContent: () => (
+      <>
+        <div className="pm-topic-cards-grid">
+          {/* Card 1: Core Mechanism */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#ec4899]">
+              <Clock size={14} /> 1. MULTITASKING MECHANISM
+            </div>
+            <p className="pm-insight-card-text">
+              A <strong>context switch</strong> saves the CPU register state of a running task into its PCB and restores another task's PCB state, enabling multitasking on limited CPU hardware.
+            </p>
           </div>
-          <p className="tier-text">
-            A <strong>context switch</strong> is the OS mechanism of storing the current execution state of a running process on a CPU core and restoring the saved state of another process, enabling multi-tasking on limited CPU hardware.
-          </p>
-          <div className="analogy-callout">
-            <span className="analogy-badge">Analogy:</span>
-            Imagine a chef working on two dishes at once. Before switching from making pasta to baking a cake, the chef writes down the exact oven timer and flour weight on a sticky note, puts away the pasta tools, wipes down the counter, and pulls out the cake recipe and whisk.
-          </div>
-        </div>
 
-        <div className="pm-tier-box tier-mechanism">
-          <div className="tier-header">
-            <span className="tier-icon">⚙️</span>
-            <span className="tier-label font-mono">HOW IT ACTUALLY WORKS</span>
+          {/* Card 2: Chef Analogy */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#00f2fe]">
+              <BookOpen size={14} /> 2. CHEF SWITCHING ANALOGY
+            </div>
+            <p className="pm-insight-card-text">
+              A chef switching from cooking pasta to baking cake: notes timer, wipes counter, puts away pots, and pulls out cake pans. Zero cooking happens while switching tools.
+            </p>
           </div>
-          <p className="tier-text">
-            During a context switch, the kernel executes five low-level steps:
-          </p>
-          <ol className="mechanism-steps">
-            <li><strong>Interrupt Trigger:</strong> A hardware timer interrupt fires (e.g. Round Robin time slice expired) or process calls a blocking system call. The CPU switches from User Mode (Ring 3) to Kernel Mode (Ring 0).</li>
-            <li><strong>Save State:</strong> The kernel pushes current CPU hardware registers (Program Counter, Stack Pointer, General Purpose Registers) into Process A’s PCB inside kernel RAM.</li>
-            <li><strong>Update PCB State:</strong> Process A's state is changed from RUNNING to READY (or WAITING).</li>
-            <li><strong>Select & Load State:</strong> The scheduler algorithm picks Process B from the Ready Queue. The kernel updates CPU page table base registers (CR3 register) to point to Process B’s virtual memory space and loads Process B’s register values from PCB B onto CPU registers.</li>
-            <li><strong>Resume Execution:</strong> The CPU switches back to User Mode and resumes executing Process B at its saved Program Counter instruction.</li>
-          </ol>
 
-          <div className="worked-example">
-            <div className="worked-example-title font-mono">CONCRETE WORKED EXAMPLE:</div>
-            <p>
-              On a system running Spotify (PID 500) and VS Code (PID 900), the OS scheduler allocates a 20ms time slice. When Spotify's 20ms ends, the hardware timer interrupt triggers a context switch on CPU Core 0. The kernel spends 2.5 microseconds saving Spotify's registers, flushing Translation Lookaside Buffer (TLB) memory caches, loading VS Code's page table pointers, and restoring VS Code's stack pointer. VS Code runs for the next 20ms slice seamlessly.
+          {/* Card 3: 5 Hardware Steps */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#38bdf8]">
+              <Cpu size={14} /> 3. FIVE LOW-LEVEL HARDWARE STEPS
+            </div>
+            <p className="pm-insight-card-text">
+              (1) Timer interrupt triggers Ring 0, (2) Save registers to PCB A, (3) Update state to Ready, (4) Switch CR3 page table pointer to PCB B, (5) Restore registers and resume.
+            </p>
+          </div>
+
+          {/* Card 4: Worked Trace */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#c084fc]">
+              <Terminal size={14} /> 4. WORKED TRACE: 2.5µs DISPATCH COST
+            </div>
+            <p className="pm-insight-card-text">
+              Spotify (PID 500) and VS Code (PID 900) share Core 0 on 20ms slices. Each switch burns 2.5 microseconds flushing TLB caches and reloading memory registers.
+            </p>
+          </div>
+
+          {/* Card 5: CPU Thrashing Gotcha */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#f43f5e]">
+              <AlertCircle size={14} /> 5. CPU THRASHING PENALTY
+            </div>
+            <p className="pm-insight-card-text">
+              Context switching is 100% administrative overhead. If the time quantum is too small, the CPU spends more time swapping registers and invalidating TLBs than executing real code.
+            </p>
+          </div>
+
+          {/* Card 6: Key Takeaway */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#10b981]">
+              <CheckCircle2 size={14} /> 6. ARCHITECTURAL TAKEAWAY
+            </div>
+            <p className="pm-insight-card-text">
+              Time slice quanta must be balanced: large enough to amortize context switch overhead, yet small enough to maintain smooth interactive responsiveness.
             </p>
           </div>
         </div>
 
-        <div className="pm-tier-box tier-goodtoknow">
-          <div className="tier-header">
-            <span className="tier-icon">📌</span>
-            <span className="tier-label font-mono">GOOD TO KNOW</span>
-          </div>
-          <p className="tier-text">
-            Context switching represents <strong>pure administrative overhead</strong> — zero useful user program code runs while the OS switches state. Frequent context switching (caused by tiny time quanta) leads to <em>thrashing</em>, where the CPU spends more time switching state than executing actual programs!
-          </p>
-        </div>
-
-        <div className="theory-action-box">
-          <Link to="/learn/process-management/sandbox" className="theory-visualize-btn">
+        {/* Action Button Card */}
+        <div className="pm-action-btn-row">
+          <Link to="/learn/process-management/sandbox" className="pm-action-btn pm-action-btn-primary">
             <span>Inspect CPU Context Switching in Sandbox</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={15} />
           </Link>
         </div>
 
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> Schedulers must tune time quanta to strike a balance between system interactivity and wasted CPU cycles spent on register/TLB cache invalidations.
-        </p>
-      </section>
+        {/* Bottom Takeaway Bar */}
+        <div className="pm-card-takeaway-bar">
+          <CheckCircle2 size={16} className="text-[#1fd655] shrink-0" />
+          <span>
+            <strong>Summary:</strong> Context switches multiplex single CPU cores across hundreds of tasks at the cost of register dumps and TLB cache invalidation.
+          </span>
+        </div>
+      </>
     ),
   },
   {
     id: 'ipc-basics',
+    number: '08',
     heading: '8. Inter-Process Communication (IPC)',
-    keywords: ['ipc', 'shared memory', 'message passing', 'pipe', 'mutex', 'socket'],
-    content: (
-      <section key="ipc-basics" className="theory-section">
-        <h2 id="ipc-basics">8. Inter-Process Communication (IPC)</h2>
-
-        <div className="pm-tier-box tier-basics">
-          <div className="tier-header">
-            <span className="tier-icon">💡</span>
-            <span className="tier-label font-mono">THE BASICS</span>
-          </div>
-          <p className="tier-text">
-            Because operating systems strictly isolate the memory address space of every process for security, processes must use <strong>Inter-Process Communication (IPC)</strong> mechanisms provided by the kernel to exchange data.
-          </p>
-          <div className="analogy-callout">
-            <span className="analogy-badge">Analogy:</span>
-            <strong>Message Passing</strong> is like sending sealed letters through a post office mailbox (safe, structured, verified by the postmaster). <strong>Shared Memory</strong> is like two coworkers writing on a shared office whiteboard (blazingly fast, direct access, but requires manual coordination so they don't erase each other's words).
-          </div>
-        </div>
-
-        <div className="pm-tier-box tier-mechanism">
-          <div className="tier-header">
-            <span className="tier-icon">⚙️</span>
-            <span className="tier-label font-mono">HOW IT ACTUALLY WORKS</span>
-          </div>
-          <p className="tier-text">
-            Operating systems offer two fundamental architectural models for IPC:
-          </p>
-
-          <div className="ipc-models-grid">
-            <div className="ipc-model-card">
-              <h4 className="ipc-card-title font-mono">1. MESSAGE PASSING (Pipes, Sockets, Queues)</h4>
-              <p>
-                Processes communicate via system calls (<code>send()</code> and <code>receive()</code>). Data is copied from Process A's user space into kernel memory buffers, and then copied from kernel memory into Process B's address space.
-              </p>
-              <ul className="ipc-card-list">
-                <li><strong>Pros:</strong> Safe, clean synchronization managed automatically by the kernel.</li>
-                <li><strong>Cons:</strong> Slower due to context switching and memory copy overhead on every message.</li>
-              </ul>
+    shortTitle: 'IPC Mechanisms',
+    phase: 'CONCURRENCY & CHANNELS',
+    readTime: '4 min read',
+    tags: ['#IPC', '#SharedMemory', '#Pipes', '#Sockets', '#MutexLock'],
+    accentColor: '#10b981',
+    icon: <Zap size={22} className="text-[#10b981]" />,
+    renderContent: () => (
+      <>
+        <div className="pm-topic-cards-grid">
+          {/* Card 1: Isolation Barrier */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#10b981]">
+              <Zap size={14} /> 1. CROSSING MEMORY BARRIERS
             </div>
-
-            <div className="ipc-model-card">
-              <h4 className="ipc-card-title font-mono">2. SHARED MEMORY (POSIX shm_open)</h4>
-              <p>
-                Both processes request the kernel map a shared physical RAM region directly into their respective virtual address spaces. Once established, processes read and write data directly to memory without calling the kernel.
-              </p>
-              <ul className="ipc-card-list">
-                <li><strong>Pros:</strong> Maximum performance (speed of memory bus).</li>
-                <li><strong>Cons:</strong> Requires application developers to build synchronization locks (Mutexes/Semaphores) to avoid race conditions.</li>
-              </ul>
-            </div>
+            <p className="pm-insight-card-text">
+              Because the OS strictly isolates the memory address space of every process, processes must use <strong>Inter-Process Communication (IPC)</strong> to exchange data safely.
+            </p>
           </div>
 
-          <div className="worked-example">
-            <div className="worked-example-title font-mono">CONCRETE WORKED EXAMPLE:</div>
-            <p>
-              When you run <code>cat access.log | grep "404"</code> in your Linux terminal, the shell creates an anonymous IPC <strong>Pipe</strong> (Message Passing). Process 1 (<code>cat</code>, PID 4100) writes stdout bytes into the kernel pipe buffer. Process 2 (<code>grep</code>, PID 4101) reads stdin from that same kernel pipe buffer. The OS handles buffering and blocks <code>grep</code> if the pipe buffer becomes temporarily empty.
+          {/* Card 2: Analogy */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#00f2fe]">
+              <BookOpen size={14} /> 2. MAILBOX VS. WHITEBOARD ANALOGY
+            </div>
+            <p className="pm-insight-card-text">
+              <strong>Message Passing:</strong> sending sealed letters via the postal service (safe, verified). <strong>Shared Memory:</strong> writing on a shared whiteboard (instant speed, but needs mutual exclusion locks).
+            </p>
+          </div>
+
+          {/* Card 3: Message Passing */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#38bdf8]">
+              <Layers size={14} /> 3. MESSAGE PASSING (PIPES &amp; QUEUES)
+            </div>
+            <p className="pm-insight-card-text">
+              Data is copied from User Space &rarr; Kernel Buffer &rarr; Target Process. Managed safely by the OS without race conditions, but pays syscall copy overhead.
+            </p>
+          </div>
+
+          {/* Card 4: Shared Memory */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#ffcc00]">
+              <Cpu size={14} /> 4. SHARED MEMORY (POSIX shm_open)
+            </div>
+            <p className="pm-insight-card-text">
+              Kernel maps identical physical RAM into both virtual spaces. Reads/writes run at memory bus speed, but developers must synchronize with Mutexes to avoid race conditions.
+            </p>
+          </div>
+
+          {/* Card 5: Worked Trace */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#c084fc]">
+              <Terminal size={14} /> 5. WORKED TRACE: UNIX TERMINAL PIPE
+            </div>
+            <p className="pm-insight-card-text">
+              Running <code>cat file | grep "404"</code> creates a kernel pipe. <code>cat</code> (PID 4100) writes stdout bytes; <code>grep</code> (PID 4101) reads stdin. OS blocks <code>grep</code> when buffer is empty.
+            </p>
+          </div>
+
+          {/* Card 6: Chrome Isolation Gotcha */}
+          <div className="pm-insight-card">
+            <div className="pm-insight-card-header text-[#f43f5e]">
+              <AlertCircle size={14} /> 6. BROWSER TAB CRASH ISOLATION
+            </div>
+            <p className="pm-insight-card-text">
+              Modern browsers use IPC domain sockets to separate UI processes from untrusted web renderers. If a malicious script crashes a renderer tab, IPC keeps the browser alive!
             </p>
           </div>
         </div>
 
-        <div className="pm-tier-box tier-goodtoknow">
-          <div className="tier-header">
-            <span className="tier-icon">📌</span>
-            <span className="tier-label font-mono">GOOD TO KNOW</span>
+        {/* Checkpoint 4: In-line Question Form */}
+        <div className="pm-interactive-frame">
+          <div className="pm-interactive-frame-header">
+            <span className="pm-frame-title text-[#10b981]">
+              <Sparkles size={16} /> CHECKPOINT 04 : CONTEXT SWITCHING &amp; IPC EVALUATION
+            </span>
+            <span className="text-xs font-mono text-textMuted">Form Validation Active</span>
           </div>
-          <p className="tier-text">
-            Modern microbrowser architectures (like Chrome or Firefox) use IPC Unix domain sockets to separate the main UI process from untrusted web page rendering processes. If a malicious script crashes a renderer process, IPC isolation prevents the main browser application from crashing!
-          </p>
+          <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.context_ipc} />
         </div>
 
-        {/* Checkpoint 4: In-line Question Form for Context Switching & IPC */}
-        <SubtopicQuizForm quizData={SUBTOPIC_QUIZZES.context_ipc} />
-
-        <div className="theory-action-box" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <Link
-            to="/learn/process-management/quiz"
-            className="theory-visualize-btn"
-            style={{
-              borderColor: 'rgba(52, 211, 153, 0.4)',
-              background: 'rgba(52, 211, 153, 0.15)',
-              color: '#34d399',
-            }}
-          >
+        {/* Action Button Card */}
+        <div className="pm-action-btn-row">
+          <Link to="/learn/process-management/quiz" className="pm-action-btn pm-action-btn-success">
             <span>Take Final Diagnostic Exam (12 Questions)</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={15} />
           </Link>
         </div>
 
-        <p className="theory-conclusion">
-          <strong>Conclusion:</strong> IPC bridges the deliberate isolation between processes &mdash; choosing between message passing safety and shared memory speed is a foundational OS architecture trade-off.
-        </p>
-      </section>
+        {/* Bottom Takeaway Bar */}
+        <div className="pm-card-takeaway-bar">
+          <CheckCircle2 size={16} className="text-[#1fd655] shrink-0" />
+          <span>
+            <strong>Summary:</strong> IPC bridges process isolation &mdash; choosing between message passing safety and shared memory speed is a foundational OS trade-off.
+          </span>
+        </div>
+      </>
     ),
   },
+];
+
+const QUICK_TAG_FILTERS = [
+  'All',
+  'ELF',
+  'PCB',
+  '5-State',
+  'fork',
+  'Zombies',
+  'Context',
+  'IPC',
 ];
 
 export default function ProcessManagementTheoryPage() {
   const { theme } = useTheme();
   const location = useLocation();
+
   const [search, setSearch] = useState('');
+  const [activeTag, setActiveTag] = useState('All');
   const [perPage, setPerPage] = useState('all');
   const [page, setPage] = useState(1);
+  const [activeTopicId, setActiveTopicId] = useState(TOPICS[0].id);
 
   const PER_PAGE_OPTIONS = [
-    { value: 'all', label: 'Show All' },
+    { value: 'all', label: 'Show All Topics' },
     { value: '2', label: '2 Topics / Page' },
     { value: '4', label: '4 Topics / Page' },
   ];
 
-  // Updates the search field and resets the page to 1 
-  function handleSearchChange(event) {
-    setSearch(event.target.value);
+  function handleSearchChange(e) {
+    setSearch(e.target.value);
     setPage(1);
   }
 
   function handleClearSearch() {
     setSearch('');
+    setActiveTag('All');
     setPage(1);
   }
 
-  // window.scrollTo() -> Helps to go to page top when we change the per page topic 
+  function handleTagClick(tag) {
+    setActiveTag(tag);
+    if (tag === 'All') {
+      setSearch('');
+    } else {
+      setSearch(tag.toLowerCase());
+    }
+    setPage(1);
+  }
+
   function handlePerPageChange(value) {
     setPerPage(value);
     setPage(1);
@@ -598,174 +810,325 @@ export default function ProcessManagementTheoryPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  const filteredTopics = [];
-  const query = search.toLowerCase();
-  for (let i = 0; i < TOPICS.length; i++) {
-    const headingMatch = TOPICS[i].heading.toLowerCase().includes(query);
-    const keywordMatch = TOPICS[i].keywords && TOPICS[i].keywords.some((k) => k.includes(query));
-    if (headingMatch || keywordMatch) {
-      filteredTopics.push(TOPICS[i]);
+  function scrollToTopic(topicId) {
+    setActiveTopicId(topicId);
+    const element = document.getElementById(topicId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
+  // Filter topics
+  const filteredTopics = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return TOPICS;
+
+    return TOPICS.filter((topic) => {
+      const headingMatch = topic.heading.toLowerCase().includes(query);
+      const tagMatch = topic.tags.some((t) => t.toLowerCase().includes(query));
+      const phaseMatch = topic.phase.toLowerCase().includes(query);
+      return headingMatch || tagMatch || phaseMatch;
+    });
+  }, [search]);
+
+  // Pagination calculation
   let pageSize = filteredTopics.length;
   if (perPage === '2') {
     pageSize = 2;
   } else if (perPage === '4') {
     pageSize = 4;
   }
-  if (pageSize === 0) {
-    pageSize = 1;
-  }
+  if (pageSize === 0) pageSize = 1;
 
-  // ceil -> returns the smallest integer greater than or equal 
   const totalPages = Math.ceil(filteredTopics.length / pageSize);
   const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
+  const visibleTopics = filteredTopics.slice(startIndex, startIndex + pageSize);
 
-  const visibleSections = [];
-  for (let i = startIndex; i < endIndex && i < filteredTopics.length; i++) {
-    visibleSections.push(filteredTopics[i].content);
-  }
-
-  // helps to jump to a topic when url contains a hash
+  // Scroll spy to highlight current topic in floating navigator
   useEffect(() => {
-    if (location.hash !== '') {
-      const sectionId = location.hash.slice(1);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveTopicId(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
 
-      // Found the topic in the filtered list 
-      let foundIndex = -1;
-      for (let i = 0; i < filteredTopics.length; i++) {
-        if (filteredTopics[i].id === sectionId) {
-          foundIndex = i;
-          break;
-        }
-      }
+    TOPICS.forEach((t) => {
+      const el = document.getElementById(t.id);
+      if (el) observer.observe(el);
+    });
 
-      // floor -> returns the greatest integer ( use when topics split across pages )
-      if (foundIndex !== -1 && perPage !== 'all') {
-        const targetPage = Math.floor(foundIndex / pageSize) + 1;
-        // If topic is not on the page , react then render that page 
+    return () => observer.disconnect();
+  }, []);
+
+  // Hash jump support
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.slice(1);
+      const targetIndex = filteredTopics.findIndex((t) => t.id === id);
+      if (targetIndex !== -1 && perPage !== 'all') {
+        const targetPage = Math.floor(targetIndex / pageSize) + 1;
         if (targetPage !== page) {
           setPage(targetPage);
           return;
         }
       }
-
-      // makes the searched topic scoll to top 
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
-  }, [location.hash, location.key, page, perPage, pageSize, filteredTopics]);
-
-  const pageButtons = [];
-  for (let i = 1; i <= totalPages; i++) {
-    let btnClass = 'theory-page-btn';
-    if (i === page) {
-      btnClass = 'theory-page-btn active';
-    }
-    pageButtons.push(
-      <button
-        key={i}
-        type="button"
-        className={btnClass}
-        onClick={() => goToPage(i)}
-      >
-        {i}
-      </button>
-    );
-  }
-
-  let sectionsContent = visibleSections;
-  if (visibleSections.length === 0) {
-    sectionsContent = (
-      <div className="theory-empty-state">
-        No topics found matching &ldquo;{search}&rdquo;.
-      </div>
-    );
-  }
-
-  let paginationComponent = null;
-  if (totalPages > 1) {
-    paginationComponent = (
-      <div className="theory-pagination">
-        <span className="theory-page-info">
-          Page {page} of {totalPages} ({filteredTopics.length} topics)
-        </span>
-        <div className="theory-page-buttons">
-          {/*  button to go to previous page  */}
-          <button
-            type="button"
-            className="theory-page-btn"
-            disabled={page === 1}
-            onClick={() => goToPage(page - 1)}
-          >
-            Previous
-            {/* Button to go to the next page */}
-          </button>
-          {pageButtons}
-          <button
-            type="button"
-            className="theory-page-btn"
-            disabled={page === totalPages}
-            onClick={() => goToPage(page + 1)}
-          >
-            Next
-          </button>
-        </div>
-      </div>
-    );
-  }
+  }, [location.hash, location.key, filteredTopics, page, pageSize, perPage]);
 
   return (
-    <div className={`theory-page-container ${theme || 'dark'}`}>
-      <article className="theory-article">
-        <header className="theory-article-header">
-          <h1>Process Management &amp; Concurrency</h1>
-          <p className="theory-subtitle">
-            An overview of process concepts, memory layout, PCB tracking,
-            5-state lifecycle transitions, process creation with fork/exec, and IPC mechanisms.
-          </p>
-        </header>
+    <div className={`pm-theory-page-wrapper ${theme || 'dark'}`}>
+      {/* ==================================================================
+          1. COMPACT PAGE HEADER (Starts directly into topics)
+          ================================================================== */}
+      <header className="pm-page-header">
+        <div className="pm-header-top-row">
+          <div className="pm-header-badge">
+            <span className="pm-badge-dot" />
+            <span>OS Kernel &bull; Process Management</span>
+          </div>
 
-        <div className="theory-toolbar">
-          <div className="theory-search-wrapper">
-            <input
-              type="text"
-              className="theory-search-input"
-              placeholder="Search topic..."
-              value={search}
-              onChange={handleSearchChange}
-            />
-            {search && (
-              <div className="clearSearch">
+          <div className="pm-header-links">
+            <Link
+              to="/learn/process-management/sandbox"
+              className="pm-header-link-btn"
+              title="Launch PCB & Process Simulator Sandbox"
+            >
+              <Cpu size={14} className="text-[#38bdf8]" />
+              <span>Interactive Sandbox</span>
+            </Link>
+
+            <Link
+              to="/learn/process-management/quiz"
+              className="pm-header-link-btn"
+              title="Take Evaluated Final Exam"
+            >
+              <Sparkles size={14} className="text-[#10b981]" />
+              <span>Exam (12 Questions)</span>
+            </Link>
+          </div>
+        </div>
+
+        <div className="pm-header-title-wrap">
+          <h1 className="pm-page-title">Process Management &amp; Concurrency</h1>
+          <p className="pm-page-description">
+            How the operating system kernel transforms static disk binaries into living memory processes, arbitrates CPU queues, and manages execution context.
+          </p>
+        </div>
+      </header>
+
+      {/* ==================================================================
+          2. SEARCH & FILTER TOOLBAR (STICKY)
+          ================================================================== */}
+      <div className="pm-toolbar-sticky-container">
+        <div className="pm-toolbar-card">
+          <div className="pm-toolbar-row">
+            <div className="pm-search-input-box">
+              <Search size={15} className="pm-search-icon-left" />
+              <input
+                type="text"
+                placeholder="Search topic by name, keyword, or tag (e.g. PCB, fork, zombie, IPC)..."
+                value={search}
+                onChange={handleSearchChange}
+              />
+              {search && (
                 <button
                   type="button"
                   onClick={handleClearSearch}
+                  className="pm-search-clear-btn"
                   title="Clear search"
                   aria-label="Clear search"
                 >
-                  <X size={14} />
+                  <X size={13} />
                 </button>
-              </div>
-            )}
+              )}
+            </div>
+
+            <div className="pm-filter-controls">
+              <span className="pm-filter-count">
+                {filteredTopics.length} of {TOPICS.length} Topics
+              </span>
+              <CustomDropDown
+                value={perPage}
+                onChange={handlePerPageChange}
+                options={PER_PAGE_OPTIONS}
+              />
+            </div>
           </div>
-          <div className="theory-filter-group">
-            <label htmlFor="topics-per-page">Topics per page:</label>
-            <CustomDropDown
-              value={perPage}
-              onChange={handlePerPageChange}
-              options={PER_PAGE_OPTIONS}
-            />
+
+          {/* Quick Tag Filter Chips */}
+          <div className="pm-tag-chips-row">
+            <span className="text-[11px] font-mono text-textMuted mr-1">Quick Filter:</span>
+            {QUICK_TAG_FILTERS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => handleTagClick(tag)}
+                className={`pm-tag-chip ${activeTag === tag ? 'active' : ''}`}
+              >
+                {tag === 'All' ? 'All Topics' : `#${tag}`}
+              </button>
+            ))}
           </div>
         </div>
+      </div>
 
-        {sectionsContent}
+      {/* ==================================================================
+          3. TOPIC MODULE CARDS (THE MAIN CONTENT)
+          ================================================================== */}
+      {visibleTopics.length === 0 ? (
+        <div className="pm-empty-search-state">
+          <AlertCircle size={32} className="text-[#f59e0b]" />
+          <h3>No topics found matching &ldquo;{search}&rdquo;</h3>
+          <p className="text-sm">Try clearing your search query or selecting a different filter chip.</p>
+          <button
+            type="button"
+            onClick={handleClearSearch}
+            className="pm-action-btn pm-action-btn-primary mt-2"
+          >
+            Clear Search Filter
+          </button>
+        </div>
+      ) : (
+        visibleTopics.map((topic) => (
+          <article
+            key={topic.id}
+            id={topic.id}
+            className="pm-topic-card"
+          >
+            {/* Topic Header Bar */}
+            <header className="pm-topic-header">
+              <div className="pm-topic-meta-row">
+                <span
+                  className="pm-topic-index-badge font-mono"
+                  style={{
+                    backgroundColor: `${topic.accentColor}15`,
+                    color: topic.accentColor,
+                    border: `1px solid ${topic.accentColor}35`,
+                  }}
+                >
+                  Topic {topic.number} &bull; {topic.phase}
+                </span>
 
-        {paginationComponent}
-      </article>
+                <div className="pm-topic-tags-group">
+                  <span className="text-[11px] font-mono text-textMuted flex items-center gap-1 mr-1">
+                    <Clock size={11} /> {topic.readTime}
+                  </span>
+                  {topic.tags.map((tag) => (
+                    <span key={tag} className="pm-topic-tag-pill font-mono">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pm-topic-title-row">
+                <div
+                  className="pm-topic-icon-wrap"
+                  style={{
+                    borderColor: `${topic.accentColor}40`,
+                  }}
+                >
+                  {topic.icon}
+                </div>
+                <div>
+                  <h2 className="pm-topic-title">{topic.heading}</h2>
+                  <p className="pm-topic-subtitle">
+                    Core principles, operating system mechanics, and high-yield takeaways in cards.
+                  </p>
+                </div>
+              </div>
+            </header>
+
+            {/* Structured Card Grid Content */}
+            {topic.renderContent()}
+          </article>
+        ))
+      )}
+
+      {/* ==================================================================
+          4. PAGINATION CONTROLS
+          ================================================================== */}
+      {totalPages > 1 && (
+        <div className="pm-pagination-bar">
+          <span className="pm-pagination-info">
+            Showing Page {page} of {totalPages} ({filteredTopics.length} topics total)
+          </span>
+
+          <div className="pm-pagination-btn-group">
+            <button
+              type="button"
+              className="pm-page-btn"
+              disabled={page === 1}
+              onClick={() => goToPage(page - 1)}
+            >
+              &larr; Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                type="button"
+                className={`pm-page-btn ${p === page ? 'active' : ''}`}
+                onClick={() => goToPage(p)}
+              >
+                {p}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              className="pm-page-btn"
+              disabled={page === totalPages}
+              onClick={() => goToPage(page + 1)}
+            >
+              Next &rarr;
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ==================================================================
+          5. FLOATING QUICK CHAPTER NAVIGATOR PILL
+          ================================================================== */}
+      <div className="pm-floating-nav-pill">
+        {TOPICS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => scrollToTopic(t.id)}
+            className={`pm-pill-btn ${activeTopicId === t.id ? 'active' : ''}`}
+            title={t.heading}
+          >
+            {t.number}. {t.shortTitle}
+          </button>
+        ))}
+
+        <span className="pm-pill-divider" />
+
+        <Link
+          to="/learn/process-management/sandbox"
+          className="pm-pill-btn"
+          title="Open Process Simulator Sandbox"
+        >
+          Sandbox &rarr;
+        </Link>
+        <Link
+          to="/learn/process-management/quiz"
+          className="pm-pill-btn"
+          title="Open Diagnostic Final Exam"
+        >
+          Exam &rarr;
+        </Link>
+      </div>
     </div>
   );
 }

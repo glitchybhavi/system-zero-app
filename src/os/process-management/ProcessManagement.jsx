@@ -7,6 +7,7 @@ import Footer from '../../landingPage/Footer';
 import ProcessManagementTheoryPage from './pages/ProcessManagementTheoryPage';
 import ProcessManagementPage from './pages/ProcessManagementPage';
 import ProcessManagementQuizPage from './pages/ProcessManagementQuizPage';
+import { ProgressProvider } from './context/ProgressContext';
 import '../process-synchronization/styles/theme.css';
 import '../process-synchronization/styles/Layout.css';
 import '../process-synchronization/styles/animations.css';
@@ -41,25 +42,27 @@ export default function ProcessManagement() {
   const { theme } = useTheme();
 
   return (
-    <div className={`${rootClass} ${theme || 'dark'}`}>
-      <Navbar />
-      <div className="app-layout">
-        <PMSidebar />
-        <main className="main-content">
-          <PMHeader />
-          <div className="page-wrapper">
-            <Routes>
-              <Route index element={<ProcessManagementTheoryPage />} />
-              <Route path="sandbox" element={<ProcessManagementPage />} />
-              <Route path="quiz" element={<ProcessManagementQuizPage />} />
-              <Route path="exam" element={<ProcessManagementQuizPage />} />
-              <Route path="test" element={<ProcessManagementQuizPage />} />
-              <Route path="*" element={<ProcessManagementTheoryPage />} />
-            </Routes>
-          </div>
-        </main>
+    <ProgressProvider>
+      <div className={`${rootClass} ${theme || 'dark'}`}>
+        <Navbar />
+        <div className="app-layout">
+          <PMSidebar />
+          <main className="main-content">
+            <PMHeader />
+            <div className="page-wrapper">
+              <Routes>
+                <Route index element={<ProcessManagementTheoryPage />} />
+                <Route path="sandbox" element={<ProcessManagementPage />} />
+                <Route path="quiz" element={<ProcessManagementQuizPage />} />
+                <Route path="exam" element={<ProcessManagementQuizPage />} />
+                <Route path="test" element={<ProcessManagementQuizPage />} />
+                <Route path="*" element={<ProcessManagementTheoryPage />} />
+              </Routes>
+            </div>
+          </main>
+        </div>
+        {footerComponent}
       </div>
-      {footerComponent}
-    </div>
+    </ProgressProvider>
   );
 }

@@ -23,7 +23,7 @@ export default function QuizQuestion({
   const chosenOptionObj = question.options.find((opt) => opt.id === selectedOption);
 
   return (
-    <div id={`question-${question.id}`} className={`quiz-question-card ${isUnanswered ? 'card-unanswered-error' : ''}`}>
+    <div className={`quiz-question-card ${isUnanswered ? 'card-unanswered-error' : ''}`}>
       <div className="question-header">
         <span className="question-number-badge">Q{index + 1}</span>
         <h4 className="question-title">{question.question}</h4>
@@ -35,7 +35,7 @@ export default function QuizQuestion({
       <div className="options-container" role="radiogroup" aria-label={question.question}>
         {question.options.map((option) => {
           const isSelected = selectedOption === option.id;
-          
+
           let optionClass = 'option-label';
           if (isSubmitted) {
             if (option.isCorrect) {

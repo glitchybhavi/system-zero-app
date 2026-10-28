@@ -1,13 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useProgress } from '../context/ProgressContext';
 
-// isplays links and highlights the current section
+// Displays navigation links and highlights the current section
 export default function PMSidebar() {
   const { pathname } = useLocation();
+  const { completedModules } = useProgress();
+  const isModuleDone = Boolean(completedModules?.['process-management']);
 
   const routes = [
     { path: '/learn/process-management', label: 'Overview Hub' },
     { path: '/learn/process-management/sandbox', label: 'Simulator Sandbox' },
-    { path: '/learn/process-management/quiz', label: 'Final Exam' },
+    { path: '/learn/process-management/quiz', label: 'Final Exam', badge: isModuleDone ? '✓ Passed' : null },
   ];
 
   const links = [];
@@ -40,6 +43,19 @@ export default function PMSidebar() {
     links.push(
       <Link key={route.path} to={route.path} className={linkClass}>
         <span>{route.label}</span>
+        {route.badge && (
+          <span style={{
+            marginLeft: 'auto',
+            fontSize: '11px',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            color: '#10b981',
+            fontWeight: 700,
+          }}>
+            {route.badge}
+          </span>
+        )}
       </Link>
     );
   }
