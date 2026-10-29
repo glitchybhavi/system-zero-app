@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, LogOut, Cpu, TerminalSquare, Shield, CheckCircle } from 'lucide-react';
+import { ChevronDown, LogOut, Cpu, HardDrive, TerminalSquare, Shield, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './styles/Auth.css';
 
@@ -59,6 +59,16 @@ export default function UserMenu() {
           </div>
 
           <div className="user-dropdown-links">
+            <Link
+              to="/os/disk"
+              className="user-dropdown-link"
+              onClick={() => setIsOpen(false)}
+              role="menuitem"
+            >
+              <HardDrive size={15} className="text-primary-accent shrink-0" />
+              <span>Storage &amp; Disk Scheduling</span>
+            </Link>
+
             <Link
               to="/simulation"
               className="user-dropdown-link"
