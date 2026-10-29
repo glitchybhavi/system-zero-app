@@ -72,15 +72,6 @@ export default function KnowledgeQuiz() {
     setUnansweredList((prev) => prev.filter((id) => id !== questionId));
   };
 
-  // Helper to smoothly scroll viewport and parent containers to top
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    const pageWrapper = document.querySelector('.page-wrapper');
-    if (pageWrapper) pageWrapper.scrollTo({ top: 0, behavior: 'smooth' });
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   // 2. Validation before showing submit confirmation modal
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -98,24 +89,17 @@ export default function KnowledgeQuiz() {
         type: 'warning',
         message: `Please answer all questions before submitting (${missing.length} remaining).`,
       });
-      // Scroll smoothly to first unanswered question so user can see it
-      const missingEl = document.getElementById(`question-${missing[0]}`);
-      if (missingEl) {
-        missingEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
       return;
     }
 
-    // Validation passed: scroll smoothly to top and open confirmation modal
+    // Validation passed: clear errors and prompt confirmation modal
     setUnansweredList([]);
-    scrollToTop();
     setIsModalOpen(true);
   };
 
   // 3. Grade quiz after modal confirmation
   const handleConfirmSubmit = () => {
     setIsModalOpen(false);
-    scrollToTop();
 
     let calculatedScore = 0;
     questions.forEach((q) => {
@@ -159,7 +143,6 @@ export default function KnowledgeQuiz() {
   // Reset quiz to retry
   const handleResetQuiz = () => {
     dispatch(resetExamResult());
-    scrollToTop();
     setAnswers({});
     setIsSubmitted(false);
     setScore(0);

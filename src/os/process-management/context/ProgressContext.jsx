@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const ProgressContext = createContext({
   completedModules: {},
@@ -6,16 +6,27 @@ const ProgressContext = createContext({
 });
 
 export function ProgressProvider({ children }) {
-  const [completedModules, setCompletedModules] = useState({
-    'process-management': false,
+  // Read saved completion state from localStorage on initial load
+  const [completedModules, setCompletedModules] = useState(() => {
+    try {
+      const saved = localStorage.getItem('systemzero_completed_modules');
+      return saved ? JSON.parse(saved) : { 'process-management': false };
+    } catch {
+      return { 'process-management': false };
+    }
   });
 
-  //  sets the requested module’s value to true.
+  // Sets the requested module's value to true and persists to localStorage
   const markModuleCompleted = (moduleId) => {
-    setCompletedModules((prev) => ({
-      ...prev,
-      [moduleId]: true,
-    }));
+    setCompletedModules((prev) => {
+      const updated = { ...prev, [moduleId]: true };
+      try {
+        localStorage.setItem('systemzero_completed_modules', JSON.stringify(updated));
+      } catch {
+        // Silently fallback if localStorage is disabled
+      }
+      return updated;
+    });
   };
 
   return (
