@@ -126,7 +126,7 @@ export default function PetersonPage() {
       setIsPulsing(true);
       setTimeout(() => setIsPulsing(false), 600);
 
-      const packet = { type: 'load', id: Date.now(), color: p.color, value: newBalance };
+      const packet = { type: 'load', id: Date.now(), color: p.color, value: balance };
       if (trackIndex === 0) {
         setPacket0(packet);
         setTimeout(() => setPacket0(NO_PACKET), 1100);

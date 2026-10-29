@@ -47,7 +47,7 @@ export default function CriticalSectionZone(props) {
     if (bay.packet.type !== null) {
       token = (
         <div key={bay.packet.id} className={`currency-token flow-${bay.packet.type}`}>
-          <span className="currency-pill">₹{incVal}</span>
+          <span className="currency-pill">₹{bay.packet.value ?? incVal}</span>
         </div>
       );
     }
